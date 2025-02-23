@@ -3,14 +3,19 @@
   "version": "0.0.0",
   "description": "A JavaScript library for testing component accessibility across multiple testing frameworks",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
     "test": "vitest",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src/**/*.ts",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run build && git add -A src",
+    "postversion": "git push && git push --tags"
   },
   "keywords": [
     "accessibility",
@@ -21,7 +26,7 @@
     "unit-testing",
     "wcag"
   ],
-  "author": "Your Name",
+  "author": "Marlon Maniti (https://github.com/nolrm)",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -50,7 +55,8 @@
     "eslint": "^8.37.0",
     "happy-dom": "^9.10.9",
     "typescript": "^5.0.0",
-    "vitest": "^0.30.0"
+    "vitest": "^0.30.0",
+    "tsup": "^7.0.0"
   },
   "files": [
     "dist",

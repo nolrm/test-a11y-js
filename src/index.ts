@@ -1,0 +1,1 @@
+export { A11yChecker, type A11yViolation, type A11yResults } from './core/a11y-checker' 
