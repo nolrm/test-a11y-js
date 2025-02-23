@@ -15,6 +15,15 @@ module.exports = {
   rules: {
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/ban-types': [
+      'error',
+      {
+        types: {
+          '{}': false
+        },
+        extendDefaults: true
+      }
+    ]
   },
   ignorePatterns: ['dist/', 'node_modules/'],
 } 

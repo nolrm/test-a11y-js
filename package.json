@@ -5,17 +5,18 @@
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src/**/*.ts",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm test && npm run lint",
-    "preversion": "npm run lint",
-    "version": "npm run build && git add -A src",
-    "postversion": "git push && git push --tags"
+    "prepare": "npm run build"
   },
   "keywords": [
     "accessibility",
@@ -36,8 +37,7 @@
     "url": "https://github.com/nolrm/test-a11y-js/issues"
   },
   "homepage": "https://github.com/nolrm/test-a11y-js#readme",
-  "dependencies": {
-  },
+  "dependencies": {},
   "peerDependencies": {
     "vitest": ">=0.30.0"
   },
@@ -58,12 +58,7 @@
     "vitest": "^0.30.0",
     "tsup": "^7.0.0"
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
   "engines": {
     "node": ">=14.0.0"
   }
-} 
+}
