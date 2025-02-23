@@ -26,6 +26,39 @@ const formViolations = A11yChecker.checkFormLabels(element)
 
 ### A11yChecker
 
+#### `check(element: Element): Promise<A11yResults>`
+Performs all accessibility checks on the given element.
+
+#### `checkImageAlt(element: Element): A11yViolation[]`
+Checks images for proper alt attributes.
+
+#### `checkLinkText(element: Element): A11yViolation[]`
+Validates link text for accessibility.
+
+#### `checkButtonLabel(element: Element): A11yViolation[]`
+Ensures buttons have proper labels.
+
+#### `checkFormLabels(element: Element): A11yViolation[]`
+Validates form control label associations.
+
+#### `checkHeadingOrder(element: Element): A11yViolation[]`
+Checks heading hierarchy.
+
+### Types
+
+```typescript
+interface A11yViolation {
+  id: string
+  description: string
+  element: Element
+  impact: 'critical' | 'serious' | 'moderate' | 'minor'
+}
+
+interface A11yResults {
+  violations: A11yViolation[]
+}
+```
+
 ## Features
 
 - Image alt text validation

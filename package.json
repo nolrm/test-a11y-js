@@ -1,13 +1,13 @@
 {
   "name": "test-a11y-js",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "A JavaScript library for testing component accessibility across multiple testing frameworks",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",
-    "test": "vitest",
+    "test": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src/**/*.ts",
@@ -54,7 +54,7 @@
     "vue": "^3.3.0",
     "eslint": "^8.37.0",
     "happy-dom": "^9.10.9",
-    "typescript": "^5.0.0",
+    "typescript": "^5.3.0",
     "vitest": "^0.30.0",
     "tsup": "^7.0.0"
   },
