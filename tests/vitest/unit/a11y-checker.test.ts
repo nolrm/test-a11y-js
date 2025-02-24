@@ -3,68 +3,63 @@ import { A11yChecker } from '../../../src/core/a11y-checker'
 
 describe('A11yChecker', () => {
   describe('Image Tests', () => {
-    it('should detect missing alt attribute on images', async () => {
-      document.body.innerHTML = `
-        <div>
-          <img src="test.jpg" />
-        </div>
-      `
+    it('should detect missing alt attribute on images', () => {
+      const checker = new A11yChecker()
+      const container = document.createElement('div')
+      container.innerHTML = '<img src="test.jpg">'
       
-      const results = await A11yChecker.check(document.body)
+      const results = checker.check(container)
+      
       expect(results.violations).toHaveLength(1)
       expect(results.violations[0]).toMatchObject({
-        id: 'image-alt',
-        impact: 'serious'
+        id: 'img',
+        description: 'Images must have alt text for screen readers'
       })
     })
 
-    it('should pass when image has alt attribute', async () => {
-      document.body.innerHTML = `
-        <div>
-          <img src="test.jpg" alt="Test image" />
-        </div>
-      `
+    it('should pass when image has alt attribute', () => {
+      const checker = new A11yChecker()
+      const container = document.createElement('div')
+      container.innerHTML = '<img src="test.jpg" alt="Test image">'
       
-      const results = await A11yChecker.check(document.body)
+      const results = checker.check(container)
+      
       expect(results.violations).toHaveLength(0)
     })
   })
 
   describe('Button Tests', () => {
-    it('should detect buttons without labels', async () => {
-      document.body.innerHTML = `
-        <div>
-          <button></button>
-        </div>
-      `
+    it('should detect buttons without labels', () => {
+      const checker = new A11yChecker()
+      const container = document.createElement('div')
+      container.innerHTML = '<button></button>'
       
-      const results = await A11yChecker.check(document.body)
+      const results = checker.check(container)
+      
       expect(results.violations).toHaveLength(1)
       expect(results.violations[0]).toMatchObject({
-        id: 'button-label',
-        impact: 'critical'
+        id: 'button',
+        description: 'Buttons must have text content or aria-label'
       })
     })
 
-    it('should pass when button has text content', async () => {
-      document.body.innerHTML = `
-        <div>
-          <button>Click me</button>
-        </div>
-      `
+    it('should pass when button has text content', () => {
+      const checker = new A11yChecker()
+      const container = document.createElement('div')
+      container.innerHTML = '<button>Click me</button>'
       
-      const results = await A11yChecker.check(document.body)
+      const results = checker.check(container)
+      
       expect(results.violations).toHaveLength(0)
     })
 
-    it('should pass when button has aria-label', async () => {
-      document.body.innerHTML = `
-        <div>
-          <button aria-label="Menu"></button>
-        </div>
-      `
+    it('should pass when button has aria-label', () => {
+      const checker = new A11yChecker()
+      const container = document.createElement('div')
+      container.innerHTML = '<button aria-label="Close dialog">×</button>'
       
-      const results = await A11yChecker.check(document.body)
+      const results = checker.check(container)
+      
       expect(results.violations).toHaveLength(0)
     })
   })

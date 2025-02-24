@@ -9,10 +9,188 @@ export interface A11yResults {
   violations: A11yViolation[]
 }
 
+export interface A11yRule {
+  selector: string;
+  test: (element: HTMLElement) => {
+    passed: boolean;
+    message?: string;
+  };
+}
+
 export class A11yChecker {
+  private rules: A11yRule[] = [
+    // Images
+    {
+      selector: 'img',
+      test: (element: HTMLElement) => {
+        const img = element as HTMLImageElement;
+        if (!img.alt) {
+          return {
+            passed: false,
+            message: 'Images must have alt text for screen readers'
+          };
+        }
+        return { passed: true };
+      }
+    },
+
+    // Buttons
+    {
+      selector: 'button',
+      test: (element: HTMLElement) => {
+        if (!element.textContent?.trim() && !element.getAttribute('aria-label')) {
+          return {
+            passed: false,
+            message: 'Buttons must have text content or aria-label'
+          };
+        }
+        return { passed: true };
+      }
+    },
+
+    // Form inputs
+    {
+      selector: 'input:not([type="hidden"])',
+      test: (element: HTMLElement) => {
+        const input = element as HTMLInputElement;
+        const hasLabel = this.hasAssociatedLabel(input);
+        const hasAriaLabel = input.getAttribute('aria-label');
+        
+        if (!hasLabel && !hasAriaLabel) {
+          return {
+            passed: false,
+            message: 'Form inputs must have an associated label or aria-label'
+          };
+        }
+        return { passed: true };
+      }
+    },
+
+    // Links
+    {
+      selector: 'a',
+      test: (element: HTMLElement) => {
+        const link = element as HTMLAnchorElement;
+        if (!link.textContent?.trim() && !link.getAttribute('aria-label')) {
+          return {
+            passed: false,
+            message: 'Links must have text content or aria-label'
+          };
+        }
+        return { passed: true };
+      }
+    },
+
+    // Tables
+    {
+      selector: 'table',
+      test: (element: HTMLElement) => {
+        const table = element as HTMLTableElement;
+        if (!table.querySelector('caption')) {
+          return {
+            passed: false,
+            message: 'Tables should have captions for better accessibility'
+          };
+        }
+        return { passed: true };
+      }
+    },
+
+    // iframes
+    {
+      selector: 'iframe',
+      test: (element: HTMLElement) => {
+        const iframe = element as HTMLIFrameElement;
+        if (!iframe.getAttribute('title')) {
+          return {
+            passed: false,
+            message: 'iframes must have a title attribute'
+          };
+        }
+        return { passed: true };
+      }
+    }
+  ];
+
+  // Helper method to check if an input has an associated label
+  private hasAssociatedLabel(input: HTMLInputElement): boolean {
+    // Check for explicit label
+    if (input.id) {
+      const label = document.querySelector(`label[for="${input.id}"]`);
+      if (label) return true;
+    }
+
+    // Check for implicit label (input nested within label)
+    const parentLabel = input.closest('label');
+    return !!parentLabel;
+  }
+
+  // Method to run all rules
+  private runRules(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = [];
+    
+    this.rules.forEach(rule => {
+      const elements = element.querySelectorAll(rule.selector);
+      elements.forEach(el => {
+        const result = rule.test(el as HTMLElement);
+        if (!result.passed) {
+          violations.push({
+            id: rule.selector,
+            description: result.message || 'Accessibility violation found',
+            element: el,
+            impact: 'serious'
+          });
+        }
+      });
+    });
+
+    return violations;
+  }
+
+  // Instance method for checking
+  public check(element: Element): A11yResults {
+    const violations = this.runRules(element);
+
+    if (violations.length > 0) {
+      A11yChecker.logViolations(violations);
+    }
+
+    return { violations };
+  }
+
+  // Static method for checking (maintains backward compatibility)
+  static async check(element: Element): Promise<A11yResults> {
+    const violations = [
+      ...this.checkImageAlt(element),
+      ...this.checkLinkText(element),
+      ...this.checkButtonLabel(element),
+      ...this.checkFormLabels(element),
+      ...this.checkHeadingOrder(element),
+      ...this.checkIframeTitle(element),
+      ...this.checkTableCaption(element)
+    ];
+
+    if (violations.length > 0) {
+      this.logViolations(violations);
+    }
+
+    return { violations };
+  }
+
+  // Helper method to log violations
+  private static logViolations(violations: A11yViolation[]): void {
+    console.warn('\nAccessibility Violations Found:');
+    violations.forEach((violation, index) => {
+      console.warn(`\n${index + 1}. ${violation.id} (${violation.impact})`);
+      console.warn(`   Description: ${violation.description}`);
+      console.warn(`   Element: ${violation.element.outerHTML}`);
+    });
+    console.warn('\n');
+  }
+
   static checkImageAlt(element: Element): A11yViolation[] {
     const violations: A11yViolation[] = []
-    const images = element.getElementsByTagName('img')
+    const images = element.querySelectorAll('img')
     
     for (const img of Array.from(images)) {
       if (!img.hasAttribute('alt')) {
@@ -37,7 +215,7 @@ export class A11yChecker {
 
   static checkButtonLabel(element: Element): A11yViolation[] {
     const violations: A11yViolation[] = []
-    const buttons = element.getElementsByTagName('button')
+    const buttons = element.querySelectorAll('button')
     
     for (const button of Array.from(buttons)) {
       if (!button.textContent?.trim() && !button.getAttribute('aria-label')) {
@@ -101,7 +279,7 @@ export class A11yChecker {
 
   static checkLinkText(element: Element): A11yViolation[] {
     const violations: A11yViolation[] = []
-    const links = element.getElementsByTagName('a')
+    const links = element.querySelectorAll('a')
     
     for (const link of Array.from(links)) {
       const text = link.textContent?.trim().toLowerCase() || ''
@@ -130,26 +308,39 @@ export class A11yChecker {
     return violations
   }
 
-  static async check(element: Element): Promise<A11yResults> {
-    const violations = [
-      ...this.checkImageAlt(element),
-      ...this.checkLinkText(element),
-      ...this.checkButtonLabel(element),
-      ...this.checkFormLabels(element),
-      ...this.checkHeadingOrder(element)
-    ]
+  static checkIframeTitle(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    const iframes = element.querySelectorAll('iframe')
     
-    // Log violations for debugging
-    if (violations.length > 0) {
-      console.warn('\nAccessibility Violations Found:')
-      violations.forEach((violation, index) => {
-        console.warn(`\n${index + 1}. ${violation.id} (${violation.impact})`)
-        console.warn(`   Description: ${violation.description}`)
-        console.warn(`   Element: ${violation.element.outerHTML}`)
-      })
-      console.warn('\n')
+    for (const iframe of Array.from(iframes)) {
+      if (!iframe.hasAttribute('title')) {
+        violations.push({
+          id: 'iframe-title',
+          description: 'iframes must have a title attribute',
+          element: iframe,
+          impact: 'serious'
+        })
+      }
     }
     
-    return { violations }
+    return violations
+  }
+
+  static checkTableCaption(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    const tables = element.querySelectorAll('table')
+    
+    for (const table of Array.from(tables)) {
+      if (!table.querySelector('caption')) {
+        violations.push({
+          id: 'table-caption',
+          description: 'Tables should have captions for better accessibility',
+          element: table,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    return violations
   }
 } 
