@@ -10,6 +10,8 @@ npm install test-a11y-js
 
 ## Usage
 
+### Basic Usage
+
 ```typescript
 import { A11yChecker } from 'test-a11y-js'
 // Test a DOM element for accessibility violations
@@ -71,6 +73,89 @@ interface A11yResults {
 
 Marlon Maniti (https://github.com/nolrm)
 
+## Contributing
+
+Contributions are welcome! Please read our contributing guidelines for details.
+
 ## License
 
 MIT
+
+### Impact Levels
+
+- `critical`: Must be fixed for basic accessibility
+- `serious`: Should be fixed for proper accessibility
+- `moderate`: Consider fixing for better accessibility
+- `minor`: Optional improvements
+
+## Testing Components
+
+The library includes test components for validating accessibility rules:
+
+- `ImageComponent`: Tests image accessibility
+- `ButtonComponent`: Tests button accessibility
+- `FormComponent`: Tests form control accessibility
+- `LinkComponent`: Tests link accessibility
+- `TableComponent`: Tests table accessibility
+- `IframeComponent`: Tests iframe accessibility
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Build
+npm run build
+```
+
+### Accessibility Checks
+
+The library checks for the following accessibility issues:
+
+1. **Images**
+   - Alt text presence
+   - Empty alt attribute
+
+2. **Buttons**
+   - Text content or aria-label presence
+   - Meaningful button labels
+
+3. **Form Controls**
+   - Associated labels
+   - ARIA labels
+   - Label associations
+
+4. **Links**
+   - Descriptive link text
+   - Avoiding generic text ("click here", "read more")
+   - ARIA labels
+
+5. **Tables**
+   - Caption presence
+   - Proper table structure
+
+6. **iframes**
+   - Title attribute presence
+
+7. **Headings**
+   - Proper heading hierarchy
+   - No skipped heading levels
+
+### Example Response
+
+```javascript
+{
+  violations: [
+    {
+      id: 'image-alt',
+      description: 'Image must have an alt attribute',
+      element: HTMLImageElement,
+      impact: 'serious'
+    }
+  ]
+}
+```

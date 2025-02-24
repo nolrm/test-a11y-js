@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, beforeEach, afterEach } from 'vitest';
 import { ButtonComponent } from '../../../src/components';
-import { A11yChecker } from '../../../src/core/a11y-checker';
+import { testA11y } from '../utils/a11yTestHelper';
 
 describe('ButtonComponent', () => {
   let component: ButtonComponent;
@@ -20,8 +20,14 @@ describe('ButtonComponent', () => {
   });
 
   it('should have one inaccessible button', async () => {
-    const results = await A11yChecker.check(component.shadowRoot!);
-    expect(results.violations.length).toBe(1);
-    expect(results.violations[0].id).toBe('button-label');
+    await testA11y({
+      component,
+      expectedViolations: 1,
+      violationMatchers: [{
+        id: 'button-label',
+        description: 'Button must have a label or aria-label',
+        impact: 'critical'
+      }]
+    });
   });
 }); 

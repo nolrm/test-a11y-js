@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, beforeEach, afterEach } from 'vitest';
 import { FormComponent } from '../../../src/components';
-import { A11yChecker } from '../../../src/core/a11y-checker';
+import { testA11y } from '../utils/a11yTestHelper';
 
 describe('FormComponent', () => {
   let component: FormComponent;
@@ -20,8 +20,14 @@ describe('FormComponent', () => {
   });
 
   it('should have one inaccessible form input', async () => {
-    const results = await A11yChecker.check(component.shadowRoot!);
-    expect(results.violations.length).toBe(1);
-    expect(results.violations[0].id).toBe('form-label');
+    await testA11y({
+      component,
+      expectedViolations: 1,
+      violationMatchers: [{
+        id: 'form-label',
+        description: 'Form control must have an associated label',
+        impact: 'critical'
+      }]
+    });
   });
 }); 

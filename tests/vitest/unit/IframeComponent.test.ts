@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, beforeEach, afterEach } from 'vitest';
 import { IframeComponent } from '../../../src/components';
-import { A11yChecker } from '../../../src/core/a11y-checker';
+import { testA11y } from '../utils/a11yTestHelper';
 
 describe('IframeComponent', () => {
   let component: IframeComponent;
@@ -20,9 +20,14 @@ describe('IframeComponent', () => {
   });
 
   it('should have one inaccessible iframe', async () => {
-    const results = await A11yChecker.check(component.shadowRoot!);
-    expect(results.violations.length).toBe(1);
-    const violation = results.violations[0];
-    expect(violation.description).toContain('iframes must have a title');
+    await testA11y({
+      component,
+      expectedViolations: 1,
+      violationMatchers: [{
+        id: 'iframe-title',
+        description: 'iframes must have a title attribute',
+        impact: 'serious'
+      }]
+    });
   });
 }); 

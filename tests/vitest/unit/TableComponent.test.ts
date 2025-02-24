@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, beforeEach, afterEach } from 'vitest';
 import { TableComponent } from '../../../src/components';
-import { A11yChecker } from '../../../src/core/a11y-checker';
+import { testA11y } from '../utils/a11yTestHelper';
 
 describe('TableComponent', () => {
   let component: TableComponent;
@@ -20,9 +20,14 @@ describe('TableComponent', () => {
   });
 
   it('should have one inaccessible table', async () => {
-    const results = await A11yChecker.check(component.shadowRoot!);
-    expect(results.violations.length).toBe(1);
-    const violation = results.violations[0];
-    expect(violation.description).toContain('Tables should have captions');
+    await testA11y({
+      component,
+      expectedViolations: 1,
+      violationMatchers: [{
+        id: 'table-caption',
+        description: 'Tables should have captions for better accessibility',
+        impact: 'serious'
+      }]
+    });
   });
 }); 

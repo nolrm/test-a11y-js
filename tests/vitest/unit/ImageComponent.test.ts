@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, beforeEach, afterEach } from 'vitest';
 import { ImageComponent } from '../../../src/components';
-import { A11yChecker } from '../../../src/core/a11y-checker';
+import { testA11y } from '../utils/a11yTestHelper';
 
 describe('ImageComponent', () => {
   let component: ImageComponent;
@@ -19,9 +19,15 @@ describe('ImageComponent', () => {
     expect(images.length).toBe(2);
   });
 
-  it('should have one accessible and one inaccessible image', async () => {
-    const results = await A11yChecker.check(component.shadowRoot!);
-    expect(results.violations.length).toBe(1);
-    expect(results.violations[0].id).toBe('image-alt');
+  it('should have one inaccessible image', async () => {
+    await testA11y({
+      component,
+      expectedViolations: 1,
+      violationMatchers: [{
+        id: 'image-alt',
+        description: 'Image must have an alt attribute',
+        impact: 'serious'
+      }]
+    });
   });
 }); 

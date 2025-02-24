@@ -5,7 +5,6 @@
       :alt="imgAlt"
       class="article-image" 
     />
-    <a>This is a test anchor</a>
     <div class="article-content">
       <h2>{{ title }}</h2>
       <p>{{ description }}</p>

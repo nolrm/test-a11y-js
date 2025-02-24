@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, beforeEach, afterEach } from 'vitest';
 import { LinkComponent } from '../../../src/components';
-import { A11yChecker } from '../../../src/core/a11y-checker';
+import { testA11y } from '../utils/a11yTestHelper';
 
 describe('LinkComponent', () => {
   let component: LinkComponent;
@@ -20,9 +20,21 @@ describe('LinkComponent', () => {
   });
 
   it('should have two inaccessible links', async () => {
-    const results = await A11yChecker.check(component.shadowRoot!);
-    expect(results.violations.length).toBe(2);
-    expect(results.violations[0].id).toBe('link-text');
-    expect(results.violations[1].id).toBe('link-text-descriptive');
+    await testA11y({
+      component,
+      expectedViolations: 2,
+      violationMatchers: [
+        {
+          id: 'link-text',
+          description: 'Link must have descriptive text',
+          impact: 'serious'
+        },
+        {
+          id: 'link-text-descriptive',
+          description: 'Link text should be more descriptive',
+          impact: 'moderate'
+        }
+      ]
+    });
   });
 }); 

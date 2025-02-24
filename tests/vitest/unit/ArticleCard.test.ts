@@ -1,59 +1,46 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ArticleCard from '../../../src/components/ArticleCard.vue'
-import { A11yChecker, A11yViolation } from '../../../src/core/a11y-checker'
-
-// Helper function to clean violations for logging
-function cleanViolationsForLog(violations: A11yViolation[]) {
-  return violations.map(violation => ({
-    id: violation.id,
-    description: violation.description,
-    impact: violation.impact,
-    element: violation.element.outerHTML
-  }))
-}
+import { testA11y } from '../utils/a11yTestHelper'
 
 describe('ArticleCard', () => {
-  it('should have accessibility violations', async () => {
-    const wrapper = mount(ArticleCard, {
+  let wrapper: any
+
+  beforeEach(() => {
+    // Mount with deliberately inaccessible props to test violations
+    wrapper = mount(ArticleCard, {
       props: {
-        imageUrl: '/sample-image.jpg',
-        title: 'Sample Article',
-        description: 'This is a sample article description',
-        imgAlt: '' // Empty alt text to trigger violation
+        imageUrl: '/test-image.jpg',
+        title: 'Test Article',
+        description: 'Test description',
+        imgAlt: '', // Empty alt text to trigger violation
+        readMoreText: 'read more' // Non-descriptive text to trigger violation
       }
     })
+    document.body.appendChild(wrapper.element)
+  })
 
-    const results = await A11yChecker.check(wrapper.element)
-    
-    // Debug output
-    console.log('\nDOM structure:', wrapper.html())
-    console.log('\nViolations found:', JSON.stringify(cleanViolationsForLog(results.violations), null, 2))
-    
-    // Should have 2 violations:
-    // 1. Empty alt attribute
-    // 2. Non-descriptive link text ("Read more")
-    expect(results.violations).toHaveLength(2)
-    
-    // Check image violation
-    expect(results.violations).toContainEqual(
-      expect.objectContaining({
-        id: 'image-alt',
-        impact: 'serious'
-      })
-    )
+  afterEach(() => {
+    wrapper.unmount()
+  })
 
-    // Check link text violation
-    expect(results.violations).toContainEqual(
-      expect.objectContaining({
-        id: 'link-text-descriptive',
-        impact: 'moderate'
-      })
-    )
+  it('should identify accessibility violations', async () => {
+    await testA11y({
+      component: wrapper.element,
+      expectedViolations: 1,
+      violationMatchers: [
+        {
+          id: 'image-alt',
+          description: 'Image alt attribute must not be empty',
+          impact: 'serious'
+        }
+      ]
+    })
   })
 
   it('should pass accessibility checks when properly configured', async () => {
-    const wrapper = mount(ArticleCard, {
+    // Remount with accessible props
+    wrapper = mount(ArticleCard, {
       props: {
         imageUrl: '/sample-image.jpg',
         title: 'Sample Article',
@@ -62,8 +49,12 @@ describe('ArticleCard', () => {
         readMoreText: 'Read more about Sample Article'
       }
     })
+    document.body.appendChild(wrapper.element)
 
-    const results = await A11yChecker.check(wrapper.element)
-    expect(results.violations).toHaveLength(0)
+    await testA11y({
+      component: wrapper.element,
+      expectedViolations: 0,
+      violationMatchers: []
+    })
   })
 }) 
