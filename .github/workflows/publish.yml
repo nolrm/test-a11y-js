@@ -31,17 +31,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run build
-        run: npm run build
-
-      - name: Run core tests
-        run: npm run test:core
-
-      - name: Run lint
-        run: npm run lint
-
-      - name: Run type-check
-        run: npm run type-check
+      - name: Run pre-check
+        run: npm run pre-check
 
       - name: Verify build output
         run: |
