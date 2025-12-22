@@ -210,7 +210,7 @@ function MyComponent() {
 
 ## Publishing
 
-This package uses GitHub Actions for automated publishing to npm. The workflow runs pre-check before publishing to ensure nothing is broken.
+This package uses GitHub Actions for automated publishing to npm. The workflow automatically publishes when `package.json` changes on the `main` branch.
 
 ### Setup
 
@@ -221,27 +221,27 @@ This package uses GitHub Actions for automated publishing to npm. The workflow r
 
 ### Publishing a New Version
 
-#### Option 1: Using Git Tags (Recommended)
+Simply update the version in `package.json` and push to `main`:
+
 ```bash
 # Update version in package.json
 npm version patch  # or minor, major
 
-# Create and push tag (GitHub Actions will automatically publish)
+# Push to main (GitHub Actions will automatically publish)
+git push origin main
+```
+
+The workflow will:
+- ✅ Run build, tests, lint, and type-check
+- ✅ Check if version already exists on npm
+- ✅ Publish to npm (if version is new)
+- ✅ Skip publish if version already exists
+
+**Optional:** Create a git tag for the release:
+```bash
 git tag v$(node -p "require('./package.json').version")
 git push origin v$(node -p "require('./package.json').version")
 ```
-
-#### Option 2: Manual Workflow Dispatch
-1. Go to GitHub Actions → "Publish to npm"
-2. Click "Run workflow"
-3. Enter version number (e.g., `0.3.1`)
-4. Click "Run workflow"
-
-The workflow will:
-- ✅ Run pre-check (build, test, lint, type-check)
-- ✅ Build the project
-- ✅ Publish to npm (only if pre-check passes)
-- ✅ Create GitHub release (if triggered by tag)
 
 See [`.github/workflows/README.md`](.github/workflows/README.md) for more details.
 

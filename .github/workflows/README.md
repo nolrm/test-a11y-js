@@ -11,27 +11,19 @@ Runs on every push and pull request to `main` and `develop` branches:
 - Generates test coverage reports
 
 ### Publish (`publish.yml`)
-Publishes to npm when:
-- A version tag is pushed (e.g., `v0.3.0`)
-- Manually triggered via workflow_dispatch
+Automatically publishes to npm when `package.json` changes on the `main` branch.
 
 **Workflow steps:**
-1. **Pre-check job** (runs first):
-   - Checkout code
-   - Setup Node.js
-   - Install dependencies
-   - Run `npm run pre-check` (build, test, lint, type-check)
-   - Upload build artifacts
-
-2. **Publish job** (only runs if pre-check passes):
-   - Checkout code
-   - Setup Node.js with npm registry
-   - Install dependencies
-   - Extract/update version from tag or manual input
-   - Build the project
-   - Verify build output exists
-   - Publish to npm
-   - Create GitHub release (if triggered by tag)
+1. Checkout code
+2. Setup Node.js with npm registry
+3. Install dependencies
+4. Build the project
+5. Run core tests
+6. Run lint
+7. Run type-check
+8. Verify build output exists
+9. Check if version already exists on npm
+10. Publish to npm (if version is new)
 
 ## Setup
 
@@ -51,9 +43,7 @@ The `GITHUB_TOKEN` is automatically provided by GitHub Actions and doesn't need 
 
 ## Publishing a New Version
 
-### Option 1: Using Git Tags (Recommended)
-
-This is the recommended approach as it's automated and creates a GitHub release:
+The workflow automatically publishes when you update `package.json` and push to `main`:
 
 ```bash
 # 1. Update version in package.json
@@ -63,32 +53,22 @@ npm version minor   # for 0.3.0 → 0.4.0
 # or
 npm version major   # for 0.3.0 → 1.0.0
 
-# 2. Get the new version
-VERSION=$(node -p "require('./package.json').version")
-
-# 3. Create and push tag (this triggers the workflow)
-git tag v$VERSION
-git push origin v$VERSION
-
-# 4. Also push the version commit
+# 2. Push to main (this triggers the workflow)
 git push origin main
 ```
 
 The workflow will automatically:
-- Run pre-check
-- Publish to npm
-- Create a GitHub release
+- Run build, tests, lint, and type-check
+- Check if the version already exists on npm
+- Publish to npm (if version is new)
+- Skip publish if version already exists
 
-### Option 2: Manual Workflow Dispatch
-
-For quick patches or when you need more control:
-
-1. Go to GitHub → Actions → "Publish to npm"
-2. Click "Run workflow" (dropdown on the right)
-3. Enter version number (e.g., `0.3.1`)
-4. Click "Run workflow"
-
-**Note:** Manual dispatch doesn't create a GitHub release automatically.
+**Optional:** Create a git tag for the release:
+```bash
+VERSION=$(node -p "require('./package.json').version")
+git tag v$VERSION
+git push origin v$VERSION
+```
 
 ## Pre-check Requirements
 
