@@ -23,6 +23,7 @@ import buttonLabel from './rules/button-label'
 import linkText from './rules/link-text'
 import formLabel from './rules/form-label'
 import headingOrder from './rules/heading-order'
+import iframeTitle from './rules/iframe-title'
 
 /**
  * ESLint plugin for accessibility checking
@@ -37,7 +38,8 @@ const plugin: ESLint.Plugin = {
     'button-label': buttonLabel,
     'link-text': linkText,
     'form-label': formLabel,
-    'heading-order': headingOrder
+    'heading-order': headingOrder,
+    'iframe-title': iframeTitle
   },
   configs: {
     recommended: {

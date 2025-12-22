@@ -145,6 +145,8 @@ The plugin provides 5 accessibility rules:
 - `test-a11y-js/form-label` - Enforce form controls have labels
 - `test-a11y-js/heading-order` - Enforce proper heading hierarchy
 
+See [`src/checks.json`](./src/checks.json) for a complete list of supported elements, ARIA attributes, and rules (including what's not yet supported).
+
 ## Documentation
 
 - [ESLint Plugin Guide](./docs/ESLINT_PLUGIN.md) - Complete ESLint plugin documentation

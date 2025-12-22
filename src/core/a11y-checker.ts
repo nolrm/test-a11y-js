@@ -130,13 +130,39 @@ export class A11yChecker {
     return violations
   }
 
+  static checkIframeTitle(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    const iframes = element.getElementsByTagName('iframe')
+    
+    for (const iframe of Array.from(iframes)) {
+      if (!iframe.hasAttribute('title')) {
+        violations.push({
+          id: 'iframe-title',
+          description: 'iframe must have a title attribute',
+          element: iframe,
+          impact: 'serious'
+        })
+      } else if (iframe.getAttribute('title')?.trim() === '') {
+        violations.push({
+          id: 'iframe-title',
+          description: 'iframe title attribute must not be empty',
+          element: iframe,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    return violations
+  }
+
   static async check(element: Element): Promise<A11yResults> {
     const violations = [
       ...this.checkImageAlt(element),
       ...this.checkLinkText(element),
       ...this.checkButtonLabel(element),
       ...this.checkFormLabels(element),
-      ...this.checkHeadingOrder(element)
+      ...this.checkHeadingOrder(element),
+      ...this.checkIframeTitle(element)
     ]
     
     // Log violations for debugging

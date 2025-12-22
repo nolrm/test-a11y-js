@@ -12,6 +12,7 @@ const recommended: RuleConfig = {
   'test-a11y-js/image-alt': 'error',
   'test-a11y-js/button-label': 'error',
   'test-a11y-js/form-label': 'error',
+  'test-a11y-js/iframe-title': 'error',
   
   // Moderate/Minor violations - set to warn
   'test-a11y-js/link-text': 'warn',
