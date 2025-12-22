@@ -27,6 +27,7 @@ jobs:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org/'
           cache: 'npm'
+          # OIDC authentication is automatic when permissions.id-token: write is set
 
       - name: Install dependencies
         run: npm ci
@@ -48,20 +49,31 @@ jobs:
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "🔍 Checking version: $CURRENT_VERSION"
           
-          # Check if version exists on npm
-          if npm view test-a11y-js@$CURRENT_VERSION version > /dev/null 2>&1; then
-            echo "⏭️  Version $CURRENT_VERSION already exists - skipping publish"
-            echo "✅ No action needed"
+          # Verify OIDC authentication
+          echo "🔐 Verifying npm authentication..."
+          npm whoami || echo "⚠️  Authentication check failed - ensure Trusted Publisher is configured"
+          
+          # Check if package exists (first publish might return 404, which is OK)
+          if npm view test-a11y-js version > /dev/null 2>&1; then
+            echo "✅ Package exists on npm"
+            # Check if this specific version exists
+            if npm view test-a11y-js@$CURRENT_VERSION version > /dev/null 2>&1; then
+              echo "⏭️  Version $CURRENT_VERSION already exists - skipping publish"
+              echo "✅ No action needed"
+              exit 0
+            fi
           else
-            echo "🚀 Publishing new version $CURRENT_VERSION..."
-            npm publish --access public
-            echo "✅ Successfully published test-a11y-js@$CURRENT_VERSION"
-            echo "📦 Package: https://www.npmjs.com/package/test-a11y-js"
-            echo "🎉 test-a11y-js is now available for installation!"
-            echo ""
-            echo "💡 To create a git tag manually:"
-            echo "   git tag v$CURRENT_VERSION"
-            echo "   git push origin v$CURRENT_VERSION"
+            echo "ℹ️  Package doesn't exist yet (first publish) or authentication issue"
           fi
+          
+          echo "🚀 Publishing new version $CURRENT_VERSION..."
+          npm publish --access public
+          echo "✅ Successfully published test-a11y-js@$CURRENT_VERSION"
+          echo "📦 Package: https://www.npmjs.com/package/test-a11y-js"
+          echo "🎉 test-a11y-js is now available for installation!"
+          echo ""
+          echo "💡 To create a git tag manually:"
+          echo "   git tag v$CURRENT_VERSION"
+          echo "   git push origin v$CURRENT_VERSION"
         # OIDC authentication - no NODE_AUTH_TOKEN needed
 
