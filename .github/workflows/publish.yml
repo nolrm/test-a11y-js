@@ -7,92 +7,24 @@ on:
     paths:
       - 'package.json'
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 jobs:
   publish:
-    name: Publish to npm
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write   # Required for OIDC
-      contents: write   # Required for pushing git tags
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
         with:
-          fetch-depth: 0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18.x'
-          registry-url: 'https://registry.npmjs.org/'
-          cache: 'npm'
-          # OIDC authentication is automatic when permissions.id-token: write is set
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run pre-check
-        run: npm run pre-check
-
-      - name: Verify build output
-        run: |
-          test -f dist/index.js && echo "✓ CJS build exists"
-          test -f dist/index.mjs && echo "✓ ESM build exists"
-          test -f dist/index.d.ts && echo "✓ TypeScript definitions exist"
-          test -f dist/linter/eslint-plugin/index.js && echo "✓ ESLint plugin CJS exists"
-          test -f dist/linter/eslint-plugin/index.mjs && echo "✓ ESLint plugin ESM exists"
-          test -f dist/linter/eslint-plugin/index.d.ts && echo "✓ ESLint plugin types exist"
-
-      - name: Check version and publish
-        run: |
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
-          echo "🔍 Checking version: $CURRENT_VERSION"
-          
-          # Check if version already exists on npm (using registry API, no auth needed)
-          echo "🔍 Checking if version $CURRENT_VERSION already exists on npm..."
-          if curl -s "https://registry.npmjs.org/test-a11y-js/$CURRENT_VERSION" | grep -q '"version"'; then
-            echo "⏭️  Version $CURRENT_VERSION already exists on npm - skipping publish"
-            echo "✅ No action needed"
-            exit 0
-          fi
-          
-          echo "✅ Version $CURRENT_VERSION is new - proceeding with publish"
-          
-          # Note: OIDC authentication only works for npm publish, not npm view or npm whoami
-          # We'll attempt to publish and handle the "already exists" error gracefully
-          
-          echo "🚀 Publishing new version $CURRENT_VERSION..."
-          PUBLISH_OUTPUT=$(npm publish --access public 2>&1) || PUBLISH_EXIT_CODE=$?
-          
-          if [ -z "$PUBLISH_EXIT_CODE" ]; then
-            # Publish succeeded
-            echo "✅ Successfully published test-a11y-js@$CURRENT_VERSION"
-            echo "📦 Package: https://www.npmjs.com/package/test-a11y-js"
-            echo "🎉 test-a11y-js is now available for installation!"
-            
-            # Create and push git tag automatically
-            echo "🏷️  Creating git tag v$CURRENT_VERSION..."
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git tag -a "v$CURRENT_VERSION" -m "Release v$CURRENT_VERSION"
-            git push origin "v$CURRENT_VERSION"
-            echo "✅ Git tag v$CURRENT_VERSION created and pushed"
-          else
-            # Publish failed - check if it's because version already exists
-            if echo "$PUBLISH_OUTPUT" | grep -q "You cannot publish over the previously published versions" || \
-               echo "$PUBLISH_OUTPUT" | grep -q "EPUBLISHCONFLICT" || \
-               echo "$PUBLISH_OUTPUT" | grep -q "already exists"; then
-              echo "⏭️  Version $CURRENT_VERSION already exists - skipping publish"
-              echo "✅ No action needed"
-              exit 0
-            else
-              echo "❌ Publish failed with error:"
-              echo "$PUBLISH_OUTPUT"
-              echo ""
-              echo "⚠️  If you see 'Access token expired or revoked', check your Trusted Publisher configuration on npm."
-              exit 1
-            fi
-          fi
-        # OIDC authentication - no NODE_AUTH_TOKEN needed
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - run: npm ci
+      
+      - run: npm run pre-check
+      
+      - run: npm publish --access public
 
