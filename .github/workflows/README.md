@@ -42,9 +42,9 @@ This workflow uses npm's Trusted Publisher feature with OpenID Connect (OIDC) fo
 
 The workflow will automatically authenticate using OIDC - no `NPM_TOKEN` secret required!
 
-### Alternative: NPM Token (Legacy)
+### Alternative: NPM Token (Not Recommended)
 
-If you prefer using an npm token instead of OIDC:
+If OIDC doesn't work for your setup, you can use a token (not recommended for security reasons):
 
 1. Go to [npmjs.com](https://www.npmjs.com/settings/YOUR_USERNAME/tokens) and create an access token
    - Token type: **Automation** (for CI/CD)
@@ -55,7 +55,7 @@ If you prefer using an npm token instead of OIDC:
    - Name: `NPM_TOKEN`
    - Value: Your npm access token
    - Click "Add secret"
-3. Update the workflow to use `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` in the publish step
+3. Update the workflow to add `env: NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` to the publish step
 
 ## Publishing a New Version
 
@@ -104,7 +104,10 @@ If any step fails, the publish job will **not** run, preventing broken releases.
 - Commit and push the fix
 
 ### Workflow fails at publish
-- Verify `NPM_TOKEN` secret is set correctly
+- Verify Trusted Publisher is configured correctly on npm
+- Check that the workflow name matches exactly: `Publish to npm`
+- Check that the repository name matches exactly: `nolrm/test-a11y-js`
+- If using token fallback, verify `NPM_TOKEN` secret is set correctly
 - Check that the version doesn't already exist on npm
 - Ensure you have publish permissions on npm
 
@@ -114,6 +117,7 @@ If any step fails, the publish job will **not** run, preventing broken releases.
 
 ## Security
 
-- Never commit `NPM_TOKEN` to the repository
+- OIDC (Trusted Publisher) is the recommended authentication method (no secrets needed)
+- If using token fallback, never commit `NPM_TOKEN` to the repository
 - Use GitHub Secrets for all sensitive tokens
-- The token should have minimal required permissions (Read and Publish only)
+- Tokens should have minimal required permissions (Read and Publish only)

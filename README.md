@@ -210,52 +210,7 @@ function MyComponent() {
 
 ## Publishing
 
-This package uses GitHub Actions for automated publishing to npm. The workflow automatically publishes when `package.json` changes on the `main` branch.
-
-### Setup
-
-**Using npm Trusted Publisher (OIDC) - Recommended:**
-
-1. Go to your package on npm: https://www.npmjs.com/package/test-a11y-js
-2. Navigate to: **Settings → Access → Trusted Publishers**
-3. Click **"Add Trusted Publisher"**
-4. Fill in:
-   - **Repository**: `nolrm/test-a11y-js`
-   - **Workflow name**: `Publish to npm`
-5. Click **"Add"**
-
-No secrets needed! The workflow uses OIDC for secure authentication.
-
-**Alternative: Using NPM Token:**
-1. Create an npm access token at [npmjs.com](https://www.npmjs.com/settings/YOUR_USERNAME/tokens)
-2. Add it as a GitHub secret: `NPM_TOKEN`
-3. Update the workflow to use the token (see `.github/workflows/README.md`)
-
-### Publishing a New Version
-
-Simply update the version in `package.json` and push to `main`:
-
-```bash
-# Update version in package.json
-npm version patch  # or minor, major
-
-# Push to main (GitHub Actions will automatically publish)
-git push origin main
-```
-
-The workflow will:
-- ✅ Run build, tests, lint, and type-check
-- ✅ Check if version already exists on npm
-- ✅ Publish to npm (if version is new)
-- ✅ Skip publish if version already exists
-
-**Optional:** Create a git tag for the release:
-```bash
-git tag v$(node -p "require('./package.json').version")
-git push origin v$(node -p "require('./package.json').version")
-```
-
-See [`.github/workflows/README.md`](.github/workflows/README.md) for more details.
+This package uses GitHub Actions for automated publishing to npm. Publishing details are documented in [`.github/workflows/README.md`](.github/workflows/README.md) for maintainers.
 
 ## Contributing
 
