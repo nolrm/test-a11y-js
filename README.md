@@ -155,6 +155,7 @@ See [`src/checks.json`](./src/checks.json) for a complete list of supported elem
 - [Examples](./docs/EXAMPLES.md) - Real-world code examples
 - [Troubleshooting Guide](./docs/TROUBLESHOOTING.md) - Common issues and solutions
 - [Testing Guide](./docs/TESTING.md) - Testing the plugin
+- [Roadmap](./docs/ROADMAP.md) - Planned features and future implementations
 
 ## Examples
 
