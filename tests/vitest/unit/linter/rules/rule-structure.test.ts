@@ -17,7 +17,8 @@ describe('ESLint Rule Structure', () => {
     'button-label.ts',
     'link-text.ts',
     'form-label.ts',
-    'heading-order.ts'
+    'heading-order.ts',
+    'iframe-title.ts'
   ]
 
   it('should have all rule files', () => {
@@ -104,6 +105,15 @@ describe('ESLint Rule Structure', () => {
       // Should check for HTML in template literals
       expect(content).toMatch(/Literal|TemplateLiteral/)
     })
+  })
+
+  it('should export create function from iframe-title', () => {
+    const rulePath = join(rulesDir, 'iframe-title.ts')
+    const content = readFileSync(rulePath, 'utf-8')
+    expect(content).toContain('export default')
+    expect(content).toContain('create')
+    expect(content).toContain('JSXOpeningElement')
+    expect(content).toContain('iframe')
   })
 })
 

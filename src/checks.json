@@ -1,0 +1,557 @@
+{
+  "version": "0.2.0",
+  "checks": {
+    "image-alt": {
+      "ruleId": "test-a11y-js/image-alt",
+      "method": "checkImageAlt",
+      "elements": ["img"],
+      "attributes": {
+        "required": ["alt"],
+        "checked": ["alt"]
+      },
+      "violations": [
+        {
+          "id": "missingAlt",
+          "description": "Image must have an alt attribute",
+          "impact": "serious",
+          "condition": "Element lacks 'alt' attribute"
+        },
+        {
+          "id": "emptyAlt",
+          "description": "Image alt attribute must not be empty",
+          "impact": "serious",
+          "condition": "Element has empty 'alt' attribute (alt='')"
+        },
+        {
+          "id": "dynamicAlt",
+          "description": "Image alt attribute is dynamic. Ensure it is not empty at runtime.",
+          "impact": "warning",
+          "condition": "Element has dynamic 'alt' attribute (e.g., alt={variable})"
+        }
+      ],
+      "validPatterns": [
+        "<img src='photo.jpg' alt='Description' />",
+        "<img src='photo.jpg' alt='' role='presentation' />"
+      ]
+    },
+    "button-label": {
+      "ruleId": "test-a11y-js/button-label",
+      "method": "checkButtonLabel",
+      "elements": ["button"],
+      "attributes": {
+        "checked": ["aria-label"],
+        "content": true
+      },
+      "violations": [
+        {
+          "id": "missingLabel",
+          "description": "Button must have a label or aria-label",
+          "impact": "critical",
+          "condition": "Button has no text content AND no 'aria-label' attribute"
+        },
+        {
+          "id": "dynamicLabel",
+          "description": "Button label is dynamic. Ensure it is not empty at runtime.",
+          "impact": "warning",
+          "condition": "Button has dynamic 'aria-label' (e.g., aria-label={variable})"
+        }
+      ],
+      "validPatterns": [
+        "<button>Click me</button>",
+        "<button aria-label='Close menu'></button>",
+        "<button aria-label='Close menu'>×</button>"
+      ]
+    },
+    "link-text": {
+      "ruleId": "test-a11y-js/link-text",
+      "method": "checkLinkText",
+      "elements": ["a"],
+      "attributes": {
+        "checked": ["aria-label"],
+        "content": true
+      },
+      "violations": [
+        {
+          "id": "missingText",
+          "description": "Link must have descriptive text",
+          "impact": "serious",
+          "condition": "Link has no text content AND no 'aria-label'"
+        },
+        {
+          "id": "nonDescriptive",
+          "description": "Link text should be more descriptive (avoid 'click here', 'read more', etc.)",
+          "impact": "moderate",
+          "condition": "Link text is 'click here', 'read more', or 'more'"
+        },
+        {
+          "id": "dynamicText",
+          "description": "Link text is dynamic. Ensure it is descriptive at runtime.",
+          "impact": "warning",
+          "condition": "Link has dynamic text content"
+        }
+      ],
+      "nonDescriptiveTexts": ["click here", "read more", "more"],
+      "validPatterns": [
+        "<a href='/about'>About Us</a>",
+        "<a href='/about' aria-label='Learn more about us'>Read more</a>"
+      ]
+    },
+    "form-label": {
+      "ruleId": "test-a11y-js/form-label",
+      "method": "checkFormLabels",
+      "elements": ["input", "select", "textarea"],
+      "attributes": {
+        "required": ["id", "for", "htmlFor"],
+        "checked": ["id", "aria-label", "aria-labelledby", "for", "htmlFor"]
+      },
+      "labelAssociation": {
+        "method1": {
+          "description": "id/for association",
+          "required": ["id on input", "for/htmlFor on label"],
+          "pattern": "<label for='name'>Name</label><input id='name' />"
+        },
+        "method2": {
+          "description": "aria-label",
+          "required": ["aria-label on input"],
+          "pattern": "<input type='text' aria-label='Name' />"
+        },
+        "method3": {
+          "description": "aria-labelledby",
+          "required": ["aria-labelledby on input", "id on label element"],
+          "pattern": "<span id='name-label'>Name</span><input aria-labelledby='name-label' />"
+        }
+      },
+      "violations": [
+        {
+          "id": "missingLabel",
+          "description": "Form control must have an associated label (use id/for, aria-label, or aria-labelledby)",
+          "impact": "critical",
+          "condition": "Form control has no label association via any method"
+        }
+      ],
+      "validPatterns": [
+        "<label htmlFor='email'>Email</label><input id='email' type='email' />",
+        "<input type='text' aria-label='Name' />",
+        "<span id='email-label'>Email</span><input type='email' aria-labelledby='email-label' />"
+      ]
+    },
+    "heading-order": {
+      "ruleId": "test-a11y-js/heading-order",
+      "method": "checkHeadingOrder",
+      "elements": ["h1", "h2", "h3", "h4", "h5", "h6"],
+      "attributes": {
+        "checked": []
+      },
+      "violations": [
+        {
+          "id": "skippedLevel",
+          "description": "Heading level skipped (previous: {previous}, current: {current})",
+          "impact": "moderate",
+          "condition": "Heading level jumps by more than 1 (e.g., h1 to h3)"
+        }
+      ],
+      "validPatterns": [
+        "<h1>Title</h1><h2>Subtitle</h2><h3>Section</h3>",
+        "<h2>First</h2><h2>Second</h2><h3>Section</h3>"
+      ],
+      "invalidPatterns": [
+        "<h1>Title</h1><h3>Section</h3>",
+        "<h2>Subtitle</h2><h4>Subsection</h4>"
+      ]
+    },
+    "iframe-title": {
+      "ruleId": "test-a11y-js/iframe-title",
+      "method": "checkIframeTitle",
+      "elements": ["iframe"],
+      "attributes": {
+        "required": ["title"],
+        "checked": ["title"]
+      },
+      "violations": [
+        {
+          "id": "missingTitle",
+          "description": "iframe must have a title attribute",
+          "impact": "serious",
+          "condition": "Element lacks 'title' attribute"
+        },
+        {
+          "id": "emptyTitle",
+          "description": "iframe title attribute must not be empty",
+          "impact": "serious",
+          "condition": "Element has empty 'title' attribute (title='')"
+        },
+        {
+          "id": "dynamicTitle",
+          "description": "iframe title attribute is dynamic. Ensure it is not empty at runtime.",
+          "impact": "warning",
+          "condition": "Element has dynamic 'title' attribute (e.g., title={variable})"
+        }
+      ],
+      "validPatterns": [
+        "<iframe src='https://example.com' title='Example website' />",
+        "<iframe src='https://example.com' title='Embedded content' />"
+      ]
+    }
+  },
+  "ariaAttributes": {
+    "supported": [
+      {
+        "attribute": "aria-label",
+        "usedIn": ["button", "a", "input", "select", "textarea"],
+        "purpose": "Provides accessible name for element",
+        "rules": ["button-label", "link-text", "form-label"]
+      },
+      {
+        "attribute": "aria-labelledby",
+        "usedIn": ["input", "select", "textarea"],
+        "purpose": "References element(s) that label the current element",
+        "rules": ["form-label"]
+      }
+    ],
+    "notSupported": [
+      {
+        "attribute": "aria-describedby",
+        "purpose": "References element(s) that describe the current element",
+        "reason": "Not yet implemented",
+        "planned": false
+      },
+      {
+        "attribute": "aria-required",
+        "purpose": "Indicates that user input is required",
+        "reason": "Not yet implemented",
+        "planned": false
+      },
+      {
+        "attribute": "aria-invalid",
+        "purpose": "Indicates that the value entered is invalid",
+        "reason": "Not yet implemented",
+        "planned": false
+      },
+      {
+        "attribute": "aria-expanded",
+        "purpose": "Indicates whether a collapsible element is expanded",
+        "reason": "Not yet implemented",
+        "planned": false
+      },
+      {
+        "attribute": "aria-hidden",
+        "purpose": "Indicates that an element is hidden from accessibility tree",
+        "reason": "Not yet implemented",
+        "planned": false
+      },
+      {
+        "attribute": "aria-live",
+        "purpose": "Indicates that an element will be updated",
+        "reason": "Not yet implemented",
+        "planned": false
+      },
+      {
+        "attribute": "aria-atomic",
+        "purpose": "Indicates whether assistive technologies will present all changes",
+        "reason": "Not yet implemented",
+        "planned": false
+      },
+      {
+        "attribute": "aria-busy",
+        "purpose": "Indicates whether an element is being modified",
+        "reason": "Not yet implemented",
+        "planned": false
+      }
+    ]
+  },
+  "htmlAttributes": {
+    "supported": [
+      {
+        "attribute": "alt",
+        "usedIn": ["img"],
+        "purpose": "Alternative text for images",
+        "required": true,
+        "rules": ["image-alt"]
+      },
+      {
+        "attribute": "id",
+        "usedIn": ["input", "select", "textarea"],
+        "purpose": "Used for label association via 'for' attribute",
+        "required": false,
+        "rules": ["form-label"]
+      },
+      {
+        "attribute": "for",
+        "usedIn": ["label"],
+        "purpose": "Associates label with form control via id",
+        "required": false,
+        "rules": ["form-label"]
+      },
+      {
+        "attribute": "htmlFor",
+        "usedIn": ["label"],
+        "purpose": "JSX version of 'for' attribute",
+        "required": false,
+        "rules": ["form-label"]
+      },
+      {
+        "attribute": "title",
+        "usedIn": ["iframe"],
+        "purpose": "Descriptive title for iframe content",
+        "required": true,
+        "rules": ["iframe-title"]
+      }
+    ],
+    "notSupported": [
+      {
+        "attribute": "role",
+        "purpose": "Defines the role of an element",
+        "reason": "Not yet implemented - would require role validation",
+        "planned": false
+      },
+      {
+        "attribute": "tabindex",
+        "purpose": "Controls keyboard navigation order",
+        "reason": "Not yet implemented - would require tab order validation",
+        "planned": false
+      },
+      {
+        "attribute": "lang",
+        "purpose": "Specifies the language of the element's content",
+        "reason": "Not yet implemented",
+        "planned": false
+      }
+    ]
+  },
+  "htmlElements": {
+    "supported": [
+      {
+        "element": "img",
+        "rules": ["image-alt"],
+        "checks": ["alt attribute presence and non-empty"]
+      },
+      {
+        "element": "button",
+        "rules": ["button-label"],
+        "checks": ["text content or aria-label"]
+      },
+      {
+        "element": "a",
+        "rules": ["link-text"],
+        "checks": ["descriptive text content or aria-label"]
+      },
+      {
+        "element": "input",
+        "rules": ["form-label"],
+        "checks": ["label association via id/for, aria-label, or aria-labelledby"]
+      },
+      {
+        "element": "select",
+        "rules": ["form-label"],
+        "checks": ["label association via id/for, aria-label, or aria-labelledby"]
+      },
+      {
+        "element": "textarea",
+        "rules": ["form-label"],
+        "checks": ["label association via id/for, aria-label, or aria-labelledby"]
+      },
+      {
+        "element": "h1",
+        "rules": ["heading-order"],
+        "checks": ["proper heading hierarchy"]
+      },
+      {
+        "element": "h2",
+        "rules": ["heading-order"],
+        "checks": ["proper heading hierarchy"]
+      },
+      {
+        "element": "h3",
+        "rules": ["heading-order"],
+        "checks": ["proper heading hierarchy"]
+      },
+      {
+        "element": "h4",
+        "rules": ["heading-order"],
+        "checks": ["proper heading hierarchy"]
+      },
+      {
+        "element": "h5",
+        "rules": ["heading-order"],
+        "checks": ["proper heading hierarchy"]
+      },
+      {
+        "element": "h6",
+        "rules": ["heading-order"],
+        "checks": ["proper heading hierarchy"]
+      },
+      {
+        "element": "iframe",
+        "rules": ["iframe-title"],
+        "checks": ["title attribute presence and non-empty"]
+      }
+    ],
+    "notSupported": [
+      {
+        "element": "video",
+        "reason": "Not yet implemented - would require captions/track validation",
+        "planned": false
+      },
+      {
+        "element": "audio",
+        "reason": "Not yet implemented - would require captions/track validation",
+        "planned": false
+      },
+      {
+        "element": "table",
+        "reason": "Not yet implemented - would require caption, th, scope validation",
+        "planned": false
+      },
+      {
+        "element": "fieldset",
+        "reason": "Not yet implemented - would require legend validation",
+        "planned": false
+      },
+      {
+        "element": "nav",
+        "reason": "Not yet implemented - would require landmark validation",
+        "planned": false
+      },
+      {
+        "element": "main",
+        "reason": "Not yet implemented - would require landmark validation",
+        "planned": false
+      },
+      {
+        "element": "header",
+        "reason": "Not yet implemented - would require landmark validation",
+        "planned": false
+      },
+      {
+        "element": "footer",
+        "reason": "Not yet implemented - would require landmark validation",
+        "planned": false
+      },
+      {
+        "element": "aside",
+        "reason": "Not yet implemented - would require landmark validation",
+        "planned": false
+      },
+      {
+        "element": "section",
+        "reason": "Not yet implemented - would require landmark validation",
+        "planned": false
+      },
+      {
+        "element": "article",
+        "reason": "Not yet implemented - would require landmark validation",
+        "planned": false
+      },
+      {
+        "element": "dialog",
+        "reason": "Not yet implemented - would require modal accessibility validation",
+        "planned": false
+      },
+      {
+        "element": "summary",
+        "reason": "Not yet implemented - would require details/summary validation",
+        "planned": false
+      },
+      {
+        "element": "details",
+        "reason": "Not yet implemented - would require details/summary validation",
+        "planned": false
+      }
+    ]
+  },
+  "rules": {
+    "notSupported": [
+      {
+        "rule": "color-contrast",
+        "description": "Check color contrast ratios",
+        "reason": "Requires color calculation and WCAG contrast validation",
+        "planned": false
+      },
+      {
+        "rule": "keyboard-navigation",
+        "description": "Check keyboard accessibility",
+        "reason": "Requires focus management and tab order validation",
+        "planned": false
+      },
+      {
+        "rule": "focus-visible",
+        "description": "Check focus indicators are visible",
+        "reason": "Requires CSS analysis",
+        "planned": false
+      },
+      {
+        "rule": "landmark-roles",
+        "description": "Check proper use of landmark roles",
+        "reason": "Not yet implemented",
+        "planned": false
+      },
+      {
+        "rule": "table-structure",
+        "description": "Check table accessibility (caption, headers, scope)",
+        "reason": "Not yet implemented",
+        "planned": false
+      },
+      {
+        "rule": "media-captions",
+        "description": "Check video/audio have captions",
+        "reason": "Not yet implemented",
+        "planned": false
+      },
+      {
+        "rule": "form-validation",
+        "description": "Check form validation messages",
+        "reason": "Not yet implemented",
+        "planned": false
+      },
+      {
+        "rule": "aria-roles",
+        "description": "Check proper use of ARIA roles",
+        "reason": "Not yet implemented",
+        "planned": false
+      },
+      {
+        "rule": "aria-properties",
+        "description": "Check ARIA properties are valid",
+        "reason": "Not yet implemented",
+        "planned": false
+      },
+      {
+        "rule": "semantic-html",
+        "description": "Check semantic HTML usage",
+        "reason": "Not yet implemented",
+        "planned": false
+      }
+    ]
+  },
+  "summary": {
+    "totalRules": 6,
+    "totalElementsSupported": 13,
+    "totalElementsNotSupported": 14,
+    "totalAriaAttributesSupported": 2,
+    "totalAriaAttributesNotSupported": 8,
+    "totalHtmlAttributesSupported": 5,
+    "totalHtmlAttributesNotSupported": 3,
+    "totalRulesNotSupported": 10,
+    "elementsChecked": [
+      "img",
+      "button",
+      "a",
+      "input",
+      "select",
+      "textarea",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "iframe"
+    ],
+    "impactLevels": {
+      "critical": ["button-label", "form-label"],
+      "serious": ["image-alt", "link-text", "iframe-title"],
+      "moderate": ["link-text", "heading-order"]
+    }
+  }
+}
+

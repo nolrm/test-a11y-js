@@ -38,15 +38,17 @@ describe('ESLint Plugin Structure', () => {
     expect(rules).toHaveProperty('test-a11y-js/link-text')
     expect(rules).toHaveProperty('test-a11y-js/form-label')
     expect(rules).toHaveProperty('test-a11y-js/heading-order')
+    expect(rules).toHaveProperty('test-a11y-js/iframe-title')
   })
 
-  it('should export all 5 rules', () => {
+  it('should export all 6 rules', () => {
     expect(eslintPlugin.rules).toBeDefined()
     expect(eslintPlugin.rules).toHaveProperty('image-alt')
     expect(eslintPlugin.rules).toHaveProperty('button-label')
     expect(eslintPlugin.rules).toHaveProperty('link-text')
     expect(eslintPlugin.rules).toHaveProperty('form-label')
     expect(eslintPlugin.rules).toHaveProperty('heading-order')
+    expect(eslintPlugin.rules).toHaveProperty('iframe-title')
   })
 
   it('should have rules with correct meta information', () => {
@@ -69,6 +71,10 @@ describe('ESLint Plugin Structure', () => {
     const headingOrderRule = eslintPlugin.rules['heading-order']
     expect(headingOrderRule.meta.type).toBe('problem')
     expect(headingOrderRule.meta.messages).toHaveProperty('skippedLevel')
+    
+    const iframeTitleRule = eslintPlugin.rules['iframe-title']
+    expect(iframeTitleRule.meta.type).toBe('problem')
+    expect(iframeTitleRule.meta.messages).toHaveProperty('missingTitle')
   })
 
   it('should have correct severity levels in recommended config', () => {
@@ -77,6 +83,7 @@ describe('ESLint Plugin Structure', () => {
     expect(rules['test-a11y-js/image-alt']).toBe('error')
     expect(rules['test-a11y-js/button-label']).toBe('error')
     expect(rules['test-a11y-js/form-label']).toBe('error')
+    expect(rules['test-a11y-js/iframe-title']).toBe('error')
     
     // Moderate/Minor violations should be warnings
     expect(rules['test-a11y-js/link-text']).toBe('warn')

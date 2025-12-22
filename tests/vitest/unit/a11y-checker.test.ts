@@ -68,4 +68,73 @@ describe('A11yChecker', () => {
       expect(results.violations).toHaveLength(0)
     })
   })
+
+  describe('Iframe Tests', () => {
+    it('should detect missing title attribute on iframes', () => {
+      const container = document.createElement('div')
+      const iframe = document.createElement('iframe')
+      iframe.setAttribute('src', 'about:blank')
+      container.appendChild(iframe)
+      document.body.appendChild(container)
+      
+      const violations = A11yChecker.checkIframeTitle(container)
+      expect(violations).toHaveLength(1)
+      expect(violations[0]).toMatchObject({
+        id: 'iframe-title',
+        impact: 'serious'
+      })
+      
+      document.body.removeChild(container)
+    })
+
+    it('should detect empty title attribute on iframes', () => {
+      const container = document.createElement('div')
+      const iframe = document.createElement('iframe')
+      iframe.setAttribute('src', 'about:blank')
+      iframe.setAttribute('title', '')
+      container.appendChild(iframe)
+      document.body.appendChild(container)
+      
+      const violations = A11yChecker.checkIframeTitle(container)
+      expect(violations).toHaveLength(1)
+      expect(violations[0]).toMatchObject({
+        id: 'iframe-title',
+        impact: 'serious'
+      })
+      
+      document.body.removeChild(container)
+    })
+
+    it('should pass when iframe has title attribute', () => {
+      const container = document.createElement('div')
+      const iframe = document.createElement('iframe')
+      iframe.setAttribute('src', 'about:blank')
+      iframe.setAttribute('title', 'Example website')
+      container.appendChild(iframe)
+      document.body.appendChild(container)
+      
+      const violations = A11yChecker.checkIframeTitle(container)
+      expect(violations).toHaveLength(0)
+      
+      document.body.removeChild(container)
+    })
+
+    it('should check multiple iframes', () => {
+      const container = document.createElement('div')
+      const iframe1 = document.createElement('iframe')
+      iframe1.setAttribute('src', 'about:blank')
+      iframe1.setAttribute('title', 'Example')
+      const iframe2 = document.createElement('iframe')
+      iframe2.setAttribute('src', 'about:blank')
+      container.appendChild(iframe1)
+      container.appendChild(iframe2)
+      document.body.appendChild(container)
+      
+      const violations = A11yChecker.checkIframeTitle(container)
+      expect(violations).toHaveLength(1)
+      expect(violations[0].id).toBe('iframe-title')
+      
+      document.body.removeChild(container)
+    })
+  })
 }) 
