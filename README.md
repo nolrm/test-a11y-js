@@ -208,6 +208,43 @@ function MyComponent() {
 - ✅ **HTML Strings** - Support for template literals
 - ✅ **Any JSX-based framework** - Preact, Solid, etc.
 
+## Publishing
+
+This package uses GitHub Actions for automated publishing to npm. The workflow runs pre-check before publishing to ensure nothing is broken.
+
+### Setup
+
+1. Create an npm access token at [npmjs.com](https://www.npmjs.com/settings/YOUR_USERNAME/tokens)
+2. Add it as a GitHub secret:
+   - Go to Repository → Settings → Secrets and variables → Actions
+   - Add new secret: `NPM_TOKEN` with your npm token
+
+### Publishing a New Version
+
+#### Option 1: Using Git Tags (Recommended)
+```bash
+# Update version in package.json
+npm version patch  # or minor, major
+
+# Create and push tag (GitHub Actions will automatically publish)
+git tag v$(node -p "require('./package.json').version")
+git push origin v$(node -p "require('./package.json').version")
+```
+
+#### Option 2: Manual Workflow Dispatch
+1. Go to GitHub Actions → "Publish to npm"
+2. Click "Run workflow"
+3. Enter version number (e.g., `0.3.1`)
+4. Click "Run workflow"
+
+The workflow will:
+- ✅ Run pre-check (build, test, lint, type-check)
+- ✅ Build the project
+- ✅ Publish to npm (only if pre-check passes)
+- ✅ Create GitHub release (if triggered by tag)
+
+See [`.github/workflows/README.md`](.github/workflows/README.md) for more details.
+
 ## Contributing
 
 Contributions are welcome! Please see the [contributing guidelines](CONTRIBUTING.md) for more information.
