@@ -2,101 +2,44 @@ name: Publish to npm
 
 on:
   push:
-    tags:
-      - 'v*.*.*'  # Trigger on version tags like v0.3.0, v1.0.0, etc.
-  workflow_dispatch:  # Allow manual triggering
-    inputs:
-      version:
-        description: 'Version to publish (e.g., 0.3.1)'
-        required: true
-        type: string
+    branches:
+      - main
+    paths:
+      - 'package.json'
 
 jobs:
-  pre-check:
-    name: Pre-deployment Checks
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Run build
-        run: npm run build
-      
-      - name: Run core tests
-        run: npm run test:core
-      
-      - name: Run lint
-        run: npm run lint
-      
-      - name: Run type-check
-        run: npm run type-check
-      
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist/
-          retention-days: 1
-
   publish:
     name: Publish to npm
-    needs: pre-check
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      - name: Setup Node.js
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: '18.x'
+          registry-url: 'https://registry.npmjs.org/'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
-      - name: Extract version from tag
-        if: startsWith(github.ref, 'refs/tags/v')
-        id: tag_version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Extracted version: $VERSION"
-      
-      - name: Update version (if tag)
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: |
-          VERSION="${{ steps.tag_version.outputs.version }}"
-          npm version $VERSION --no-git-tag-version
-          echo "Updated package.json version to $VERSION"
-      
-      - name: Update version (if manual)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          VERSION="${{ github.event.inputs.version }}"
-          npm version $VERSION --no-git-tag-version
-          echo "Updated package.json version to $VERSION"
-      
-      - name: Verify package.json version
-        run: |
-          echo "Package version: $(node -p "require('./package.json').version")"
-      
-      - name: Build project
+
+      - name: Run build
         run: npm run build
-      
+
+      - name: Run core tests
+        run: npm run test:core
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Run type-check
+        run: npm run type-check
+
       - name: Verify build output
         run: |
           test -f dist/index.js && echo "✓ CJS build exists"
@@ -105,45 +48,27 @@ jobs:
           test -f dist/linter/eslint-plugin/index.js && echo "✓ ESLint plugin CJS exists"
           test -f dist/linter/eslint-plugin/index.mjs && echo "✓ ESLint plugin ESM exists"
           test -f dist/linter/eslint-plugin/index.d.ts && echo "✓ ESLint plugin types exist"
-      
-      - name: Check if version already exists
-        id: check_version
+
+      - name: Check version and publish
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          if npm view test-a11y-js@$VERSION version > /dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "⚠️  Version $VERSION already exists on npm"
-            exit 1
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "🔍 Checking version: $CURRENT_VERSION"
+          
+          # Check if version exists on npm
+          if npm view test-a11y-js@$CURRENT_VERSION version > /dev/null 2>&1; then
+            echo "⏭️  Version $CURRENT_VERSION already exists - skipping publish"
+            echo "✅ No action needed"
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "✓ Version $VERSION is available"
+            echo "🚀 Publishing new version $CURRENT_VERSION..."
+            npm publish --access public
+            echo "✅ Successfully published test-a11y-js@$CURRENT_VERSION"
+            echo "📦 Package: https://www.npmjs.com/package/test-a11y-js"
+            echo "🎉 test-a11y-js is now available for installation!"
+            echo ""
+            echo "💡 To create a git tag manually:"
+            echo "   git tag v$CURRENT_VERSION"
+            echo "   git push origin v$CURRENT_VERSION"
           fi
-        continue-on-error: false
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
-      - name: Publish to npm
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ steps.tag_version.outputs.version }}
-          body: |
-            ## Changes in v${{ steps.tag_version.outputs.version }}
-            
-            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
-            
-            ### Installation
-            ```bash
-            npm install --save-dev test-a11y-js@${{ steps.tag_version.outputs.version }}
-            ```
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
