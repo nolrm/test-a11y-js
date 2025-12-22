@@ -214,10 +214,22 @@ This package uses GitHub Actions for automated publishing to npm. The workflow a
 
 ### Setup
 
+**Using npm Trusted Publisher (OIDC) - Recommended:**
+
+1. Go to your package on npm: https://www.npmjs.com/package/test-a11y-js
+2. Navigate to: **Settings → Access → Trusted Publishers**
+3. Click **"Add Trusted Publisher"**
+4. Fill in:
+   - **Repository**: `nolrm/test-a11y-js`
+   - **Workflow name**: `Publish to npm`
+5. Click **"Add"**
+
+No secrets needed! The workflow uses OIDC for secure authentication.
+
+**Alternative: Using NPM Token:**
 1. Create an npm access token at [npmjs.com](https://www.npmjs.com/settings/YOUR_USERNAME/tokens)
-2. Add it as a GitHub secret:
-   - Go to Repository → Settings → Secrets and variables → Actions
-   - Add new secret: `NPM_TOKEN` with your npm token
+2. Add it as a GitHub secret: `NPM_TOKEN`
+3. Update the workflow to use the token (see `.github/workflows/README.md`)
 
 ### Publishing a New Version
 
