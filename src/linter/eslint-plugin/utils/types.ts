@@ -23,7 +23,7 @@ export interface A11yRuleMeta {
     url?: string
   }
   messages: Record<string, string>
-  fixable?: 'code' | 'whitespace' | null
+  fixable?: 'code' | 'whitespace'
   schema?: unknown[]
 }
 

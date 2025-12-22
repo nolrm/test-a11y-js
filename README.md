@@ -127,6 +127,7 @@ interface A11yResults {
 - Button label validation
 - Form label association checks
 - Heading order validation
+- Iframe title validation
 
 ### ESLint Plugin
 - Real-time accessibility linting in your editor
@@ -137,13 +138,14 @@ interface A11yResults {
 
 ## ESLint Rules
 
-The plugin provides 5 accessibility rules:
+The plugin provides 6 accessibility rules:
 
 - `test-a11y-js/image-alt` - Enforce images have alt attributes
 - `test-a11y-js/button-label` - Enforce buttons have labels
 - `test-a11y-js/link-text` - Enforce links have descriptive text
 - `test-a11y-js/form-label` - Enforce form controls have labels
 - `test-a11y-js/heading-order` - Enforce proper heading hierarchy
+- `test-a11y-js/iframe-title` - Enforce iframes have title attributes
 
 See [`src/checks.json`](./src/checks.json) for a complete list of supported elements, ARIA attributes, and rules (including what's not yet supported).
 

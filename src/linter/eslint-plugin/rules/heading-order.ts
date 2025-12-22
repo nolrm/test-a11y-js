@@ -6,9 +6,7 @@
 
 import type { Rule } from 'eslint'
 import { A11yChecker } from '../../../core/a11y-checker'
-import { jsxToElement } from '../utils/jsx-ast-utils'
 import { htmlNodeToElement } from '../utils/html-ast-utils'
-import { vueElementToDOM } from '../utils/vue-ast-utils'
 import { isHTMLLiteral } from '../utils/ast-utils'
 
 const rule: Rule.RuleModule = {
@@ -23,12 +21,11 @@ const rule: Rule.RuleModule = {
     messages: {
       skippedLevel: 'Heading level skipped from h{{previous}} to h{{current}}'
     },
-    fixable: null,
+    fixable: undefined,
     schema: []
   },
   create(context: Rule.RuleContext) {
     // Track heading levels in the current file
-    let previousLevel = 0
     const headingNodes: Array<{ node: Rule.Node; level: number }> = []
 
     return {
@@ -54,10 +51,9 @@ const rule: Rule.RuleModule = {
               node,
               messageId: 'skippedLevel',
               data: {
-                previous: prevLevel,
-                current: level
+                previous: String(prevLevel),
+                current: String(level)
               },
-              severity: 1 // Warning
             })
           }
           prevLevel = level
@@ -83,7 +79,6 @@ const rule: Rule.RuleModule = {
                     previous: match[1],
                     current: match[2]
                   },
-                  severity: 1 // Warning
                 })
               }
             }
@@ -106,7 +101,6 @@ const rule: Rule.RuleModule = {
                     previous: match[1],
                     current: match[2]
                   },
-                  severity: 1 // Warning
                 })
               }
             }

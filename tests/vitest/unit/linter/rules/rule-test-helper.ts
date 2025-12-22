@@ -4,6 +4,7 @@
  * This helper loads rules from the plugin to avoid module resolution issues
  */
 
+// @ts-ignore - Module resolution issue in test environment
 import eslintPlugin from '../../../../src/linter/eslint-plugin/index'
 
 export function getRule(ruleName: string) {

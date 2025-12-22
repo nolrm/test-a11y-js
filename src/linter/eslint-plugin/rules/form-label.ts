@@ -8,7 +8,7 @@ import type { Rule } from 'eslint'
 import { A11yChecker } from '../../../core/a11y-checker'
 import { jsxToElement, hasJSXAttribute } from '../utils/jsx-ast-utils'
 import { htmlNodeToElement } from '../utils/html-ast-utils'
-import { vueElementToDOM, hasVueAttribute, getVueAttribute } from '../utils/vue-ast-utils'
+import { hasVueAttribute, getVueAttribute } from '../utils/vue-ast-utils'
 import { isHTMLLiteral } from '../utils/ast-utils'
 
 const rule: Rule.RuleModule = {
@@ -23,7 +23,7 @@ const rule: Rule.RuleModule = {
     messages: {
       missingLabel: 'Form control must have an associated label (use id/for, aria-label, or aria-labelledby)'
     },
-    fixable: null,
+    fixable: undefined,
     schema: []
   },
   create(context: Rule.RuleContext) {
@@ -103,7 +103,7 @@ const rule: Rule.RuleModule = {
           const element = htmlNodeToElement(node, context)
           if (element) {
             const violations = A11yChecker.checkFormLabels(element)
-            for (const violation of violations) {
+            if (violations.length > 0) {
               context.report({
                 node,
                 messageId: 'missingLabel'
@@ -118,7 +118,7 @@ const rule: Rule.RuleModule = {
           const element = htmlNodeToElement(node, context)
           if (element) {
             const violations = A11yChecker.checkFormLabels(element)
-            for (const violation of violations) {
+            if (violations.length > 0) {
               context.report({
                 node,
                 messageId: 'missingLabel'

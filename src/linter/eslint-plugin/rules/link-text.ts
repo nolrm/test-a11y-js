@@ -25,7 +25,7 @@ const rule: Rule.RuleModule = {
       nonDescriptive: 'Link text should be more descriptive (avoid "click here", "read more", etc.)',
       dynamicText: 'Link text is dynamic. Ensure it is descriptive at runtime.'
     },
-    fixable: null,
+    fixable: undefined,
     schema: []
   },
   create(context: Rule.RuleContext) {
@@ -45,7 +45,6 @@ const rule: Rule.RuleModule = {
               context.report({
                 node,
                 messageId: 'dynamicText',
-                severity: 1 // Warning
               })
             }
           }
@@ -65,7 +64,6 @@ const rule: Rule.RuleModule = {
                 context.report({
                   node,
                   messageId: 'nonDescriptive',
-                  severity: 1 // Warning
                 })
               }
             }
@@ -85,7 +83,6 @@ const rule: Rule.RuleModule = {
               context.report({
                 node,
                 messageId: violation.id === 'link-text' ? 'missingText' : 'nonDescriptive',
-                severity: violation.id === 'link-text' ? 2 : 1
               })
             }
           }
@@ -101,7 +98,6 @@ const rule: Rule.RuleModule = {
               context.report({
                 node,
                 messageId: violation.id === 'link-text' ? 'missingText' : 'nonDescriptive',
-                severity: violation.id === 'link-text' ? 2 : 1
               })
             }
           }
@@ -123,7 +119,6 @@ const rule: Rule.RuleModule = {
               context.report({
                 node,
                 messageId: 'dynamicText',
-                severity: 1 // Warning
               })
             }
           }
@@ -143,7 +138,6 @@ const rule: Rule.RuleModule = {
                   context.report({
                     node,
                     messageId: 'nonDescriptive',
-                    severity: 1 // Warning
                   })
                 }
               }
