@@ -1,17 +1,29 @@
 {
   "name": "test-a11y-js",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A JavaScript library for testing component accessibility across multiple testing frameworks",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./eslint-plugin": {
+      "import": "./dist/linter/eslint-plugin/index.mjs",
+      "require": "./dist/linter/eslint-plugin/index.js",
+      "types": "./dist/linter/eslint-plugin/index.d.ts"
+    }
+  },
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "build": "tsup src/index.ts src/linter/eslint-plugin/index.ts --format cjs,esm --dts",
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
@@ -39,11 +51,19 @@
   "homepage": "https://github.com/nolrm/test-a11y-js#readme",
   "dependencies": {},
   "peerDependencies": {
-    "vitest": ">=0.30.0"
+    "vitest": ">=0.30.0",
+    "eslint": ">=8.0.0",
+    "vue-eslint-parser": ">=9.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vue-eslint-parser": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@testing-library/dom": "^9.0.0",
     "@types/node": "^18.15.0",
+    "@types/eslint": "^8.56.0",
     "@typescript-eslint/eslint-plugin": "^5.57.0",
     "@typescript-eslint/parser": "^5.57.0",
     "@vitejs/plugin-vue": "^4.0.0",
@@ -52,8 +72,10 @@
     "@vue/compiler-sfc": "^3.3.0",
     "@types/vue": "^2.0.0",
     "vue": "^3.3.0",
+    "vue-eslint-parser": "^9.4.0",
     "eslint": "^8.37.0",
     "happy-dom": "^9.10.9",
+    "jsdom": "^23.0.0",
     "typescript": "^5.3.0",
     "vitest": "^0.30.0",
     "tsup": "^7.0.0"
