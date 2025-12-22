@@ -27,7 +27,25 @@ Automatically publishes to npm when `package.json` changes on the `main` branch.
 
 ## Setup
 
-### NPM Token
+### NPM Trusted Publisher (OIDC) - Recommended
+
+This workflow uses npm's Trusted Publisher feature with OpenID Connect (OIDC) for secure authentication. No secrets needed!
+
+1. Go to your package on npm: https://www.npmjs.com/package/test-a11y-js
+2. Navigate to: **Settings → Access → Trusted Publishers**
+3. Click **"Add Trusted Publisher"**
+4. Fill in:
+   - **Repository**: `nolrm/test-a11y-js`
+   - **Workflow name**: `Publish to npm`
+   - **Environment**: (leave empty unless using GitHub Environments)
+5. Click **"Add"**
+
+The workflow will automatically authenticate using OIDC - no `NPM_TOKEN` secret required!
+
+### Alternative: NPM Token (Legacy)
+
+If you prefer using an npm token instead of OIDC:
+
 1. Go to [npmjs.com](https://www.npmjs.com/settings/YOUR_USERNAME/tokens) and create an access token
    - Token type: **Automation** (for CI/CD)
    - Scopes: **Read and Publish**
@@ -37,9 +55,7 @@ Automatically publishes to npm when `package.json` changes on the `main` branch.
    - Name: `NPM_TOKEN`
    - Value: Your npm access token
    - Click "Add secret"
-
-### GitHub Token
-The `GITHUB_TOKEN` is automatically provided by GitHub Actions and doesn't need to be set up manually. It's used for creating releases.
+3. Update the workflow to use `NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}` in the publish step
 
 ## Publishing a New Version
 

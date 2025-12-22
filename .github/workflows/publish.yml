@@ -11,6 +11,9 @@ jobs:
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # Required for OIDC
+      contents: read    # Required for checkout
     
     steps:
       - name: Checkout code
@@ -69,6 +72,5 @@ jobs:
             echo "   git tag v$CURRENT_VERSION"
             echo "   git push origin v$CURRENT_VERSION"
           fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # OIDC authentication - no NODE_AUTH_TOKEN needed
 
