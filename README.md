@@ -147,8 +147,12 @@ The plugin provides 5 accessibility rules:
 
 ## Documentation
 
+- [ESLint Plugin Guide](./docs/ESLINT_PLUGIN.md) - Complete ESLint plugin documentation
 - [Configuration Guide](./docs/CONFIGURATION.md) - ESLint plugin configuration options
 - [Vue Usage Guide](./docs/VUE_USAGE.md) - Vue-specific setup and examples
+- [Examples](./docs/EXAMPLES.md) - Real-world code examples
+- [Troubleshooting Guide](./docs/TROUBLESHOOTING.md) - Common issues and solutions
+- [Testing Guide](./docs/TESTING.md) - Testing the plugin
 
 ## Examples
 
