@@ -5,6 +5,7 @@
  * and converts them to DOM Elements
  */
 
+// @ts-ignore - jsdom types may not be available
 import { JSDOM } from 'jsdom'
 import type { Rule } from 'eslint'
 import { getNodeText } from './ast-utils'
@@ -41,7 +42,7 @@ export function parseHTMLString(html: string): Element | null {
  */
 export function extractHTMLFromNode(
   node: Rule.Node,
-  context: Rule.RuleContext
+  _context: Rule.RuleContext
 ): string | null {
   if (node.type === 'Literal') {
     const literal = node as any

@@ -52,72 +52,76 @@ describe('ESLint Plugin Structure', () => {
   })
 
   it('should have rules with correct meta information', () => {
-    const imageAltRule = eslintPlugin.rules['image-alt']
-    expect(imageAltRule.meta.type).toBe('problem')
-    expect(imageAltRule.meta.messages).toHaveProperty('missingAlt')
+    const imageAltRule = eslintPlugin.rules?.['image-alt'] as any
+    expect(imageAltRule?.meta?.type).toBe('problem')
+    expect(imageAltRule?.meta?.messages).toHaveProperty('missingAlt')
     
-    const buttonLabelRule = eslintPlugin.rules['button-label']
-    expect(buttonLabelRule.meta.type).toBe('problem')
-    expect(buttonLabelRule.meta.messages).toHaveProperty('missingLabel')
+    const buttonLabelRule = eslintPlugin.rules?.['button-label'] as any
+    expect(buttonLabelRule?.meta?.type).toBe('problem')
+    expect(buttonLabelRule?.meta?.messages).toHaveProperty('missingLabel')
     
-    const linkTextRule = eslintPlugin.rules['link-text']
-    expect(linkTextRule.meta.type).toBe('problem')
-    expect(linkTextRule.meta.messages).toHaveProperty('missingText')
+    const linkTextRule = eslintPlugin.rules?.['link-text'] as any
+    expect(linkTextRule?.meta?.type).toBe('problem')
+    expect(linkTextRule?.meta?.messages).toHaveProperty('missingText')
     
-    const formLabelRule = eslintPlugin.rules['form-label']
-    expect(formLabelRule.meta.type).toBe('problem')
-    expect(formLabelRule.meta.messages).toHaveProperty('missingLabel')
+    const formLabelRule = eslintPlugin.rules?.['form-label'] as any
+    expect(formLabelRule?.meta?.type).toBe('problem')
+    expect(formLabelRule?.meta?.messages).toHaveProperty('missingLabel')
     
-    const headingOrderRule = eslintPlugin.rules['heading-order']
-    expect(headingOrderRule.meta.type).toBe('problem')
-    expect(headingOrderRule.meta.messages).toHaveProperty('skippedLevel')
+    const headingOrderRule = eslintPlugin.rules?.['heading-order'] as any
+    expect(headingOrderRule?.meta?.type).toBe('problem')
+    expect(headingOrderRule?.meta?.messages).toHaveProperty('skippedLevel')
     
-    const iframeTitleRule = eslintPlugin.rules['iframe-title']
-    expect(iframeTitleRule.meta.type).toBe('problem')
-    expect(iframeTitleRule.meta.messages).toHaveProperty('missingTitle')
+    const iframeTitleRule = eslintPlugin.rules?.['iframe-title'] as any
+    expect(iframeTitleRule?.meta?.type).toBe('problem')
+    expect(iframeTitleRule?.meta?.messages).toHaveProperty('missingTitle')
   })
 
   it('should have correct severity levels in recommended config', () => {
-    const rules = eslintPlugin.configs.recommended.rules
+    const recommendedConfig = eslintPlugin.configs?.recommended as any
+    const rules = recommendedConfig?.rules
     // Critical/Serious violations should be errors
-    expect(rules['test-a11y-js/image-alt']).toBe('error')
-    expect(rules['test-a11y-js/button-label']).toBe('error')
-    expect(rules['test-a11y-js/form-label']).toBe('error')
-    expect(rules['test-a11y-js/iframe-title']).toBe('error')
+    expect(rules?.['test-a11y-js/image-alt']).toBe('error')
+    expect(rules?.['test-a11y-js/button-label']).toBe('error')
+    expect(rules?.['test-a11y-js/form-label']).toBe('error')
+    expect(rules?.['test-a11y-js/iframe-title']).toBe('error')
     
     // Moderate/Minor violations should be warnings
-    expect(rules['test-a11y-js/link-text']).toBe('warn')
-    expect(rules['test-a11y-js/heading-order']).toBe('warn')
+    expect(rules?.['test-a11y-js/link-text']).toBe('warn')
+    expect(rules?.['test-a11y-js/heading-order']).toBe('warn')
   })
 
   it('should have strict configuration', () => {
-    expect(eslintPlugin.configs.strict).toBeDefined()
-    expect(eslintPlugin.configs.strict.plugins).toContain('test-a11y-js')
-    expect(eslintPlugin.configs.strict.rules).toBeDefined()
+    const strictConfig = eslintPlugin.configs?.strict as any
+    expect(strictConfig).toBeDefined()
+    expect(strictConfig?.plugins).toContain('test-a11y-js')
+    expect(strictConfig?.rules).toBeDefined()
     
     // All rules should be errors in strict mode
-    const rules = eslintPlugin.configs.strict.rules
-    expect(rules['test-a11y-js/image-alt']).toBe('error')
-    expect(rules['test-a11y-js/button-label']).toBe('error')
-    expect(rules['test-a11y-js/link-text']).toBe('error')
-    expect(rules['test-a11y-js/form-label']).toBe('error')
-    expect(rules['test-a11y-js/heading-order']).toBe('error')
+    const rules = strictConfig?.rules
+    expect(rules?.['test-a11y-js/image-alt']).toBe('error')
+    expect(rules?.['test-a11y-js/button-label']).toBe('error')
+    expect(rules?.['test-a11y-js/link-text']).toBe('error')
+    expect(rules?.['test-a11y-js/form-label']).toBe('error')
+    expect(rules?.['test-a11y-js/heading-order']).toBe('error')
   })
 
   it('should have react configuration', () => {
-    expect(eslintPlugin.configs.react).toBeDefined()
-    expect(eslintPlugin.configs.react.plugins).toContain('test-a11y-js')
-    expect(eslintPlugin.configs.react.parser).toBe('@typescript-eslint/parser')
-    expect(eslintPlugin.configs.react.parserOptions).toBeDefined()
-    expect(eslintPlugin.configs.react.parserOptions.ecmaFeatures.jsx).toBe(true)
+    expect(eslintPlugin.configs?.react).toBeDefined()
+    const reactConfig = eslintPlugin.configs?.react as any
+    expect(reactConfig?.plugins).toContain('test-a11y-js')
+    expect(reactConfig?.parser).toBe('@typescript-eslint/parser')
+    expect(reactConfig?.parserOptions).toBeDefined()
+    expect(reactConfig?.parserOptions?.ecmaFeatures?.jsx).toBe(true)
   })
 
   it('should have vue configuration', () => {
-    expect(eslintPlugin.configs.vue).toBeDefined()
-    expect(eslintPlugin.configs.vue.plugins).toContain('test-a11y-js')
-    expect(eslintPlugin.configs.vue.parser).toBe('vue-eslint-parser')
-    expect(eslintPlugin.configs.vue.parserOptions).toBeDefined()
-    expect(eslintPlugin.configs.vue.parserOptions.parser).toBe('@typescript-eslint/parser')
+    expect(eslintPlugin.configs?.vue).toBeDefined()
+    const vueConfig = eslintPlugin.configs?.vue as any
+    expect(vueConfig?.plugins).toContain('test-a11y-js')
+    expect(vueConfig?.parser).toBe('vue-eslint-parser')
+    expect(vueConfig?.parserOptions).toBeDefined()
+    expect(vueConfig?.parserOptions?.parser).toBe('@typescript-eslint/parser')
   })
 })
 

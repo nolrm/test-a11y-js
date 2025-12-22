@@ -17,21 +17,21 @@ export function getNodeText(node: Rule.Node, context: Rule.RuleContext): string 
  */
 export function getNodeLine(node: Rule.Node, context: Rule.RuleContext): number {
   const sourceCode = context.getSourceCode()
-  return sourceCode.getLocForIndex(sourceCode.getIndexFromLoc(node.loc!.start)).line
+  return sourceCode.getLocFromIndex(sourceCode.getIndexFromLoc(node.loc!.start)).line
 }
 
 /**
  * Check if a node is a JSX element
  */
 export function isJSXElement(node: Rule.Node): boolean {
-  return node.type === 'JSXElement' || node.type === 'JSXOpeningElement'
+  return (node as any).type === 'JSXElement' || (node as any).type === 'JSXOpeningElement'
 }
 
 /**
  * Check if a node is a Vue element
  */
 export function isVueElement(node: Rule.Node): boolean {
-  return node.type === 'VElement'
+  return (node as any).type === 'VElement'
 }
 
 /**
@@ -53,7 +53,7 @@ export function extractTextContent(node: Rule.Node, context: Rule.RuleContext): 
   if (node.type === 'Literal' && typeof (node as any).value === 'string') {
     return (node as any).value
   }
-  if (node.type === 'JSXText') {
+  if ((node as any).type === 'JSXText') {
     return (node as any).value.trim()
   }
   // For other cases, get the source text

@@ -6,41 +6,31 @@
  */
 
 import type { Rule } from 'eslint'
+// @ts-ignore - jsdom types may not be available
 import { JSDOM } from 'jsdom'
 
 /**
  * Vue Element AST node type (from vue-eslint-parser)
  * This is a placeholder type - actual types come from vue-eslint-parser
  */
+interface VueAttribute {
+  key: {
+    name?: string
+    argument?: string
+  }
+  value?: {
+    value?: string
+    expression?: unknown
+  }
+}
+
 interface VElement {
   name: string
   startTag: {
-    attributes?: Array<{
-      key: {
-        name?: string
-        argument?: string
-      }
-      value?: {
-        value?: string
-        expression?: unknown
-      }
-    }>
+    attributes?: VueAttribute[]
   }
   children?: VElement[]
   type: string
-}
-
-/**
- * Check if vue-eslint-parser is available
- */
-function hasVueParser(): boolean {
-  try {
-    // Check if the parser is vue-eslint-parser by looking at the parser name
-    // This is checked at runtime in the rule context
-    return true // Assume available if vue-eslint-parser is in peerDependencies
-  } catch {
-    return false
-  }
 }
 
 /**
@@ -65,7 +55,7 @@ export function isVueFile(context: Rule.RuleContext): boolean {
  * @param attr - Vue attribute node
  * @returns Attribute value or null
  */
-function getVueAttributeValue(attr: VElement['startTag']['attributes'][0]): string | null {
+function getVueAttributeValue(attr: VueAttribute): string | null {
   if (!attr.value) {
     // Boolean attribute
     return attr.key.name || attr.key.argument || null
@@ -93,7 +83,7 @@ function getVueAttributeValue(attr: VElement['startTag']['attributes'][0]): stri
  */
 export function vueElementToDOM(
   node: Rule.Node,
-  context: Rule.RuleContext
+  _context: Rule.RuleContext
 ): Element | null {
   const vueNode = node as unknown as VElement
   
@@ -143,7 +133,7 @@ export function vueElementToDOM(
  * Check if Vue attribute is dynamic (uses v-bind or :)
  */
 export function isVueAttributeDynamic(
-  attr: VElement['startTag']['attributes'][0]
+  attr: VueAttribute
 ): boolean {
   if (!attr.value) return false
   return attr.value.expression !== undefined
@@ -155,7 +145,7 @@ export function isVueAttributeDynamic(
 export function getVueAttribute(
   element: VElement,
   name: string
-): VElement['startTag']['attributes'][0] | undefined {
+): VueAttribute | undefined {
   if (!element.startTag?.attributes) {
     return undefined
   }

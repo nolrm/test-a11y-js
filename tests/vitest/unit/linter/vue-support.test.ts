@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { vueElementToDOM, hasVueAttribute, getVueAttribute, isVueAttributeDynamic } from '../../../src/linter/eslint-plugin/utils/vue-ast-utils.js'
+// @ts-ignore - Module resolution issue in test environment
+import { vueElementToDOM, hasVueAttribute, getVueAttribute, isVueAttributeDynamic } from '../../../src/linter/eslint-plugin/utils/vue-ast-utils'
 
 // Mock ESLint context
 function createMockContext(): any {

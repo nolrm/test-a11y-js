@@ -29,7 +29,9 @@ describe('Vue Rule Support', () => {
   })
 
   it('should use vue-ast-utils for Vue parsing', () => {
-    ruleFiles.forEach(ruleFile => {
+    // heading-order doesn't use vue-ast-utils (only checks HTML strings)
+    const rulesWithVue = ruleFiles.filter(f => f !== 'heading-order.ts')
+    rulesWithVue.forEach(ruleFile => {
       const rulePath = join(rulesDir, ruleFile)
       const content = readFileSync(rulePath, 'utf-8')
       // Should import or use vue-ast-utils

@@ -9,7 +9,7 @@ import { A11yChecker } from '../../../core/a11y-checker'
 import { jsxToElement, hasJSXAttribute, isJSXAttributeDynamic, getJSXAttribute } from '../utils/jsx-ast-utils'
 import { htmlNodeToElement } from '../utils/html-ast-utils'
 import { vueElementToDOM, hasVueAttribute, isVueAttributeDynamic, getVueAttribute } from '../utils/vue-ast-utils'
-import { isJSXElement, isHTMLLiteral, isVueElement } from '../utils/ast-utils'
+import { isHTMLLiteral } from '../utils/ast-utils'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -25,7 +25,7 @@ const rule: Rule.RuleModule = {
       emptyAlt: 'Image alt attribute must not be empty',
       dynamicAlt: 'Image alt attribute is dynamic. Ensure it is not empty at runtime.'
     },
-    fixable: null,
+    fixable: undefined,
     schema: []
   },
   create(context: Rule.RuleContext) {
@@ -46,11 +46,10 @@ const rule: Rule.RuleModule = {
           // Check if alt is dynamic
           const altAttr = getJSXAttribute(jsxNode, 'alt')
           if (altAttr && isJSXAttributeDynamic(altAttr)) {
-            context.report({
-              node,
-              messageId: 'dynamicAlt',
-              severity: 1 // Warning for dynamic attributes
-            })
+              context.report({
+                node,
+                messageId: 'dynamicAlt'
+              })
             return
           }
 
@@ -120,11 +119,10 @@ const rule: Rule.RuleModule = {
           // Check if alt is dynamic
           const altAttr = getVueAttribute(vueNode, 'alt')
           if (altAttr && isVueAttributeDynamic(altAttr)) {
-            context.report({
-              node,
-              messageId: 'dynamicAlt',
-              severity: 1 // Warning for dynamic attributes
-            })
+              context.report({
+                node,
+                messageId: 'dynamicAlt'
+              })
             return
           }
 

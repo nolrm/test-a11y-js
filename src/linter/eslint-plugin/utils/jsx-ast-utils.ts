@@ -5,6 +5,7 @@
  */
 
 import type { Rule } from 'eslint'
+// @ts-ignore - jsdom types may not be available
 import { JSDOM } from 'jsdom'
 
 /**
@@ -69,8 +70,8 @@ function getJSXAttributeValue(attr: JSXAttribute): string | null {
   if (attr.value.type === 'JSXExpressionContainer') {
     // Dynamic attribute (e.g., alt={variable})
     // We can't evaluate this statically, so return a placeholder
-    if (attr.value.expression?.type === 'Literal') {
-      return attr.value.expression.value || null
+    if (attr.value.expression && typeof attr.value.expression === 'object' && 'type' in attr.value.expression && attr.value.expression.type === 'Literal' && 'value' in attr.value.expression) {
+      return String(attr.value.expression.value) || null
     }
     // For dynamic values, we'll return null and handle in rules
     return null
@@ -113,7 +114,7 @@ function getJSXTagName(element: JSXOpeningElement): string {
  */
 function getJSXTextContent(
   children: JSXElement['children'] | undefined,
-  context: Rule.RuleContext
+  _context: Rule.RuleContext
 ): string {
   if (!children) return ''
   

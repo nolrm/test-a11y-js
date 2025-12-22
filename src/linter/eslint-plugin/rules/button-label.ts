@@ -9,7 +9,7 @@ import { A11yChecker } from '../../../core/a11y-checker'
 import { jsxToElement, hasJSXAttribute, isJSXAttributeDynamic } from '../utils/jsx-ast-utils'
 import { htmlNodeToElement } from '../utils/html-ast-utils'
 import { vueElementToDOM, hasVueAttribute, isVueAttributeDynamic } from '../utils/vue-ast-utils'
-import { isJSXElement, isHTMLLiteral, isVueElement } from '../utils/ast-utils'
+import { isHTMLLiteral } from '../utils/ast-utils'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -24,7 +24,7 @@ const rule: Rule.RuleModule = {
       missingLabel: 'Button must have a label or aria-label',
       dynamicLabel: 'Button label is dynamic. Ensure it is not empty at runtime.'
     },
-    fixable: null,
+    fixable: undefined,
     schema: []
   },
   create(context: Rule.RuleContext) {
@@ -43,10 +43,10 @@ const rule: Rule.RuleModule = {
               attr.name?.name === 'aria-label'
             )
             if (ariaLabelAttr && isJSXAttributeDynamic(ariaLabelAttr)) {
+              // Use context's options to determine severity (warn by default for dynamic)
               context.report({
                 node,
-                messageId: 'dynamicLabel',
-                severity: 1 // Warning
+                messageId: 'dynamicLabel'
               })
             }
           }
@@ -67,8 +67,6 @@ const rule: Rule.RuleModule = {
           } catch (error) {
             // If conversion fails, check manually
             if (!hasAriaLabel && !hasAriaLabelledBy) {
-              // Check if there are children (text content)
-              const jsxElement = context.getSourceCode().getNodeByRangeIndex
               // If we can't determine, report
               context.report({
                 node,
@@ -85,7 +83,7 @@ const rule: Rule.RuleModule = {
           const element = htmlNodeToElement(node, context)
           if (element) {
             const violations = A11yChecker.checkButtonLabel(element)
-            for (const violation of violations) {
+            if (violations.length > 0) {
               context.report({
                 node,
                 messageId: 'missingLabel'
@@ -100,7 +98,7 @@ const rule: Rule.RuleModule = {
           const element = htmlNodeToElement(node, context)
           if (element) {
             const violations = A11yChecker.checkButtonLabel(element)
-            for (const violation of violations) {
+            if (violations.length > 0) {
               context.report({
                 node,
                 messageId: 'missingLabel'
@@ -126,8 +124,7 @@ const rule: Rule.RuleModule = {
             if (ariaLabelAttr && isVueAttributeDynamic(ariaLabelAttr)) {
               context.report({
                 node,
-                messageId: 'dynamicLabel',
-                severity: 1 // Warning
+                messageId: 'dynamicLabel'
               })
             }
           }
@@ -137,13 +134,11 @@ const rule: Rule.RuleModule = {
             const element = vueElementToDOM(node, context)
             if (element) {
               const violations = A11yChecker.checkButtonLabel(element)
-              for (const violation of violations) {
-                if (violation.id === 'button-label') {
-                  context.report({
-                    node,
-                    messageId: 'missingLabel'
-                  })
-                }
+              if (violations.length > 0 && violations.some(v => v.id === 'button-label')) {
+                context.report({
+                  node,
+                  messageId: 'missingLabel'
+                })
               }
             }
           } catch (error) {
