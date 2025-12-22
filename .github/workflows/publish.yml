@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write   # Required for OIDC
-      contents: read    # Required for checkout
+      contents: write   # Required for pushing git tags
     
     steps:
       - name: Checkout code
@@ -49,20 +49,37 @@ jobs:
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "🔍 Checking version: $CURRENT_VERSION"
           
+          # Check if version already exists on npm (using registry API, no auth needed)
+          echo "🔍 Checking if version $CURRENT_VERSION already exists on npm..."
+          if curl -s "https://registry.npmjs.org/test-a11y-js/$CURRENT_VERSION" | grep -q '"version"'; then
+            echo "⏭️  Version $CURRENT_VERSION already exists on npm - skipping publish"
+            echo "✅ No action needed"
+            exit 0
+          fi
+          
+          echo "✅ Version $CURRENT_VERSION is new - proceeding with publish"
+          
           # Note: OIDC authentication only works for npm publish, not npm view or npm whoami
           # We'll attempt to publish and handle the "already exists" error gracefully
           
           echo "🚀 Publishing new version $CURRENT_VERSION..."
-          if npm publish --access public 2>&1 | tee /tmp/publish.log; then
+          PUBLISH_OUTPUT=$(npm publish --access public 2>&1) || PUBLISH_EXIT_CODE=$?
+          
+          if [ -z "$PUBLISH_EXIT_CODE" ]; then
+            # Publish succeeded
             echo "✅ Successfully published test-a11y-js@$CURRENT_VERSION"
             echo "📦 Package: https://www.npmjs.com/package/test-a11y-js"
             echo "🎉 test-a11y-js is now available for installation!"
-            echo ""
-            echo "💡 To create a git tag manually:"
-            echo "   git tag v$CURRENT_VERSION"
-            echo "   git push origin v$CURRENT_VERSION"
+            
+            # Create and push git tag automatically
+            echo "🏷️  Creating git tag v$CURRENT_VERSION..."
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag -a "v$CURRENT_VERSION" -m "Release v$CURRENT_VERSION"
+            git push origin "v$CURRENT_VERSION"
+            echo "✅ Git tag v$CURRENT_VERSION created and pushed"
           else
-            PUBLISH_OUTPUT=$(cat /tmp/publish.log)
+            # Publish failed - check if it's because version already exists
             if echo "$PUBLISH_OUTPUT" | grep -q "You cannot publish over the previously published versions" || \
                echo "$PUBLISH_OUTPUT" | grep -q "EPUBLISHCONFLICT" || \
                echo "$PUBLISH_OUTPUT" | grep -q "already exists"; then
@@ -70,8 +87,10 @@ jobs:
               echo "✅ No action needed"
               exit 0
             else
-              echo "❌ Publish failed. Check the error above."
-              cat /tmp/publish.log
+              echo "❌ Publish failed with error:"
+              echo "$PUBLISH_OUTPUT"
+              echo ""
+              echo "⚠️  If you see 'Access token expired or revoked', check your Trusted Publisher configuration on npm."
               exit 1
             fi
           fi
