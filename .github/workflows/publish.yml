@@ -49,31 +49,31 @@ jobs:
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           echo "🔍 Checking version: $CURRENT_VERSION"
           
-          # Verify OIDC authentication
-          echo "🔐 Verifying npm authentication..."
-          npm whoami || echo "⚠️  Authentication check failed - ensure Trusted Publisher is configured"
+          # Note: OIDC authentication only works for npm publish, not npm view or npm whoami
+          # We'll attempt to publish and handle the "already exists" error gracefully
           
-          # Check if package exists (first publish might return 404, which is OK)
-          if npm view test-a11y-js version > /dev/null 2>&1; then
-            echo "✅ Package exists on npm"
-            # Check if this specific version exists
-            if npm view test-a11y-js@$CURRENT_VERSION version > /dev/null 2>&1; then
+          echo "🚀 Publishing new version $CURRENT_VERSION..."
+          if npm publish --access public 2>&1 | tee /tmp/publish.log; then
+            echo "✅ Successfully published test-a11y-js@$CURRENT_VERSION"
+            echo "📦 Package: https://www.npmjs.com/package/test-a11y-js"
+            echo "🎉 test-a11y-js is now available for installation!"
+            echo ""
+            echo "💡 To create a git tag manually:"
+            echo "   git tag v$CURRENT_VERSION"
+            echo "   git push origin v$CURRENT_VERSION"
+          else
+            PUBLISH_OUTPUT=$(cat /tmp/publish.log)
+            if echo "$PUBLISH_OUTPUT" | grep -q "You cannot publish over the previously published versions" || \
+               echo "$PUBLISH_OUTPUT" | grep -q "EPUBLISHCONFLICT" || \
+               echo "$PUBLISH_OUTPUT" | grep -q "already exists"; then
               echo "⏭️  Version $CURRENT_VERSION already exists - skipping publish"
               echo "✅ No action needed"
               exit 0
+            else
+              echo "❌ Publish failed. Check the error above."
+              cat /tmp/publish.log
+              exit 1
             fi
-          else
-            echo "ℹ️  Package doesn't exist yet (first publish) or authentication issue"
           fi
-          
-          echo "🚀 Publishing new version $CURRENT_VERSION..."
-          npm publish --access public
-          echo "✅ Successfully published test-a11y-js@$CURRENT_VERSION"
-          echo "📦 Package: https://www.npmjs.com/package/test-a11y-js"
-          echo "🎉 test-a11y-js is now available for installation!"
-          echo ""
-          echo "💡 To create a git tag manually:"
-          echo "   git tag v$CURRENT_VERSION"
-          echo "   git push origin v$CURRENT_VERSION"
         # OIDC authentication - no NODE_AUTH_TOKEN needed
 
