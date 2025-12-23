@@ -19,12 +19,13 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'  # Latest LTS version
           registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'  # Cache npm dependencies for faster builds
       
       - run: npm ci
       
       - run: npm run pre-check
       
-      - run: npm publish
+      - run: npm publish --access public
 
