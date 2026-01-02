@@ -6,26 +6,37 @@ Quick reference for Phase 1 implementation scope.
 
 ### Supported in Phase 1 (v0.8.0)
 
-**ARIA Roles: ~40 roles**
+**ARIA Roles: ~50 roles** (40 original + 10 high priority additions)
 - Widget roles: button, checkbox, radio, switch, tab, tabpanel, combobox, slider, etc.
 - Composite widget roles: menu, menubar, tablist, tree, treegrid, grid, listbox
 - Document structure roles: article, section, navigation, main, complementary, etc.
 - Landmark roles: banner, application
 - Live region roles: alert, status, log, marquee, timer
 - Window roles: dialog, alertdialog
+- **High priority additions:** link, heading, img, progressbar, meter, separator, toolbar, tooltip, none, presentation
 
-**ARIA Properties: ~35 properties**
+**ARIA Properties: ~40 properties** (35 original + 5 high priority additions)
 - Labeling: aria-label, aria-labelledby, aria-describedby
 - Relationships: aria-owns, aria-controls, aria-flowto, aria-activedescendant
 - Live regions: aria-live, aria-atomic, aria-relevant, aria-busy
 - Global: aria-hidden, aria-invalid, aria-required, aria-readonly, aria-disabled
 - Widget: aria-checked, aria-expanded, aria-pressed, aria-selected, aria-modal, etc.
 - Range: aria-valuemax, aria-valuemin, aria-valuenow, aria-valuetext
+- **High priority additions:** aria-current, aria-keyshortcuts, aria-roledescription, aria-posinset, aria-setsize
+- **Deprecated (warn/error):** aria-dropeffect, aria-grabbed
 
 **ARIA States: ~10 states**
 - Widget states: aria-checked, aria-selected, aria-expanded, aria-pressed, aria-disabled, aria-readonly, aria-required, aria-invalid
 - Live region states: aria-busy
 - Global states: aria-hidden
+
+**Enhanced Validation Features:**
+- ✅ **Role context rules** (required parent/children: tab/tablist, option/listbox, menuitem/menu, etc.)
+- ✅ **Accessible name computation** (empty checks, content mismatches, appropriate usage)
+- ✅ **ARIA-in-HTML conformance** (authoring restrictions)
+- ✅ **Redundant/conflicting role detection** (button role="button", etc.)
+- ✅ **Enhanced ID reference validation** (self-ref, circular, unique IDs, aria-hidden checks)
+- ✅ **Composite pattern validator** (tab/listbox/menu/tree patterns, focusability)
 
 **See:** [ARIA Validation Scope](./ARIA_VALIDATION_SCOPE.md) for complete list
 
@@ -97,10 +108,10 @@ Quick reference for Phase 1 implementation scope.
 ## Quick Stats
 
 ### ARIA Validation
-- **Roles:** 40 supported / ~80 total
-- **Properties:** 35 supported / ~50 total
-- **States:** 10 supported / ~12 total
-- **Coverage:** ~70% of common ARIA usage
+- **Roles:** 50 supported / ~80 total (62.5% coverage)
+- **Properties:** 40 supported / ~50 total (80% coverage)
+- **States:** 10 supported / ~12 total (83% coverage)
+- **Coverage:** ~75% of common ARIA usage (enhanced with context rules, accessible name, composite patterns)
 
 ### Semantic HTML Validation
 - **Elements:** 60 supported / ~100+ total
@@ -115,18 +126,24 @@ Quick reference for Phase 1 implementation scope.
 
 ## Implementation Timeline
 
-**Total: 6-7 weeks**
+**Total: 7-8 weeks** (updated with enhanced ARIA features)
 
-- **Weeks 1-3:** ARIA Validation (40 roles, 35 properties, 10 states)
-- **Weeks 4-5:** Semantic HTML Validation (60 elements, 7 patterns)
-- **Weeks 6-7:** Form Validation Messages (3 patterns)
+- **Weeks 1-4:** ARIA Validation (50 roles, 40 properties, 10 states + context rules + accessible name + composite patterns)
+- **Weeks 5-6:** Semantic HTML Validation (60 elements, 7 patterns)
+- **Weeks 7-8:** Form Validation Messages (3 patterns)
 
 ---
 
 ## Success Metrics
 
-- ✅ 40+ ARIA roles validated
-- ✅ 35+ ARIA properties validated
+- ✅ 50+ ARIA roles validated (including high priority additions)
+- ✅ 40+ ARIA properties validated (including high priority additions)
+- ✅ Role context rules validated (required parent/children)
+- ✅ Accessible name computation validated
+- ✅ ARIA-in-HTML conformance validated
+- ✅ Redundant/conflicting role detection
+- ✅ Enhanced ID reference validation
+- ✅ Composite pattern validation
 - ✅ 60+ semantic HTML elements validated
 - ✅ 7 semantic HTML patterns validated
 - ✅ 3 form validation patterns validated
