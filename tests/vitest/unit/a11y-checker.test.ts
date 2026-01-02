@@ -346,4 +346,64 @@ describe('A11yChecker', () => {
       expect(violations.some(v => v.id === 'details-summary')).toBe(true)
     })
   })
+
+  describe('Video Tests', () => {
+    it('should detect video without caption tracks', () => {
+      document.body.innerHTML = `
+        <div>
+          <video>
+            <source src="video.mp4" />
+          </video>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkVideoCaptions(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'video-captions')).toBe(true)
+    })
+
+    it('should detect caption track without srclang', () => {
+      document.body.innerHTML = `
+        <div>
+          <video>
+            <source src="video.mp4" />
+            <track kind="captions" />
+          </video>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkVideoCaptions(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'video-track-srclang')).toBe(true)
+    })
+
+    it('should pass when video has valid caption track', () => {
+      document.body.innerHTML = `
+        <div>
+          <video>
+            <source src="video.mp4" />
+            <track kind="captions" srclang="en" label="English" />
+          </video>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkVideoCaptions(document.body)
+      expect(violations).toHaveLength(0)
+    })
+
+    it('should warn when caption track lacks label', () => {
+      document.body.innerHTML = `
+        <div>
+          <video>
+            <source src="video.mp4" />
+            <track kind="captions" srclang="en" />
+          </video>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkVideoCaptions(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'video-track-label')).toBe(true)
+    })
+  })
 }) 

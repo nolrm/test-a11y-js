@@ -27,6 +27,7 @@ import iframeTitle from './rules/iframe-title'
 import fieldsetLegend from './rules/fieldset-legend'
 import tableStructure from './rules/table-structure'
 import detailsSummary from './rules/details-summary'
+import videoCaptions from './rules/video-captions'
 
 /**
  * ESLint plugin for accessibility checking
@@ -34,7 +35,7 @@ import detailsSummary from './rules/details-summary'
 const plugin: ESLint.Plugin = {
   meta: {
     name: 'test-a11y-js',
-    version: '0.5.8'
+    version: '0.5.9'
   },
   rules: {
     'image-alt': imageAlt,
@@ -45,7 +46,8 @@ const plugin: ESLint.Plugin = {
     'iframe-title': iframeTitle,
     'fieldset-legend': fieldsetLegend,
     'table-structure': tableStructure,
-    'details-summary': detailsSummary
+    'details-summary': detailsSummary,
+    'video-captions': videoCaptions
   },
   configs: {
     recommended: {

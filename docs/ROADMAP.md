@@ -6,7 +6,7 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 
 **Version:** 0.5.6
 
-**Supported Rules:** 9
+**Supported Rules:** 10
 - `image-alt` - Image alt attribute validation
 - `button-label` - Button label validation
 - `link-text` - Link text validation
@@ -16,9 +16,10 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 - `fieldset-legend` - Fieldset legend validation
 - `table-structure` - Table structure validation
 - `details-summary` - Details/Summary validation
+- `video-captions` - Video captions validation
 
-**Supported Elements:** 17
-- img, button, a, input, select, textarea, h1-h6, iframe, fieldset, table, details, summary
+**Supported Elements:** 18
+- img, button, a, input, select, textarea, h1-h6, iframe, fieldset, table, details, summary, video
 
 ## Implementation Priority
 
@@ -72,10 +73,10 @@ Validate table accessibility including caption, header cells (`<th>`), and scope
 
 ### Phase 2: Medium Complexity
 
-#### 3. video-captions Rule
+#### 3. video-captions Rule ✅ COMPLETED
 **Priority:** Medium  
 **Complexity:** Medium  
-**Estimated Time:** 2-3 days
+**Status:** Implemented in v0.5.9
 
 **Description:**  
 Validate that `<video>` elements have captions via `<track>` elements.
@@ -84,9 +85,9 @@ Validate that `<video>` elements have captions via `<track>` elements.
 - Success Criterion 1.2.2 (Captions - Prerecorded)
 
 **Checks:**
-- Video elements should have `<track kind="captions">` elements
-- Track elements should have `srclang` attribute
-- Track elements should have `label` attribute
+- ✅ Video elements should have `<track kind="captions">` elements
+- ✅ Track elements should have `srclang` attribute
+- ✅ Track elements should have `label` attribute
 
 **Resources:**
 - MDN: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#accessibility
@@ -396,11 +397,11 @@ For each new rule, follow this checklist:
 
 ## Version Planning
 
-### v0.5.8 (Current Release)
-- [x] details-summary rule
+### v0.5.9 (Current Release)
+- [x] video-captions rule
 
 ### v0.6.0 (Next Release)
-- [ ] video-captions rule
+- [ ] audio-captions rule
 
 ### v0.5.0
 - [ ] video-captions rule

@@ -261,6 +261,50 @@ export class A11yChecker {
     return violations
   }
 
+  static checkVideoCaptions(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    const videos = element.getElementsByTagName('video')
+    
+    for (const video of Array.from(videos)) {
+      // Check for track elements with kind="captions"
+      const tracks = video.querySelectorAll('track')
+      const captionTracks = Array.from(tracks).filter(track => 
+        track.getAttribute('kind')?.toLowerCase() === 'captions'
+      )
+      
+      if (captionTracks.length === 0) {
+        violations.push({
+          id: 'video-captions',
+          description: 'Video element must have at least one track element with kind="captions"',
+          element: video,
+          impact: 'serious'
+        })
+      } else {
+        // Check that caption tracks have required attributes
+        for (const track of captionTracks) {
+          if (!track.hasAttribute('srclang')) {
+            violations.push({
+              id: 'video-track-srclang',
+              description: 'Video caption track must have a srclang attribute',
+              element: track,
+              impact: 'serious'
+            })
+          }
+          if (!track.hasAttribute('label')) {
+            violations.push({
+              id: 'video-track-label',
+              description: 'Video caption track should have a label attribute',
+              element: track,
+              impact: 'moderate'
+            })
+          }
+        }
+      }
+    }
+    
+    return violations
+  }
+
   static async check(element: Element): Promise<A11yResults> {
     const violations = [
       ...this.checkImageAlt(element),
@@ -271,7 +315,8 @@ export class A11yChecker {
       ...this.checkIframeTitle(element),
       ...this.checkFieldsetLegend(element),
       ...this.checkTableStructure(element),
-      ...this.checkDetailsSummary(element)
+      ...this.checkDetailsSummary(element),
+      ...this.checkVideoCaptions(element)
     ]
     
     // Log violations for debugging

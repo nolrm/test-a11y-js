@@ -275,6 +275,38 @@
         "<details><summary>Click to expand</summary><div>Content</div></details>",
         "<details><summary>More information</summary></details>"
       ]
+    },
+    "video-captions": {
+      "ruleId": "test-a11y-js/video-captions",
+      "method": "checkVideoCaptions",
+      "elements": ["video"],
+      "attributes": {
+        "checked": ["kind", "srclang", "label"]
+      },
+      "violations": [
+        {
+          "id": "video-captions",
+          "description": "Video element must have at least one track element with kind=\"captions\"",
+          "impact": "serious",
+          "condition": "Element lacks track with kind=\"captions\""
+        },
+        {
+          "id": "video-track-srclang",
+          "description": "Video caption track must have a srclang attribute",
+          "impact": "serious",
+          "condition": "Track element lacks 'srclang' attribute"
+        },
+        {
+          "id": "video-track-label",
+          "description": "Video caption track should have a label attribute",
+          "impact": "moderate",
+          "condition": "Track element lacks 'label' attribute"
+        }
+      ],
+      "validPatterns": [
+        "<video><source src='video.mp4' /><track kind='captions' srclang='en' label='English' /></video>",
+        "<video><track kind='captions' srclang='es' label='Spanish' /></video>"
+      ]
     }
   },
   "ariaAttributes": {
@@ -488,14 +520,14 @@
         "element": "summary",
         "rules": ["details-summary"],
         "checks": ["must be first child of details with non-empty text"]
+      },
+      {
+        "element": "video",
+        "rules": ["video-captions"],
+        "checks": ["track elements with kind=\"captions\"", "srclang attribute", "label attribute"]
       }
     ],
     "notSupported": [
-      {
-        "element": "video",
-        "reason": "Not yet implemented - would require captions/track validation",
-        "planned": false
-      },
       {
         "element": "audio",
         "reason": "Not yet implemented - would require captions/track validation",
@@ -608,9 +640,9 @@
     ]
   },
   "summary": {
-    "totalRules": 9,
-    "totalElementsSupported": 17,
-    "totalElementsNotSupported": 10,
+    "totalRules": 10,
+    "totalElementsSupported": 18,
+    "totalElementsNotSupported": 9,
     "totalAriaAttributesSupported": 2,
     "totalAriaAttributesNotSupported": 8,
     "totalHtmlAttributesSupported": 5,
@@ -633,12 +665,13 @@
       "fieldset",
       "table",
       "details",
-      "summary"
+      "summary",
+      "video"
     ],
     "impactLevels": {
       "critical": ["button-label", "form-label"],
-      "serious": ["image-alt", "link-text", "iframe-title", "fieldset-legend", "table-structure", "details-summary"],
-      "moderate": ["link-text", "heading-order", "table-structure"]
+      "serious": ["image-alt", "link-text", "iframe-title", "fieldset-legend", "table-structure", "details-summary", "video-captions"],
+      "moderate": ["link-text", "heading-order", "table-structure", "video-captions"]
     }
   }
 }
