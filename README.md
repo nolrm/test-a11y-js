@@ -85,32 +85,6 @@ npm install --save-dev test-a11y-js
 
 The ESLint plugin provides real-time accessibility linting in your editor and CI/CD. It's the easiest way to catch issues during development.
 
-```typescript
-import { A11yChecker } from 'test-a11y-js'
-
-// Test a DOM element for accessibility violations
-const results = await A11yChecker.check(element)
-
-// Individual checks
-const imageViolations = A11yChecker.checkImageAlt(element)
-const linkViolations = A11yChecker.checkLinkText(element)
-const buttonViolations = A11yChecker.checkButtonLabel(element)
-const formViolations = A11yChecker.checkFormLabels(element)
-const headingViolations = A11yChecker.checkHeadingOrder(element)
-const iframeViolations = A11yChecker.checkIframeTitle(element)
-const fieldsetViolations = A11yChecker.checkFieldsetLegend(element)
-const tableViolations = A11yChecker.checkTableStructure(element)
-const detailsViolations = A11yChecker.checkDetailsSummary(element)
-const videoViolations = A11yChecker.checkVideoCaptions(element)
-const audioViolations = A11yChecker.checkAudioCaptions(element)
-const landmarkViolations = A11yChecker.checkLandmarks(element)
-const dialogViolations = A11yChecker.checkDialogModal(element)
-```
-
-### ESLint Plugin
-
-Use the ESLint plugin for real-time accessibility linting in your editor and CI/CD:
-
 #### Basic Setup
 
 ```javascript
