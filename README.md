@@ -79,9 +79,11 @@ npm install --save-dev test-a11y-js
 
 ## Usage
 
-### Programmatic API
+> **Not sure which to use?** See [ESLint Plugin vs Programmatic API](#eslint-plugin-vs-programmatic-api) above for guidance.
 
-Use the `A11yChecker` class to test DOM elements programmatically:
+### ESLint Plugin (Recommended for Most Cases)
+
+The ESLint plugin provides real-time accessibility linting in your editor and CI/CD. It's the easiest way to catch issues during development.
 
 ```typescript
 import { A11yChecker } from 'test-a11y-js'
@@ -166,7 +168,9 @@ module.exports = {
 
 See [Configuration Guide](./docs/CONFIGURATION.md) for more details and [Large Project Setup Guide](./docs/LARGE_PROJECTS.md) for incremental adoption strategies.
 
-## API
+### Programmatic API
+
+Use the `A11yChecker` class to test DOM elements programmatically in your test suites:
 
 ### A11yChecker
 
