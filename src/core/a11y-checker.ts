@@ -483,7 +483,11 @@ export class A11yChecker {
       ...this.checkAriaProperties(element),
       ...this.checkAriaRelationships(element),
       ...this.checkAccessibleName(element),
-      ...this.checkCompositePatterns(element)
+      ...this.checkCompositePatterns(element),
+      // Phase 1: Semantic HTML Validation
+      ...this.checkSemanticHTML(element),
+      // Phase 1: Form Validation Messages
+      ...this.checkFormValidationMessages(element)
     ]
     
     // Log violations for debugging
@@ -1124,6 +1128,310 @@ export class A11yChecker {
               impact: 'serious'
             })
           }
+        }
+      }
+    }
+    
+    return violations
+  }
+
+  /**
+   * Check semantic HTML usage and structure
+   */
+  static checkSemanticHTML(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    
+    // Check for generic element misuse (div/span with roles or onclick)
+    const divsWithRole = element.querySelectorAll('div[role], span[role]')
+    for (const el of Array.from(divsWithRole)) {
+      const role = el.getAttribute('role')
+      const tagName = el.tagName.toLowerCase()
+      
+      // Map roles to semantic elements
+      const roleToElement: Record<string, string> = {
+        'button': 'button',
+        'link': 'a',
+        'heading': 'h1-h6',
+        'list': 'ul or ol',
+        'listitem': 'li',
+        'navigation': 'nav',
+        'main': 'main',
+        'article': 'article',
+        'section': 'section',
+        'banner': 'header',
+        'contentinfo': 'footer',
+        'complementary': 'aside',
+        'form': 'form',
+        'dialog': 'dialog'
+      }
+      
+      if (role && roleToElement[role]) {
+        violations.push({
+          id: 'semantic-element-preferred',
+          description: `Use <${roleToElement[role]}> instead of <${tagName} role="${role}">`,
+          element: el,
+          impact: 'moderate'
+        })
+      }
+    }
+    
+    // Check for interactive elements inside interactive elements
+    const interactiveSelectors = 'button, a[href], input[type="button"], input[type="submit"], input[type="reset"], [role="button"], [role="link"]'
+    const interactiveElements = element.querySelectorAll(interactiveSelectors)
+    for (const el of Array.from(interactiveElements)) {
+      const parent = el.parentElement
+      if (parent && parent.matches(interactiveSelectors)) {
+        violations.push({
+          id: 'nested-interactive',
+          description: 'Interactive element cannot be nested inside another interactive element',
+          element: el,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    // Check anchor without href
+    const anchors = element.querySelectorAll('a')
+    for (const anchor of Array.from(anchors)) {
+      if (!anchor.hasAttribute('href')) {
+        violations.push({
+          id: 'anchor-without-href',
+          description: '<a> without href should be <button> or have href attribute',
+          element: anchor,
+          impact: 'moderate'
+        })
+      }
+    }
+    
+    // Check button type in forms
+    const forms = element.querySelectorAll('form')
+    for (const form of Array.from(forms)) {
+      const buttons = form.querySelectorAll('button')
+      for (const button of Array.from(buttons)) {
+        if (!button.hasAttribute('type')) {
+          violations.push({
+            id: 'button-missing-type',
+            description: '<button> in form should have type="button" to prevent accidental submit',
+            element: button,
+            impact: 'moderate'
+          })
+        }
+      }
+    }
+    
+    // Check list structure
+    const listItems = element.querySelectorAll('li')
+    for (const li of Array.from(listItems)) {
+      const parent = li.parentElement
+      const parentTag = parent?.tagName.toLowerCase()
+      if (parent && parentTag !== 'ul' && parentTag !== 'ol' && parentTag !== 'menu') {
+        violations.push({
+          id: 'list-item-outside-list',
+          description: '<li> must be a child of <ul>, <ol>, or <menu>',
+          element: li,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    // Check description list structure
+    const dts = element.querySelectorAll('dt, dd')
+    for (const el of Array.from(dts)) {
+      const dl = el.closest('dl')
+      if (!dl) {
+        violations.push({
+          id: 'dt-dd-outside-dl',
+          description: `<${el.tagName.toLowerCase()}> must appear under a <dl>`,
+          element: el,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    // Check image alt text
+    const images = element.querySelectorAll('img')
+    for (const img of Array.from(images)) {
+      if (!img.hasAttribute('alt')) {
+        violations.push({
+          id: 'image-missing-alt',
+          description: '<img> must have alt attribute (use alt="" for decorative images)',
+          element: img,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    // Check figure structure
+    const figcaptions = element.querySelectorAll('figcaption')
+    for (const figcaption of Array.from(figcaptions)) {
+      const figure = figcaption.closest('figure')
+      if (!figure) {
+        violations.push({
+          id: 'figcaption-outside-figure',
+          description: '<figcaption> must be inside <figure>',
+          element: figcaption,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    const figures = element.querySelectorAll('figure')
+    for (const figure of Array.from(figures)) {
+      const figcaptions = figure.querySelectorAll('figcaption')
+      if (figcaptions.length > 1) {
+        violations.push({
+          id: 'figure-multiple-figcaptions',
+          description: '<figure> should not have multiple <figcaption> elements',
+          element: figure,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    // Check landmark uniqueness
+    const mains = element.querySelectorAll('main')
+    if (mains.length > 1) {
+      for (const main of Array.from(mains)) {
+        violations.push({
+          id: 'multiple-main',
+          description: 'Document should have only one <main> element',
+          element: main,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    // Check multiple landmarks require labels
+    const navs = element.querySelectorAll('nav')
+    if (navs.length > 1) {
+      for (const nav of Array.from(navs)) {
+        const hasLabel = nav.hasAttribute('aria-label') || nav.hasAttribute('aria-labelledby')
+        if (!hasLabel) {
+          violations.push({
+            id: 'multiple-nav-without-label',
+            description: 'Multiple <nav> elements require accessible names (aria-label or aria-labelledby)',
+            element: nav,
+            impact: 'moderate'
+          })
+        }
+      }
+    }
+    
+    // Check form label associations
+    const formControls = element.querySelectorAll('input, select, textarea')
+    for (const control of Array.from(formControls)) {
+      if (control.getAttribute('type') === 'hidden') continue
+      
+      const id = control.id
+      const hasAriaLabel = control.hasAttribute('aria-label')
+      const hasAriaLabelledBy = control.hasAttribute('aria-labelledby')
+      const isWrappedInLabel = control.closest('label')
+      const hasLabelFor = id && element.querySelector(`label[for="${id}"]`)
+      
+      if (!hasAriaLabel && !hasAriaLabelledBy && !isWrappedInLabel && !hasLabelFor) {
+        violations.push({
+          id: 'form-control-missing-label',
+          description: 'Form control must have associated label',
+          element: control,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    // Check ID uniqueness
+    const ids = new Map<string, Element[]>()
+    const elementsWithIds = element.querySelectorAll('[id]')
+    for (const el of Array.from(elementsWithIds)) {
+      const id = el.id
+      if (id) {
+        if (!ids.has(id)) {
+          ids.set(id, [])
+        }
+        ids.get(id)!.push(el)
+      }
+    }
+    
+    for (const [id, elements] of ids.entries()) {
+      if (elements.length > 1) {
+        for (const el of elements) {
+          violations.push({
+            id: 'duplicate-id',
+            description: `Duplicate ID "${id}" found - IDs must be unique`,
+            element: el,
+            impact: 'serious'
+          })
+        }
+      }
+    }
+    
+    return violations
+  }
+
+  /**
+   * Check form validation messages
+   */
+  static checkFormValidationMessages(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    
+    // Check aria-invalid usage
+    const invalidElements = element.querySelectorAll('[aria-invalid]')
+    for (const el of Array.from(invalidElements)) {
+      const ariaInvalid = el.getAttribute('aria-invalid')
+      if (ariaInvalid === 'true') {
+        // Check if there's an associated error message
+        const describedBy = el.getAttribute('aria-describedby')
+        if (describedBy) {
+          const ids = describedBy.split(/\s+/)
+          let hasErrorMessage = false
+          for (const id of ids) {
+            const errorEl = element.querySelector(`#${id}`)
+            if (errorEl) {
+              const errorText = errorEl.textContent?.trim() || ''
+              const errorAriaLabel = errorEl.getAttribute('aria-label')
+              if (errorText || errorAriaLabel) {
+                hasErrorMessage = true
+                break
+              }
+            }
+          }
+          
+          if (!hasErrorMessage) {
+            violations.push({
+              id: 'aria-invalid-without-message',
+              description: 'Element with aria-invalid="true" should have associated error message via aria-describedby',
+              element: el,
+              impact: 'serious'
+            })
+          }
+        } else {
+          violations.push({
+            id: 'aria-invalid-without-describedby',
+            description: 'Element with aria-invalid="true" should have aria-describedby pointing to error message',
+            element: el,
+            impact: 'serious'
+          })
+        }
+      }
+    }
+    
+    // Check required fields have indicators
+    const requiredFields = element.querySelectorAll('[required], [aria-required="true"]')
+    for (const field of Array.from(requiredFields)) {
+      const label = element.querySelector(`label[for="${field.id}"]`) || field.closest('label')
+      if (label) {
+        const labelText = label.textContent || ''
+        // Check if label indicates required (common patterns)
+        const hasRequiredIndicator = labelText.includes('*') || 
+                                     labelText.toLowerCase().includes('required') ||
+                                     field.hasAttribute('aria-required')
+        
+        if (!hasRequiredIndicator && !field.hasAttribute('aria-required')) {
+          violations.push({
+            id: 'required-field-indicator',
+            description: 'Required field should have visual indicator (e.g., *) or aria-required attribute',
+            element: field,
+            impact: 'moderate'
+          })
         }
       }
     }
