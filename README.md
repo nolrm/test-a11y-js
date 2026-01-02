@@ -34,6 +34,24 @@ const violations = A11yChecker.checkImageAlt(element)
 
 That's it! Start catching accessibility issues immediately.
 
+## ESLint Plugin vs Programmatic API
+
+**When to use the ESLint Plugin:**
+- ✅ **Real-time feedback** - Catch issues as you type in your editor
+- ✅ **CI/CD integration** - Prevent commits with accessibility violations
+- ✅ **Team-wide enforcement** - Ensure all developers follow accessibility standards
+- ✅ **Zero test code** - No need to write test cases, just configure ESLint
+- ✅ **Best for:** Development workflow, code reviews, preventing regressions
+
+**When to use the Programmatic API:**
+- ✅ **Custom test scenarios** - Write specific accessibility tests in your test suite
+- ✅ **Dynamic content** - Test accessibility of dynamically generated DOM
+- ✅ **Integration testing** - Test accessibility in E2E or integration tests
+- ✅ **Custom reporting** - Build custom violation reporting or analytics
+- ✅ **Best for:** Unit tests, integration tests, custom testing workflows
+
+**You can use both!** Many teams use ESLint plugin for development and programmatic API for comprehensive test coverage.
+
 ## What Problems Does This Solve?
 
 ❌ **Before:** Accessibility issues discovered in production or by users  
