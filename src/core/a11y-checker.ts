@@ -1339,7 +1339,10 @@ export class A11yChecker {
         if (!ids.has(id)) {
           ids.set(id, [])
         }
-        ids.get(id)!.push(el)
+        const elements = ids.get(id)
+        if (elements) {
+          elements.push(el)
+        }
       }
     }
     
