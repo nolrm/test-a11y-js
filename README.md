@@ -138,7 +138,7 @@ interface A11yResults {
 
 ## ESLint Rules
 
-The plugin provides 11 accessibility rules:
+The plugin provides 12 accessibility rules:
 
 - `test-a11y-js/image-alt` - Enforce images have alt attributes
 - `test-a11y-js/button-label` - Enforce buttons have labels
@@ -151,6 +151,7 @@ The plugin provides 11 accessibility rules:
 - `test-a11y-js/details-summary` - Enforce details elements have summary as first child
 - `test-a11y-js/video-captions` - Enforce video elements have caption tracks
 - `test-a11y-js/audio-captions` - Enforce audio elements have tracks or transcripts
+- `test-a11y-js/landmark-roles` - Enforce proper use of landmark elements (nav, main, header, footer, aside, section, article)
 
 See [`src/checks.json`](./src/checks.json) for a complete list of supported elements, ARIA attributes, and rules (including what's not yet supported).
 

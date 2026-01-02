@@ -349,6 +349,72 @@ export class A11yChecker {
     return violations
   }
 
+  static checkLandmarks(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    const landmarkTags = ['nav', 'main', 'header', 'footer', 'aside', 'section', 'article']
+    
+    // Check for multiple main elements
+    const mainElements = element.getElementsByTagName('main')
+    if (mainElements.length > 1) {
+      const mains = Array.from(mainElements)
+      // Report all but the first
+      for (let i = 1; i < mains.length; i++) {
+        violations.push({
+          id: 'landmark-multiple-main',
+          description: 'Page should have only one main element',
+          element: mains[i],
+          impact: 'serious'
+        })
+      }
+    }
+    
+    // Check landmarks for accessible names when needed
+    for (const tag of landmarkTags) {
+      const landmarks = element.getElementsByTagName(tag)
+      
+      for (const landmark of Array.from(landmarks)) {
+        // Section and article should have accessible names if they're not nested in a named landmark
+        if (tag === 'section' || tag === 'article') {
+          const hasHeading = landmark.querySelector('h1, h2, h3, h4, h5, h6')
+          const hasAriaLabel = landmark.hasAttribute('aria-label')
+          const hasAriaLabelledBy = landmark.hasAttribute('aria-labelledby')
+          
+          if (!hasHeading && !hasAriaLabel && !hasAriaLabelledBy) {
+            violations.push({
+              id: 'landmark-missing-name',
+              description: `${tag} element should have an accessible name (heading, aria-label, or aria-labelledby)`,
+              element: landmark,
+              impact: 'moderate'
+            })
+          }
+        }
+        
+        // Check for duplicate landmarks without names (for nav, aside, etc.)
+        if (tag === 'nav' || tag === 'aside') {
+          const hasAriaLabel = landmark.hasAttribute('aria-label')
+          const hasAriaLabelledBy = landmark.hasAttribute('aria-labelledby')
+          
+          // If there are multiple of the same type without names, that's a problem
+          const sameType = Array.from(element.getElementsByTagName(tag))
+          const unnamed = sameType.filter(l => 
+            !l.hasAttribute('aria-label') && !l.hasAttribute('aria-labelledby')
+          )
+          
+          if (unnamed.length > 1 && !hasAriaLabel && !hasAriaLabelledBy) {
+            violations.push({
+              id: 'landmark-duplicate-unnamed',
+              description: `Multiple ${tag} elements found. Each should have an accessible name (aria-label or aria-labelledby)`,
+              element: landmark,
+              impact: 'moderate'
+            })
+          }
+        }
+      }
+    }
+    
+    return violations
+  }
+
   static async check(element: Element): Promise<A11yResults> {
     const violations = [
       ...this.checkImageAlt(element),
@@ -361,7 +427,8 @@ export class A11yChecker {
       ...this.checkTableStructure(element),
       ...this.checkDetailsSummary(element),
       ...this.checkVideoCaptions(element),
-      ...this.checkAudioCaptions(element)
+      ...this.checkAudioCaptions(element),
+      ...this.checkLandmarks(element)
     ]
     
     // Log violations for debugging

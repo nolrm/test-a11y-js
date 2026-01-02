@@ -6,7 +6,7 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 
 **Version:** 0.5.6
 
-**Supported Rules:** 11
+**Supported Rules:** 12
 - `image-alt` - Image alt attribute validation
 - `button-label` - Button label validation
 - `link-text` - Link text validation
@@ -18,9 +18,10 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 - `details-summary` - Details/Summary validation
 - `video-captions` - Video captions validation
 - `audio-captions` - Audio captions validation
+- `landmark-roles` - Landmark elements validation
 
-**Supported Elements:** 19
-- img, button, a, input, select, textarea, h1-h6, iframe, fieldset, table, details, summary, video, audio
+**Supported Elements:** 26
+- img, button, a, input, select, textarea, h1-h6, iframe, fieldset, table, details, summary, video, audio, nav, main, header, footer, aside, section, article
 
 ## Implementation Priority
 
@@ -138,10 +139,10 @@ Validate that `<details>` elements have a `<summary>` child.
 
 ### Phase 3: Advanced Features
 
-#### 6. Landmark Elements Validation
+#### 6. Landmark Elements Validation ✅ COMPLETED
 **Priority:** Medium  
 **Complexity:** High  
-**Estimated Time:** 3-5 days
+**Status:** Implemented in v0.6.1
 
 **Description:**  
 Validate proper use of landmark elements (`<nav>`, `<main>`, `<header>`, `<footer>`, `<aside>`, `<section>`, `<article>`).
@@ -151,9 +152,9 @@ Validate proper use of landmark elements (`<nav>`, `<main>`, `<header>`, `<foote
 - ARIA Landmarks: https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/
 
 **Checks:**
-- Only one `<main>` element per page
-- Landmark elements should have accessible names when needed
-- Proper nesting of landmark elements
+- ✅ Only one `<main>` element per page
+- ✅ Landmark elements should have accessible names when needed
+- ⚠️ Proper nesting of landmark elements (basic check implemented)
 
 **Elements:**
 - nav, main, header, footer, aside, section, article
@@ -398,11 +399,11 @@ For each new rule, follow this checklist:
 
 ## Version Planning
 
-### v0.6.0 (Current Release)
-- [x] audio-captions rule
+### v0.6.1 (Current Release)
+- [x] Landmark elements validation
 
-### v0.6.1 (Next Release)
-- [ ] Landmark elements validation
+### v0.6.2 (Next Release)
+- [ ] dialog-modal rule
 
 ### v0.5.0
 - [ ] video-captions rule

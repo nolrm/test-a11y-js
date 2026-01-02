@@ -466,4 +466,60 @@ describe('A11yChecker', () => {
       expect(violations.some(v => v.id === 'audio-track-label')).toBe(true)
     })
   })
+
+  describe('Landmark Tests', () => {
+    it('should detect multiple main elements', () => {
+      document.body.innerHTML = `
+        <div>
+          <main>First main</main>
+          <main>Second main</main>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkLandmarks(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'landmark-multiple-main')).toBe(true)
+    })
+
+    it('should detect section without accessible name', () => {
+      document.body.innerHTML = `
+        <div>
+          <section>
+            <div>Content without heading</div>
+          </section>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkLandmarks(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'landmark-missing-name')).toBe(true)
+    })
+
+    it('should pass when section has heading', () => {
+      document.body.innerHTML = `
+        <div>
+          <section>
+            <h2>Section Title</h2>
+            <div>Content</div>
+          </section>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkLandmarks(document.body)
+      expect(violations.filter(v => v.id === 'landmark-missing-name')).toHaveLength(0)
+    })
+
+    it('should pass when section has aria-label', () => {
+      document.body.innerHTML = `
+        <div>
+          <section aria-label="Content Section">
+            <div>Content</div>
+          </section>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkLandmarks(document.body)
+      expect(violations.filter(v => v.id === 'landmark-missing-name')).toHaveLength(0)
+    })
+  })
 }) 

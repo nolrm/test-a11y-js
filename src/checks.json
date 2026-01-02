@@ -530,44 +530,44 @@
         "element": "audio",
         "rules": ["audio-captions"],
         "checks": ["track elements or transcript link", "srclang attribute", "label attribute"]
-      }
-    ],
-    "notSupported": [
+      },
       {
         "element": "nav",
-        "reason": "Not yet implemented - would require landmark validation",
-        "planned": false
+        "rules": ["landmark-roles"],
+        "checks": ["only one main per page", "accessible names when needed", "proper nesting"]
       },
       {
         "element": "main",
-        "reason": "Not yet implemented - would require landmark validation",
-        "planned": false
+        "rules": ["landmark-roles"],
+        "checks": ["only one main per page", "accessible names when needed", "proper nesting"]
       },
       {
         "element": "header",
-        "reason": "Not yet implemented - would require landmark validation",
-        "planned": false
+        "rules": ["landmark-roles"],
+        "checks": ["only one main per page", "accessible names when needed", "proper nesting"]
       },
       {
         "element": "footer",
-        "reason": "Not yet implemented - would require landmark validation",
-        "planned": false
+        "rules": ["landmark-roles"],
+        "checks": ["only one main per page", "accessible names when needed", "proper nesting"]
       },
       {
         "element": "aside",
-        "reason": "Not yet implemented - would require landmark validation",
-        "planned": false
+        "rules": ["landmark-roles"],
+        "checks": ["only one main per page", "accessible names when needed", "proper nesting"]
       },
       {
         "element": "section",
-        "reason": "Not yet implemented - would require landmark validation",
-        "planned": false
+        "rules": ["landmark-roles"],
+        "checks": ["only one main per page", "accessible names when needed", "proper nesting"]
       },
       {
         "element": "article",
-        "reason": "Not yet implemented - would require landmark validation",
-        "planned": false
-      },
+        "rules": ["landmark-roles"],
+        "checks": ["only one main per page", "accessible names when needed", "proper nesting"]
+      }
+    ],
+    "notSupported": [
       {
         "element": "dialog",
         "reason": "Not yet implemented - would require modal accessibility validation",
@@ -640,9 +640,9 @@
     ]
   },
   "summary": {
-    "totalRules": 11,
-    "totalElementsSupported": 19,
-    "totalElementsNotSupported": 8,
+    "totalRules": 12,
+    "totalElementsSupported": 26,
+    "totalElementsNotSupported": 1,
     "totalAriaAttributesSupported": 2,
     "totalAriaAttributesNotSupported": 8,
     "totalHtmlAttributesSupported": 5,
@@ -667,12 +667,19 @@
       "details",
       "summary",
       "video",
-      "audio"
+      "audio",
+      "nav",
+      "main",
+      "header",
+      "footer",
+      "aside",
+      "section",
+      "article"
     ],
     "impactLevels": {
       "critical": ["button-label", "form-label"],
-      "serious": ["image-alt", "link-text", "iframe-title", "fieldset-legend", "table-structure", "details-summary", "video-captions", "audio-captions"],
-      "moderate": ["link-text", "heading-order", "table-structure", "video-captions", "audio-captions"]
+      "serious": ["image-alt", "link-text", "iframe-title", "fieldset-legend", "table-structure", "details-summary", "video-captions", "audio-captions", "landmark-roles"],
+      "moderate": ["link-text", "heading-order", "table-structure", "video-captions", "audio-captions", "landmark-roles"]
     }
   }
 }
