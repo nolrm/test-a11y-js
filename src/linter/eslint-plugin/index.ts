@@ -32,6 +32,9 @@ import videoCaptions from './rules/video-captions'
 import audioCaptions from './rules/audio-captions'
 import landmarkRoles from './rules/landmark-roles'
 import dialogModal from './rules/dialog-modal'
+import ariaValidation from './rules/aria-validation'
+import semanticHTML from './rules/semantic-html'
+import formValidation from './rules/form-validation'
 
 /**
  * ESLint plugin for accessibility checking
@@ -39,7 +42,7 @@ import dialogModal from './rules/dialog-modal'
 const plugin: ESLint.Plugin = {
   meta: {
     name: 'test-a11y-js',
-    version: '0.7.0'
+    version: '0.8.0'
   },
   rules: {
     'image-alt': imageAlt,
@@ -54,7 +57,10 @@ const plugin: ESLint.Plugin = {
     'video-captions': videoCaptions,
     'audio-captions': audioCaptions,
     'landmark-roles': landmarkRoles,
-    'dialog-modal': dialogModal
+    'dialog-modal': dialogModal,
+    'aria-validation': ariaValidation,
+    'semantic-html': semanticHTML,
+    'form-validation': formValidation
   },
   configs: {
     minimal: {

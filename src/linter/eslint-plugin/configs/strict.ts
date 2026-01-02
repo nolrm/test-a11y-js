@@ -21,7 +21,10 @@ const strict: RuleConfig = {
   'test-a11y-js/video-captions': 'error',
   'test-a11y-js/audio-captions': 'error',
   'test-a11y-js/landmark-roles': 'error',
-  'test-a11y-js/dialog-modal': 'error'
+  'test-a11y-js/dialog-modal': 'error',
+  'test-a11y-js/aria-validation': 'error',
+  'test-a11y-js/semantic-html': 'error',
+  'test-a11y-js/form-validation': 'error'
 }
 
 export default strict
