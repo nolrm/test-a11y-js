@@ -191,6 +191,32 @@
         "<iframe src='https://example.com' title='Example website' />",
         "<iframe src='https://example.com' title='Embedded content' />"
       ]
+    },
+    "fieldset-legend": {
+      "ruleId": "test-a11y-js/fieldset-legend",
+      "method": "checkFieldsetLegend",
+      "elements": ["fieldset"],
+      "attributes": {
+        "checked": []
+      },
+      "violations": [
+        {
+          "id": "fieldset-legend",
+          "description": "fieldset must have a legend element as a direct child",
+          "impact": "serious",
+          "condition": "Element lacks 'legend' as direct child"
+        },
+        {
+          "id": "fieldset-legend-empty",
+          "description": "fieldset legend must have non-empty text content",
+          "impact": "serious",
+          "condition": "Element has empty 'legend' text content"
+        }
+      ],
+      "validPatterns": [
+        "<fieldset><legend>Personal Information</legend><input /></fieldset>",
+        "<fieldset><legend>Contact Details</legend></fieldset>"
+      ]
     }
   },
   "ariaAttributes": {
@@ -384,6 +410,11 @@
         "element": "iframe",
         "rules": ["iframe-title"],
         "checks": ["title attribute presence and non-empty"]
+      },
+      {
+        "element": "fieldset",
+        "rules": ["fieldset-legend"],
+        "checks": ["legend element as direct child with non-empty text"]
       }
     ],
     "notSupported": [
@@ -400,11 +431,6 @@
       {
         "element": "table",
         "reason": "Not yet implemented - would require caption, th, scope validation",
-        "planned": false
-      },
-      {
-        "element": "fieldset",
-        "reason": "Not yet implemented - would require legend validation",
         "planned": false
       },
       {
@@ -524,9 +550,9 @@
     ]
   },
   "summary": {
-    "totalRules": 6,
-    "totalElementsSupported": 13,
-    "totalElementsNotSupported": 14,
+    "totalRules": 7,
+    "totalElementsSupported": 14,
+    "totalElementsNotSupported": 13,
     "totalAriaAttributesSupported": 2,
     "totalAriaAttributesNotSupported": 8,
     "totalHtmlAttributesSupported": 5,
@@ -545,11 +571,12 @@
       "h4",
       "h5",
       "h6",
-      "iframe"
+      "iframe",
+      "fieldset"
     ],
     "impactLevels": {
       "critical": ["button-label", "form-label"],
-      "serious": ["image-alt", "link-text", "iframe-title"],
+      "serious": ["image-alt", "link-text", "iframe-title", "fieldset-legend"],
       "moderate": ["link-text", "heading-order"]
     }
   }

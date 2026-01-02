@@ -4,18 +4,19 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 
 ## Current Status
 
-**Version:** 0.3.0
+**Version:** 0.5.6
 
-**Supported Rules:** 6
+**Supported Rules:** 7
 - `image-alt` - Image alt attribute validation
 - `button-label` - Button label validation
 - `link-text` - Link text validation
 - `form-label` - Form control label validation
 - `heading-order` - Heading hierarchy validation
 - `iframe-title` - Iframe title attribute validation
+- `fieldset-legend` - Fieldset legend validation
 
-**Supported Elements:** 13
-- img, button, a, input, select, textarea, h1-h6, iframe
+**Supported Elements:** 14
+- img, button, a, input, select, textarea, h1-h6, iframe, fieldset
 
 ## Implementation Priority
 
@@ -393,8 +394,10 @@ For each new rule, follow this checklist:
 
 ## Version Planning
 
-### v0.4.0 (Next Release)
-- [ ] fieldset-legend rule
+### v0.5.6 (Current Release)
+- [x] fieldset-legend rule
+
+### v0.6.0 (Next Release)
 - [ ] table-structure rule
 
 ### v0.5.0

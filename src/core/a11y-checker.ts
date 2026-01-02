@@ -155,6 +155,36 @@ export class A11yChecker {
     return violations
   }
 
+  static checkFieldsetLegend(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    const fieldsets = element.getElementsByTagName('fieldset')
+    
+    for (const fieldset of Array.from(fieldsets)) {
+      // Check for legend as direct child
+      const legend = Array.from(fieldset.children).find(
+        child => child.tagName.toLowerCase() === 'legend'
+      )
+      
+      if (!legend) {
+        violations.push({
+          id: 'fieldset-legend',
+          description: 'fieldset must have a legend element as a direct child',
+          element: fieldset,
+          impact: 'serious'
+        })
+      } else if (!legend.textContent?.trim()) {
+        violations.push({
+          id: 'fieldset-legend-empty',
+          description: 'fieldset legend must have non-empty text content',
+          element: fieldset,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    return violations
+  }
+
   static async check(element: Element): Promise<A11yResults> {
     const violations = [
       ...this.checkImageAlt(element),
@@ -162,7 +192,8 @@ export class A11yChecker {
       ...this.checkButtonLabel(element),
       ...this.checkFormLabels(element),
       ...this.checkHeadingOrder(element),
-      ...this.checkIframeTitle(element)
+      ...this.checkIframeTitle(element),
+      ...this.checkFieldsetLegend(element)
     ]
     
     // Log violations for debugging

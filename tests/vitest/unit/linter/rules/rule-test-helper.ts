@@ -16,4 +16,5 @@ export const buttonLabel = getRule('button-label')
 export const linkText = getRule('link-text')
 export const formLabel = getRule('form-label')
 export const headingOrder = getRule('heading-order')
+export const fieldsetLegend = getRule('fieldset-legend')
 

@@ -137,4 +137,72 @@ describe('A11yChecker', () => {
       document.body.removeChild(container)
     })
   })
+
+  describe('Fieldset Tests', () => {
+    it('should detect fieldset without legend', () => {
+      document.body.innerHTML = `
+        <div>
+          <fieldset>
+            <div>Some content</div>
+          </fieldset>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkFieldsetLegend(document.body)
+      expect(violations).toHaveLength(1)
+      expect(violations[0]).toMatchObject({
+        id: 'fieldset-legend',
+        impact: 'serious'
+      })
+    })
+
+    it('should detect fieldset with empty legend', () => {
+      document.body.innerHTML = `
+        <div>
+          <fieldset>
+            <legend></legend>
+            <div>Some content</div>
+          </fieldset>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkFieldsetLegend(document.body)
+      expect(violations).toHaveLength(1)
+      expect(violations[0]).toMatchObject({
+        id: 'fieldset-legend-empty',
+        impact: 'serious'
+      })
+    })
+
+    it('should pass when fieldset has valid legend', () => {
+      document.body.innerHTML = `
+        <div>
+          <fieldset>
+            <legend>Personal Information</legend>
+            <div>Some content</div>
+          </fieldset>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkFieldsetLegend(document.body)
+      expect(violations).toHaveLength(0)
+    })
+
+    it('should check multiple fieldsets', () => {
+      document.body.innerHTML = `
+        <div>
+          <fieldset>
+            <legend>Section 1</legend>
+          </fieldset>
+          <fieldset>
+            <div>Content without legend</div>
+          </fieldset>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkFieldsetLegend(document.body)
+      expect(violations).toHaveLength(1)
+      expect(violations[0].id).toBe('fieldset-legend')
+    })
+  })
 }) 
