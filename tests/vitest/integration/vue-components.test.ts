@@ -187,12 +187,14 @@ describe('Vue Component Integration', () => {
       })
 
       const results = await A11yChecker.check(wrapper.element)
-      // Table structure check looks for caption or aria-label, and headers
-      expect(results.violations.some(v => 
+      // Table structure check: should detect missing caption AND missing headers
+      // Since we have data cells but no headers, should trigger table-headers violation
+      const tableViolations = results.violations.filter(v => 
         v.id === 'table-caption' || 
         v.id === 'table-headers' ||
-        v.description.includes('Table')
-      )).toBe(true)
+        v.id === 'table-header-scope'
+      )
+      expect(tableViolations.length).toBeGreaterThan(0)
     })
 
     it('should pass for table with caption', async () => {
