@@ -613,28 +613,16 @@
         "planned": false
       },
       {
-        "rule": "form-validation",
-        "description": "Check form validation messages",
-        "reason": "Not yet implemented",
-        "planned": false
+        "rule": "keyboard-navigation",
+        "description": "Check keyboard accessibility",
+        "reason": "Requires focus management and tab order validation",
+        "planned": true
       },
       {
-        "rule": "aria-roles",
-        "description": "Check proper use of ARIA roles",
-        "reason": "Not yet implemented",
-        "planned": false
-      },
-      {
-        "rule": "aria-properties",
-        "description": "Check ARIA properties are valid",
-        "reason": "Not yet implemented",
-        "planned": false
-      },
-      {
-        "rule": "semantic-html",
-        "description": "Check semantic HTML usage",
-        "reason": "Not yet implemented",
-        "planned": false
+        "rule": "focus-visible",
+        "description": "Check focus indicators are visible",
+        "reason": "Requires CSS analysis",
+        "planned": true
       }
     ]
   },
@@ -646,7 +634,7 @@
     "totalAriaAttributesNotSupported": 8,
     "totalHtmlAttributesSupported": 5,
     "totalHtmlAttributesNotSupported": 3,
-    "totalRulesNotSupported": 10,
+    "totalRulesNotSupported": 2,
     "elementsChecked": [
       "img",
       "button",
@@ -678,8 +666,8 @@
     ],
     "impactLevels": {
       "critical": ["button-label", "form-label"],
-      "serious": ["image-alt", "link-text", "iframe-title", "fieldset-legend", "table-structure", "details-summary", "video-captions", "audio-captions", "landmark-roles", "dialog-modal"],
-      "moderate": ["link-text", "heading-order", "table-structure", "video-captions", "audio-captions", "landmark-roles", "dialog-modal"]
+      "serious": ["image-alt", "link-text", "iframe-title", "fieldset-legend", "table-structure", "details-summary", "video-captions", "audio-captions", "landmark-roles", "dialog-modal", "aria-validation", "semantic-html", "form-validation"],
+      "moderate": ["link-text", "heading-order", "table-structure", "video-captions", "audio-captions", "landmark-roles", "dialog-modal", "aria-validation", "semantic-html", "form-validation"]
     }
   }
 }
