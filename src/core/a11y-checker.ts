@@ -760,29 +760,374 @@ export class A11yChecker {
   }
 
   /**
-   * Check ARIA relationships (ID references)
-   * Placeholder - will be implemented next
+   * Check ARIA relationships (ID references) with enhanced validation
    */
-  static checkAriaRelationships(_element: Element): A11yViolation[] {
-    // TODO: Implement ARIA relationship checker
-    return []
+  static checkAriaRelationships(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    
+    // Helper to check ID references
+    const checkIdReferences = (
+      elements: NodeListOf<Element>,
+      attribute: string,
+      violationId: string
+    ) => {
+      for (const el of Array.from(elements)) {
+        const ids = el.getAttribute(attribute)?.split(/\s+/) || []
+        const elementId = el.id || el.getAttribute('id')
+        
+        // Check for self-reference
+        if (ids.includes(elementId || 'self')) {
+          violations.push({
+            id: `${violationId}-self-reference`,
+            description: `${attribute} should not reference itself`,
+            element: el,
+            impact: 'serious'
+          })
+        }
+        
+        for (const id of ids) {
+          if (!id) continue
+          
+          const referencedEl = element.querySelector(`#${id}`)
+          
+          // Check if reference exists
+          if (!referencedEl) {
+            violations.push({
+              id: `${violationId}-reference-missing`,
+              description: `${attribute} references non-existent ID: ${id}`,
+              element: el,
+              impact: 'serious'
+            })
+            continue
+          }
+          
+          // Check if referenced element is aria-hidden
+          if (referencedEl.getAttribute('aria-hidden') === 'true') {
+            violations.push({
+              id: `${violationId}-reference-hidden`,
+              description: `${attribute} references element with aria-hidden="true" (name/description will be hidden from AT)`,
+              element: el,
+              impact: 'serious'
+            })
+          }
+          
+          // Check for duplicate IDs (IDs must be unique)
+          const allWithId = element.querySelectorAll(`#${id}`)
+          if (allWithId.length > 1) {
+            violations.push({
+              id: `${violationId}-duplicate-id`,
+              description: `ID "${id}" is not unique in document (referenced by ${attribute})`,
+              element: el,
+              impact: 'serious'
+            })
+          }
+        }
+      }
+    }
+    
+    // Check aria-labelledby references
+    checkIdReferences(
+      element.querySelectorAll('[aria-labelledby]'),
+      'aria-labelledby',
+      'aria-labelledby'
+    )
+    
+    // Check aria-describedby references
+    checkIdReferences(
+      element.querySelectorAll('[aria-describedby]'),
+      'aria-describedby',
+      'aria-describedby'
+    )
+    
+    // Check aria-controls references
+    checkIdReferences(
+      element.querySelectorAll('[aria-controls]'),
+      'aria-controls',
+      'aria-controls'
+    )
+    
+    // Check aria-owns references
+    checkIdReferences(
+      element.querySelectorAll('[aria-owns]'),
+      'aria-owns',
+      'aria-owns'
+    )
+    
+    // Check for circular aria-owns
+    const ownsElements = element.querySelectorAll('[aria-owns]')
+    for (const el of Array.from(ownsElements)) {
+      const ids = el.getAttribute('aria-owns')?.split(/\s+/) || []
+      const elementId = el.id || el.getAttribute('id')
+      
+      for (const id of ids) {
+        if (!id) continue
+        const referencedEl = element.querySelector(`#${id}`)
+        if (referencedEl && referencedEl.getAttribute('aria-owns')?.includes(elementId || '')) {
+          violations.push({
+            id: 'aria-owns-circular-reference',
+            description: 'Circular aria-owns reference detected',
+            element: el,
+            impact: 'serious'
+          })
+        }
+      }
+    }
+    
+    // Check aria-activedescendant
+    const activedescendantElements = element.querySelectorAll('[aria-activedescendant]')
+    for (const el of Array.from(activedescendantElements)) {
+      const id = el.getAttribute('aria-activedescendant')
+      if (!id) continue
+      
+      const referencedEl = element.querySelector(`#${id}`)
+      
+      if (!referencedEl) {
+        violations.push({
+          id: 'aria-activedescendant-reference-missing',
+          description: `aria-activedescendant references non-existent ID: ${id}`,
+          element: el,
+          impact: 'serious'
+        })
+        continue
+      }
+      
+      // Check owning element is focusable
+      const isFocusable = this.isFocusable(el)
+      if (!isFocusable) {
+        violations.push({
+          id: 'aria-activedescendant-owner-not-focusable',
+          description: 'Element with aria-activedescendant should be focusable',
+          element: el,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    return violations
+  }
+
+  /**
+   * Check if element is focusable
+   */
+  private static isFocusable(element: Element): boolean {
+    const tagName = element.tagName.toLowerCase()
+    const tabindex = element.getAttribute('tabindex')
+    
+    // Native focusable elements
+    if (['a', 'button', 'input', 'select', 'textarea'].includes(tagName)) {
+      return !element.hasAttribute('disabled')
+    }
+    
+    // Elements with tabindex
+    if (tabindex !== null) {
+      return tabindex !== '-1'
+    }
+    
+    return false
   }
 
   /**
    * Check accessible name computation
-   * Placeholder - will be implemented next
    */
-  static checkAccessibleName(_element: Element): A11yViolation[] {
-    // TODO: Implement accessible name checker
-    return []
+  static checkAccessibleName(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    
+    // Check elements that require accessible names
+    const elementsRequiringName = element.querySelectorAll(
+      'button, a, input, select, textarea, [role="button"], [role="link"], [role="dialog"], [role="alertdialog"]'
+    )
+    
+    for (const el of Array.from(elementsRequiringName)) {
+      const ariaLabel = el.getAttribute('aria-label')
+      const ariaLabelledBy = el.getAttribute('aria-labelledby')
+      const textContent = el.textContent?.trim() || ''
+      const tagName = el.tagName.toLowerCase()
+      
+      // Check for empty aria-label
+      if (ariaLabel === '') {
+        violations.push({
+          id: 'aria-label-empty',
+          description: 'aria-label must not be empty',
+          element: el,
+          impact: 'serious'
+        })
+      }
+      
+      // Check aria-labelledby points to empty text
+      if (ariaLabelledBy) {
+        const ids = ariaLabelledBy.split(/\s+/)
+        for (const id of ids) {
+          if (!id) continue
+          const labelEl = element.querySelector(`#${id}`)
+          if (labelEl) {
+            const labelText = labelEl.textContent?.trim() || ''
+            const labelAriaLabel = labelEl.getAttribute('aria-label')
+            if (!labelText && !labelAriaLabel) {
+              violations.push({
+                id: 'aria-labelledby-empty-reference',
+                description: `aria-labelledby references element with no accessible text: ${id}`,
+                element: el,
+                impact: 'serious'
+              })
+            }
+          }
+        }
+      }
+      
+      // Flag name from content vs aria-label mismatches
+      if (textContent && ariaLabel && textContent !== ariaLabel) {
+        // Check if it's a common mismatch (e.g., icon button)
+        if (tagName === 'button' && textContent.length > 0 && ariaLabel.length > 0) {
+          violations.push({
+            id: 'aria-label-content-mismatch',
+            description: `Button has visible text "${textContent}" but aria-label is "${ariaLabel}" - ensure they match or use aria-label only when text is not descriptive`,
+            element: el,
+            impact: 'moderate'
+          })
+        }
+      }
+      
+      // Ensure aria-label is used appropriately
+      // WCAG: aria-label should be used when visible label isn't available
+      if (ariaLabel && tagName === 'input' && el.getAttribute('type') !== 'hidden') {
+        const hasLabel = element.querySelector(`label[for="${el.id}"]`) || 
+                       el.closest('label')
+        if (hasLabel) {
+          violations.push({
+            id: 'aria-label-with-visible-label',
+            description: 'aria-label should only be used when visible label is not available. Consider using <label> instead.',
+            element: el,
+            impact: 'moderate'
+          })
+        }
+      }
+      
+      // Dialog/alertdialog accessible name enforcement
+      const role = el.getAttribute('role')
+      if (role === 'dialog' || role === 'alertdialog' || tagName === 'dialog') {
+        const hasHeading = el.querySelector('h1, h2, h3, h4, h5, h6')
+        const hasAriaLabel = ariaLabel && ariaLabel.trim() !== ''
+        const hasAriaLabelledBy = ariaLabelledBy && ariaLabelledBy.trim() !== ''
+        
+        if (hasHeading && !hasAriaLabelledBy) {
+          violations.push({
+            id: 'dialog-prefer-labelledby',
+            description: 'Dialog with visible heading should use aria-labelledby instead of aria-label',
+            element: el,
+            impact: 'moderate'
+          })
+        }
+        
+        if (!hasAriaLabel && !hasAriaLabelledBy && !hasHeading) {
+          violations.push({
+            id: 'dialog-missing-name',
+            description: 'Dialog must have accessible name (aria-label, aria-labelledby, or heading)',
+            element: el,
+            impact: 'critical'
+          })
+        }
+      }
+    }
+    
+    return violations
   }
 
   /**
    * Check composite patterns (tab/listbox/menu/tree)
-   * Placeholder - will be implemented next
    */
-  static checkCompositePatterns(_element: Element): A11yViolation[] {
-    // TODO: Implement composite pattern checker
-    return []
+  static checkCompositePatterns(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    
+    // Tab pattern validation
+    const tabs = element.querySelectorAll('[role="tab"]')
+    for (const tab of Array.from(tabs)) {
+      const tablist = tab.closest('[role="tablist"]')
+      if (!tablist) {
+        violations.push({
+          id: 'tab-missing-tablist',
+          description: 'Tab must be inside a tablist',
+          element: tab,
+          impact: 'serious'
+        })
+      }
+      
+      // Check tabpanel association
+      const controls = tab.getAttribute('aria-controls')
+      if (controls) {
+        const tabpanel = element.querySelector(`#${controls}`)
+        if (!tabpanel || tabpanel.getAttribute('role') !== 'tabpanel') {
+          violations.push({
+            id: 'tab-invalid-controls',
+            description: 'Tab aria-controls must reference a tabpanel',
+            element: tab,
+            impact: 'serious'
+          })
+        }
+      }
+    }
+    
+    // Listbox pattern validation
+    const listboxes = element.querySelectorAll('[role="listbox"]')
+    for (const listbox of Array.from(listboxes)) {
+      const options = listbox.querySelectorAll('[role="option"]')
+      if (options.length === 0) {
+        violations.push({
+          id: 'listbox-missing-options',
+          description: 'Listbox must contain option elements',
+          element: listbox,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    // Menu pattern validation
+    const menus = element.querySelectorAll('[role="menu"], [role="menubar"]')
+    for (const menu of Array.from(menus)) {
+      const menuitems = menu.querySelectorAll('[role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]')
+      if (menuitems.length === 0) {
+        violations.push({
+          id: 'menu-missing-menuitems',
+          description: 'Menu must contain menuitem elements',
+          element: menu,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    // Tree pattern validation
+    const trees = element.querySelectorAll('[role="tree"]')
+    for (const tree of Array.from(trees)) {
+      const treeitems = tree.querySelectorAll('[role="treeitem"]')
+      if (treeitems.length === 0) {
+        violations.push({
+          id: 'tree-missing-treeitems',
+          description: 'Tree must contain treeitem elements',
+          element: tree,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    // Validate focusability for non-native elements with interactive roles
+    const interactiveRoles = ['button', 'link', 'menuitem', 'tab', 'option']
+    for (const role of interactiveRoles) {
+      const elements = element.querySelectorAll(`[role="${role}"]`)
+      for (const el of Array.from(elements)) {
+        const tagName = el.tagName.toLowerCase()
+        if (!['button', 'a', 'input'].includes(tagName)) {
+          const tabindex = el.getAttribute('tabindex')
+          if (tabindex === null || tabindex === '-1') {
+            violations.push({
+              id: 'interactive-role-not-focusable',
+              description: `Element with role="${role}" should be focusable (add tabindex="0" or use native element)`,
+              element: el,
+              impact: 'serious'
+            })
+          }
+        }
+      }
+    }
+    
+    return violations
   }
 } 
