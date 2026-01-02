@@ -179,9 +179,11 @@ describe('Vue Component Integration', () => {
       const wrapper = mount({
         template: `
           <table>
-            <tr>
-              <td>Data</td>
-            </tr>
+            <tbody>
+              <tr>
+                <td>Data</td>
+              </tr>
+            </tbody>
           </table>
         `
       })
@@ -202,18 +204,25 @@ describe('Vue Component Integration', () => {
         template: `
           <table>
             <caption>Data Table</caption>
-            <tr>
-              <th>Header</th>
-            </tr>
-            <tr>
-              <td>Data</td>
-            </tr>
+            <thead>
+              <tr>
+                <th scope="col">Header</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Data</td>
+              </tr>
+            </tbody>
           </table>
         `
       })
 
       const results = await A11yChecker.check(wrapper.element)
-      expect(results.violations.filter(v => v.id === 'table-missing-caption')).toHaveLength(0)
+      expect(results.violations.filter(v => 
+        v.id === 'table-caption' || 
+        v.id === 'table-headers'
+      )).toHaveLength(0)
     })
   })
 })
