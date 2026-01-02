@@ -14,6 +14,20 @@
 - ✅ **Large project ready** - Minimal preset for incremental adoption
 - ✅ **Framework agnostic** - Works with React, Vue, Preact, Solid, and more
 
+## Installation
+
+```bash
+npm install --save-dev test-a11y-js
+```
+
+### Peer Dependencies
+
+- `eslint` (>=8.0.0) - Required for ESLint plugin
+- `vue-eslint-parser` (>=9.0.0) - Optional, only needed for Vue support
+- `jsdom` (>=23.0.0) - Optional, only needed for HTML string parsing in ESLint rules
+
+**Note:** jsdom is only required if you use HTML strings in your code. JSX and Vue templates work without jsdom. See [jsdom Guide](./docs/JSDOM.md) for details.
+
 ## Quick Start (30 seconds)
 
 **Option 1: ESLint Plugin (Recommended)**
@@ -62,20 +76,6 @@ That's it! Start catching accessibility issues immediately.
 
 ❌ **Before:** Complex setup with multiple tools  
 ✅ **After:** One package, zero config, works everywhere
-
-## Installation
-
-```bash
-npm install --save-dev test-a11y-js
-```
-
-### Peer Dependencies
-
-- `eslint` (>=8.0.0) - Required for ESLint plugin
-- `vue-eslint-parser` (>=9.0.0) - Optional, only needed for Vue support
-- `jsdom` (>=23.0.0) - Optional, only needed for HTML string parsing in ESLint rules
-
-**Note:** jsdom is only required if you use HTML strings in your code. JSX and Vue templates work without jsdom. See [jsdom Guide](./docs/JSDOM.md) for details.
 
 ## Usage
 
