@@ -54,32 +54,32 @@ This document tracks testing improvements and coverage for `test-a11y-js`.
 ## 📋 Short Term (Medium Priority)
 
 ### Complex Scenarios
-- [ ] Nested components (components within components)
-- [ ] Dynamic component rendering
-- [ ] Template literals with expressions
-- [ ] Complex form scenarios (nested forms, fieldset groups)
-- [ ] Table with merged cells (colspan/rowspan)
-- [ ] Multiple landmarks on same page
-- [ ] Dialog with focus trap scenarios
-- [ ] Video/audio with multiple tracks
+- [x] Nested components (components within components)
+- [x] Dynamic component rendering
+- [x] Template literals with expressions
+- [x] Complex form scenarios (nested forms, fieldset groups)
+- [x] Table with merged cells (colspan/rowspan)
+- [x] Multiple landmarks on same page
+- [x] Dialog with focus trap scenarios
+- [x] Video/audio with multiple tracks
 
 ### Error Handling Tests
-- [ ] Malformed AST handling
-- [ ] Missing dependencies (jsdom) graceful fallback
-- [ ] Invalid parser configurations
-- [ ] Edge cases (null, undefined, empty strings)
+- [x] Malformed AST handling
+- [x] Missing dependencies (jsdom) graceful fallback
+- [x] Invalid parser configurations
+- [x] Edge cases (null, undefined, empty strings)
 
 ### Performance Tests
-- [ ] Large file performance (1000+ lines)
-- [ ] Many violations performance
-- [ ] ESLint cache effectiveness
-- [ ] Memory usage tests
+- [x] Large file performance (1000+ lines)
+- [x] Many violations performance
+- [x] ESLint cache effectiveness
+- [x] Memory usage tests
 
 ### Coverage Reporting
-- [ ] Set up vitest coverage configuration
-- [ ] Generate coverage reports
-- [ ] Set coverage thresholds
-- [ ] Track coverage over time
+- [x] Set up vitest coverage configuration
+- [x] Generate coverage reports
+- [x] Set coverage thresholds
+- [x] Track coverage over time
 
 ## 🎯 Long Term (Nice to Have)
 

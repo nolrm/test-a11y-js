@@ -18,8 +18,21 @@ export default defineConfig({
     include: ['./tests/vitest/**/*.test.ts'],
     coverage: {
       provider: 'c8',
-      reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', 'tests/']
+      reporter: ['text', 'json', 'html', 'lcov'],
+      exclude: [
+        'node_modules/',
+        'tests/',
+        '**/*.test.ts',
+        '**/*.config.ts',
+        'dist/'
+      ],
+      include: ['src/**/*.ts'],
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 75,
+        statements: 80
+      }
     }
   },
   esbuild: {

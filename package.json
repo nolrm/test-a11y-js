@@ -27,6 +27,7 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
+    "test:coverage:report": "vitest run --coverage && open coverage/index.html",
     "lint": "eslint src/**/*.ts",
     "type-check": "tsc --noEmit --project tsconfig.typecheck.json",
     "pre-check": "npm run build && npm run test:core && npm run lint && npm run type-check",
