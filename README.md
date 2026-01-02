@@ -78,12 +78,24 @@ module.exports = {
 
 #### Available Configurations
 
+- `plugin:test-a11y-js/minimal` - Only critical rules (3 rules) - **Best for large projects**
 - `plugin:test-a11y-js/recommended` - Balanced approach (default)
 - `plugin:test-a11y-js/strict` - All rules as errors
 - `plugin:test-a11y-js/react` - Optimized for React/JSX
 - `plugin:test-a11y-js/vue` - Optimized for Vue SFC
 
-See [Configuration Guide](./docs/CONFIGURATION.md) for more details.
+### Quick Start for Large Projects
+
+```javascript
+// .eslintrc.js - Start with minimal rules
+module.exports = {
+  plugins: ['test-a11y-js'],
+  extends: ['plugin:test-a11y-js/minimal'],
+  ignorePatterns: ['**/node_modules/**', '**/dist/**']
+}
+```
+
+See [Configuration Guide](./docs/CONFIGURATION.md) for more details and [Large Project Setup Guide](./docs/LARGE_PROJECTS.md) for incremental adoption strategies.
 
 ## API
 
