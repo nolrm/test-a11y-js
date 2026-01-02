@@ -1,4 +1,4 @@
-import { ARIA_ROLES, DEPRECATED_ARIA, ARIA_IN_HTML } from './aria-spec'
+import { ARIA_ROLES, ARIA_PROPERTIES, DEPRECATED_ARIA, ARIA_IN_HTML } from './aria-spec'
 
 export interface A11yViolation {
   id: string
@@ -620,12 +620,134 @@ export class A11yChecker {
   }
 
   /**
-   * Check ARIA properties for validity and appropriateness
-   * Placeholder - will be implemented next
+   * Check ARIA properties for validity, appropriateness, and values
    */
-  static checkAriaProperties(_element: Element): A11yViolation[] {
-    // TODO: Implement ARIA property checker
-    return []
+  static checkAriaProperties(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    const allElements = element.querySelectorAll('[aria-*]')
+    
+    for (const el of Array.from(allElements)) {
+      const attributes = Array.from(el.attributes)
+        .filter(attr => attr.name.startsWith('aria-'))
+      
+      for (const attr of attributes) {
+        const propName = attr.name
+        const propValue = attr.value
+        const tagName = el.tagName.toLowerCase()
+        const inputType = el.getAttribute('type')
+        const elementKey = inputType ? `${tagName}[type="${inputType}"]` : tagName
+        
+        // Check property is valid
+        if (!ARIA_PROPERTIES[propName]) {
+          violations.push({
+            id: 'aria-invalid-property',
+            description: `Invalid ARIA property: ${propName}`,
+            element: el,
+            impact: 'serious'
+          })
+          continue
+        }
+        
+        const propDef = ARIA_PROPERTIES[propName]
+        
+        // Check if deprecated
+        if (propDef.deprecated || DEPRECATED_ARIA.properties.includes(propName)) {
+          violations.push({
+            id: 'aria-deprecated-property',
+            description: `ARIA property "${propName}" is deprecated`,
+            element: el,
+            impact: 'moderate'
+          })
+        }
+        
+        // Check ARIA-in-HTML restrictions
+        const discouraged = (ARIA_IN_HTML.discouraged as Record<string, string[]>)[elementKey] || 
+                            (ARIA_IN_HTML.discouraged as Record<string, string[]>)[tagName]
+        if (discouraged && discouraged.includes(propName)) {
+          violations.push({
+            id: 'aria-property-discouraged',
+            description: `${propName} is discouraged on <${tagName}> (use native HTML instead)`,
+            element: el,
+            impact: 'moderate'
+          })
+        }
+        
+        // Validate property value type
+        if (!this.validateAriaPropertyValue(propValue, propDef.type, propDef.enumValues)) {
+          violations.push({
+            id: 'aria-invalid-property-value',
+            description: `Invalid value for ${propName}: ${propValue}. Expected ${propDef.type}${propDef.enumValues ? ` (${propDef.enumValues.join(', ')})` : ''}`,
+            element: el,
+            impact: 'serious'
+          })
+        }
+        
+        // Check for empty aria-label
+        if (propName === 'aria-label' && propValue.trim() === '') {
+          violations.push({
+            id: 'aria-label-empty',
+            description: 'aria-label must not be empty',
+            element: el,
+            impact: 'serious'
+          })
+        }
+        
+        // Check property is allowed on element type
+        if (!propDef.allowedOn.includes('*') && !propDef.allowedOn.includes(tagName)) {
+          violations.push({
+            id: 'aria-property-on-wrong-element',
+            description: `${propName} is not appropriate for <${tagName}>`,
+            element: el,
+            impact: 'moderate'
+          })
+        }
+      }
+    }
+    
+    return violations
+  }
+
+  /**
+   * Validate ARIA property value based on type
+   */
+  private static validateAriaPropertyValue(
+    value: string,
+    type: string,
+    enumValues?: string[]
+  ): boolean {
+    switch (type) {
+      case 'boolean':
+        return value === 'true' || value === 'false'
+      
+      case 'tristate':
+        return value === 'true' || value === 'false' || value === 'mixed'
+      
+      case 'idref':
+        return value.length > 0 && /^[a-zA-Z][\w-]*$/.test(value)
+      
+      case 'idrefs':
+        if (value.trim() === '') return false
+        const ids = value.trim().split(/\s+/)
+        return ids.every(id => /^[a-zA-Z][\w-]*$/.test(id))
+      
+      case 'string':
+        return true // Strings are always valid
+      
+      case 'enum':
+        if (!enumValues) return true
+        return enumValues.includes(value)
+      
+      case 'integer':
+        const intValue = parseInt(value, 10)
+        return !isNaN(intValue) && intValue.toString() === value
+      
+      case 'number':
+        const numValue = parseFloat(value)
+        return !isNaN(numValue) && isFinite(numValue)
+      
+      default:
+        return true
+    }
   }
 
   /**
