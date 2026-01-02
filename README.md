@@ -146,6 +146,30 @@ See [Configuration Guide](./docs/CONFIGURATION.md) for more details and [Large P
 
 Use the `A11yChecker` class to test DOM elements programmatically in your test suites:
 
+```typescript
+import { A11yChecker } from 'test-a11y-js'
+
+// Test a DOM element for accessibility violations
+const results = await A11yChecker.check(element)
+
+// Individual checks
+const imageViolations = A11yChecker.checkImageAlt(element)
+const linkViolations = A11yChecker.checkLinkText(element)
+const buttonViolations = A11yChecker.checkButtonLabel(element)
+const formViolations = A11yChecker.checkFormLabels(element)
+const headingViolations = A11yChecker.checkHeadingOrder(element)
+const iframeViolations = A11yChecker.checkIframeTitle(element)
+const fieldsetViolations = A11yChecker.checkFieldsetLegend(element)
+const tableViolations = A11yChecker.checkTableStructure(element)
+const detailsViolations = A11yChecker.checkDetailsSummary(element)
+const videoViolations = A11yChecker.checkVideoCaptions(element)
+const audioViolations = A11yChecker.checkAudioCaptions(element)
+const landmarkViolations = A11yChecker.checkLandmarks(element)
+const dialogViolations = A11yChecker.checkDialogModal(element)
+```
+
+## API
+
 ### A11yChecker
 
 #### `check(element: Element): Promise<A11yResults>`
