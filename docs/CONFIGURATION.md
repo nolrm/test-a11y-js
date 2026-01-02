@@ -4,6 +4,33 @@ The `test-a11y-js` ESLint plugin provides several configuration presets to suit 
 
 ## Available Configurations
 
+### Minimal
+
+The minimal configuration enables only the most critical accessibility rules. Use this for:
+- Large projects starting accessibility checks
+- Incremental adoption
+- Performance-sensitive environments
+
+```javascript
+// .eslintrc.js
+module.exports = {
+  plugins: ['test-a11y-js'],
+  extends: ['plugin:test-a11y-js/minimal']
+}
+```
+
+**Rule Severity:**
+- `button-label`: error (critical impact)
+- `form-label`: error (critical impact)
+- `image-alt`: error (serious impact)
+
+**When to use:**
+- Starting accessibility checks in large codebase
+- Need fast ESLint execution
+- Want to focus on critical violations first
+
+See [Large Project Setup Guide](./LARGE_PROJECTS.md) for detailed instructions.
+
 ### Recommended (Default)
 
 The recommended configuration uses a balanced approach with critical violations as errors and moderate violations as warnings.
@@ -217,6 +244,91 @@ extends: ['plugin:test-a11y-js/vue']
 4. **Custom Overrides**: Override specific rules based on your project's needs
 5. **CI/CD Integration**: Use strict configuration in CI/CD to catch violations early
 
+## Ignore Patterns for Large Projects
+
+For large codebases, you may want to exclude certain files or directories from accessibility checks.
+
+### Using ESLint ignorePatterns
+
+```javascript
+// .eslintrc.js
+module.exports = {
+  plugins: ['test-a11y-js'],
+  extends: ['plugin:test-a11y-js/recommended'],
+  ignorePatterns: [
+    // Exclude build outputs
+    '**/dist/**',
+    '**/build/**',
+    '**/.next/**',
+    '**/out/**',
+    
+    // Exclude dependencies
+    '**/node_modules/**',
+    
+    // Exclude test files (optional)
+    '**/*.test.{js,ts,jsx,tsx}',
+    '**/*.spec.{js,ts,jsx,tsx}',
+    
+    // Exclude generated files
+    '**/*.generated.{js,ts}',
+    '**/generated/**',
+    
+    // Exclude legacy code (temporary)
+    '**/legacy/**',
+    '**/old/**'
+  ]
+}
+```
+
+### Using .eslintignore file
+
+Create a `.eslintignore` file in your project root:
+
+```
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Dependencies
+node_modules/
+
+# Test files (optional)
+**/*.test.{js,ts,jsx,tsx}
+**/*.spec.{js,ts,jsx,tsx}
+
+# Legacy code
+legacy/
+old/
+```
+
+### File-specific rule disabling
+
+For specific files that need exceptions:
+
+```javascript
+// .eslintrc.js
+module.exports = {
+  plugins: ['test-a11y-js'],
+  extends: ['plugin:test-a11y-js/recommended'],
+  overrides: [
+    {
+      files: ['**/*.test.{js,ts,jsx,tsx}'],
+      rules: {
+        'test-a11y-js/**': 'off' // Disable all a11y rules in tests
+      }
+    },
+    {
+      files: ['**/legacy/**'],
+      rules: {
+        'test-a11y-js/**': 'warn' // Only warnings in legacy code
+      }
+    }
+  ]
+}
+```
+
 ## Troubleshooting
 
 ### Rules not working
@@ -229,10 +341,10 @@ extends: ['plugin:test-a11y-js/vue']
 ### Too many errors
 
 If you're getting too many violations:
-1. Start with recommended configuration (warnings for moderate issues)
+1. Start with minimal configuration (only 3 critical rules)
 2. Fix violations incrementally
 3. Use `eslint-disable` comments for exceptions
-4. Gradually move to strict configuration
+4. Gradually move to recommended, then strict configuration
 
 ### Vue rules not working
 
