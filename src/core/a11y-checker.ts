@@ -1,3 +1,5 @@
+import { ARIA_ROLES, DEPRECATED_ARIA, ARIA_IN_HTML } from './aria-spec'
+
 export interface A11yViolation {
   id: string
   description: string
@@ -475,7 +477,13 @@ export class A11yChecker {
       ...this.checkVideoCaptions(element),
       ...this.checkAudioCaptions(element),
       ...this.checkLandmarks(element),
-      ...this.checkDialogModal(element)
+      ...this.checkDialogModal(element),
+      // Phase 1: ARIA Validation
+      ...this.checkAriaRoles(element),
+      ...this.checkAriaProperties(element),
+      ...this.checkAriaRelationships(element),
+      ...this.checkAccessibleName(element),
+      ...this.checkCompositePatterns(element)
     ]
     
     // Log violations for debugging
@@ -490,5 +498,160 @@ export class A11yChecker {
     }
     
     return { violations }
+  }
+
+  /**
+   * Check ARIA roles for validity, appropriateness, and context
+   */
+  static checkAriaRoles(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    const allElements = element.querySelectorAll('[role]')
+    
+    for (const el of Array.from(allElements)) {
+      const role = el.getAttribute('role')
+      if (!role) continue
+      
+      const tagName = el.tagName.toLowerCase()
+      const inputType = el.getAttribute('type')
+      const elementKey = inputType ? `${tagName}[type="${inputType}"]` : tagName
+      
+      // Check role is valid
+      if (!ARIA_ROLES[role]) {
+        violations.push({
+          id: 'aria-invalid-role',
+          description: `Invalid ARIA role: ${role}`,
+          element: el,
+          impact: 'serious'
+        })
+        continue
+      }
+      
+      const roleDef = ARIA_ROLES[role]
+      
+      // Check if deprecated
+      if (DEPRECATED_ARIA.roles.includes(role)) {
+        violations.push({
+          id: 'aria-deprecated-role',
+          description: `ARIA role "${role}" is deprecated`,
+          element: el,
+          impact: 'moderate'
+        })
+      }
+      
+      // Check if abstract (warn)
+      if (roleDef.abstract) {
+        violations.push({
+          id: 'aria-abstract-role',
+          description: `ARIA role "${role}" is abstract and should not be used`,
+          element: el,
+          impact: 'moderate'
+        })
+      }
+      
+      // Check redundant role (e.g., <button role="button">)
+      const implicitRole = ARIA_IN_HTML.implicitRoles[elementKey] || ARIA_IN_HTML.implicitRoles[tagName] || null
+      if (implicitRole === role) {
+        violations.push({
+          id: 'aria-redundant-role',
+          description: `Redundant role: <${tagName}> already has implicit role "${role}"`,
+          element: el,
+          impact: 'minor'
+        })
+      }
+      
+      // Check conflicting semantics
+      if (implicitRole && implicitRole !== role && this.hasStrongNativeSemantics(tagName)) {
+        violations.push({
+          id: 'aria-conflicting-semantics',
+          description: `Conflicting semantics: <${tagName}> has implicit role "${implicitRole}" but role="${role}" is specified`,
+          element: el,
+          impact: 'serious'
+        })
+      }
+      
+      // Check role is allowed on element type (ARIA-in-HTML)
+      if (!roleDef.allowedOn.includes('*') && !roleDef.allowedOn.includes(tagName)) {
+        violations.push({
+          id: 'aria-role-on-wrong-element',
+          description: `Role "${role}" is not appropriate for <${tagName}>`,
+          element: el,
+          impact: 'serious'
+        })
+      }
+      
+      // Check required context (parent role)
+      if (roleDef.requiredContext) {
+        const parent = el.parentElement
+        const parentRole = parent?.getAttribute('role')
+        const contexts = Array.isArray(roleDef.requiredContext) 
+          ? roleDef.requiredContext 
+          : [roleDef.requiredContext]
+        
+        if (!parentRole || !contexts.includes(parentRole)) {
+          violations.push({
+            id: 'aria-missing-context-role',
+            description: `Role "${role}" must be in context of ${contexts.join(' or ')}`,
+            element: el,
+            impact: 'serious'
+          })
+        }
+      }
+      
+      // Check required properties (one of required properties)
+      if (roleDef.requiredProperties.length > 0) {
+        const hasRequired = roleDef.requiredProperties.some(prop => el.hasAttribute(prop))
+        if (!hasRequired) {
+          violations.push({
+            id: 'aria-missing-required-property',
+            description: `Role "${role}" requires one of: ${roleDef.requiredProperties.join(', ')}`,
+            element: el,
+            impact: 'critical'
+          })
+        }
+      }
+    }
+    
+    return violations
+  }
+
+  private static hasStrongNativeSemantics(tagName: string): boolean {
+    const strongSemanticElements = ['button', 'a', 'input', 'select', 'textarea', 'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']
+    return strongSemanticElements.includes(tagName)
+  }
+
+  /**
+   * Check ARIA properties for validity and appropriateness
+   * Placeholder - will be implemented next
+   */
+  static checkAriaProperties(_element: Element): A11yViolation[] {
+    // TODO: Implement ARIA property checker
+    return []
+  }
+
+  /**
+   * Check ARIA relationships (ID references)
+   * Placeholder - will be implemented next
+   */
+  static checkAriaRelationships(_element: Element): A11yViolation[] {
+    // TODO: Implement ARIA relationship checker
+    return []
+  }
+
+  /**
+   * Check accessible name computation
+   * Placeholder - will be implemented next
+   */
+  static checkAccessibleName(_element: Element): A11yViolation[] {
+    // TODO: Implement accessible name checker
+    return []
+  }
+
+  /**
+   * Check composite patterns (tab/listbox/menu/tree)
+   * Placeholder - will be implemented next
+   */
+  static checkCompositePatterns(_element: Element): A11yViolation[] {
+    // TODO: Implement composite pattern checker
+    return []
   }
 } 
