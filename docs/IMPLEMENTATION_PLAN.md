@@ -2,6 +2,11 @@
 
 This document provides a detailed implementation plan for the next phase of `test-a11y-js` features.
 
+## Related Documents
+
+- [ARIA Validation Scope](./ARIA_VALIDATION_SCOPE.md) - Complete list of supported/unsupported ARIA roles, properties, and states
+- [Semantic HTML Validation Scope](./SEMANTIC_HTML_SCOPE.md) - Complete list of supported/unsupported semantic HTML elements and patterns
+
 ## Overview
 
 **Phase 1: Static Validation Features (4-6 weeks)**
