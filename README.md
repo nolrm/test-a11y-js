@@ -34,6 +34,14 @@ const linkViolations = A11yChecker.checkLinkText(element)
 const buttonViolations = A11yChecker.checkButtonLabel(element)
 const formViolations = A11yChecker.checkFormLabels(element)
 const headingViolations = A11yChecker.checkHeadingOrder(element)
+const iframeViolations = A11yChecker.checkIframeTitle(element)
+const fieldsetViolations = A11yChecker.checkFieldsetLegend(element)
+const tableViolations = A11yChecker.checkTableStructure(element)
+const detailsViolations = A11yChecker.checkDetailsSummary(element)
+const videoViolations = A11yChecker.checkVideoCaptions(element)
+const audioViolations = A11yChecker.checkAudioCaptions(element)
+const landmarkViolations = A11yChecker.checkLandmarks(element)
+const dialogViolations = A11yChecker.checkDialogModal(element)
 ```
 
 ### ESLint Plugin
@@ -119,6 +127,30 @@ Validates form control label associations.
 #### `checkHeadingOrder(element: Element): A11yViolation[]`
 Checks heading hierarchy.
 
+#### `checkIframeTitle(element: Element): A11yViolation[]`
+Validates iframe title attributes.
+
+#### `checkFieldsetLegend(element: Element): A11yViolation[]`
+Ensures fieldsets have legend elements.
+
+#### `checkTableStructure(element: Element): A11yViolation[]`
+Validates table structure (caption, headers, scope).
+
+#### `checkDetailsSummary(element: Element): A11yViolation[]`
+Ensures details elements have summary as first child.
+
+#### `checkVideoCaptions(element: Element): A11yViolation[]`
+Validates video elements have caption tracks.
+
+#### `checkAudioCaptions(element: Element): A11yViolation[]`
+Validates audio elements have tracks or transcripts.
+
+#### `checkLandmarks(element: Element): A11yViolation[]`
+Validates proper use of landmark elements.
+
+#### `checkDialogModal(element: Element): A11yViolation[]`
+Validates dialog elements have proper accessibility attributes.
+
 ### Types
 
 ```typescript
@@ -137,19 +169,28 @@ interface A11yResults {
 ## Features
 
 ### Core Library
-- Image alt text validation
-- Link text accessibility checks
-- Button label validation
-- Form label association checks
-- Heading order validation
-- Iframe title validation
+- **Image alt text validation** - Ensures all images have descriptive alt attributes
+- **Link text accessibility checks** - Validates links have descriptive text
+- **Button label validation** - Ensures buttons have accessible labels
+- **Form label association checks** - Validates form controls have proper labels
+- **Heading order validation** - Checks proper heading hierarchy (h1-h6)
+- **Iframe title validation** - Ensures iframes have descriptive titles
+- **Fieldset legend validation** - Validates fieldsets have legend elements
+- **Table structure validation** - Checks tables have captions, headers, and scope
+- **Details/Summary validation** - Ensures details elements have summary
+- **Video captions validation** - Validates video elements have caption tracks
+- **Audio captions validation** - Validates audio elements have tracks or transcripts
+- **Landmark roles validation** - Checks proper use of semantic landmarks
+- **Dialog/Modal validation** - Validates dialog accessibility patterns
 
 ### ESLint Plugin
 - Real-time accessibility linting in your editor
-- Support for React/JSX, Vue, and HTML
-- Multiple configuration presets
+- Support for React/JSX, Vue, and HTML strings
+- Multiple configuration presets (minimal, recommended, strict)
 - Framework-agnostic core with framework-specific adapters
 - Integrates with existing ESLint workflows
+- Optional jsdom dependency (only needed for HTML strings)
+- Performance optimized with caching support
 
 ## ESLint Rules
 
@@ -173,9 +214,17 @@ See [`src/checks.json`](./src/checks.json) for a complete list of supported elem
 
 ## Documentation
 
-- [ESLint Plugin Guide](./docs/ESLINT_PLUGIN.md) - Complete ESLint plugin documentation
+### Getting Started
 - [Configuration Guide](./docs/CONFIGURATION.md) - ESLint plugin configuration options
+- [Large Project Setup Guide](./docs/LARGE_PROJECTS.md) - **Incremental adoption for large codebases**
+- [Performance Guide](./docs/PERFORMANCE.md) - **Performance optimization tips**
+
+### Framework Guides
+- [ESLint Plugin Guide](./docs/ESLINT_PLUGIN.md) - Complete ESLint plugin documentation
 - [Vue Usage Guide](./docs/VUE_USAGE.md) - Vue-specific setup and examples
+
+### Reference
+- [jsdom Guide](./docs/JSDOM.md) - **When and how to use jsdom**
 - [Examples](./docs/EXAMPLES.md) - Real-world code examples
 - [Troubleshooting Guide](./docs/TROUBLESHOOTING.md) - Common issues and solutions
 - [Testing Guide](./docs/TESTING.md) - Testing the plugin
@@ -227,8 +276,18 @@ function MyComponent() {
 
 - ✅ **React/JSX** - Full support via JSX AST
 - ✅ **Vue** - Full support via vue-eslint-parser
-- ✅ **HTML Strings** - Support for template literals
+- ✅ **HTML Strings** - Support for template literals (requires jsdom)
 - ✅ **Any JSX-based framework** - Preact, Solid, etc.
+
+## Performance
+
+For large projects, use ESLint caching:
+
+```bash
+npx eslint . --cache
+```
+
+See [Performance Guide](./docs/PERFORMANCE.md) for optimization tips and [Large Project Setup Guide](./docs/LARGE_PROJECTS.md) for incremental adoption strategies.
 
 ## Publishing
 
