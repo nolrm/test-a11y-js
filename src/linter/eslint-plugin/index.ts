@@ -14,6 +14,7 @@
  */
 
 import type { ESLint } from 'eslint'
+import minimal from './configs/minimal'
 import recommended from './configs/recommended'
 import strict from './configs/strict'
 import react from './configs/react'
@@ -56,6 +57,10 @@ const plugin: ESLint.Plugin = {
     'dialog-modal': dialogModal
   },
   configs: {
+    minimal: {
+      plugins: ['test-a11y-js'],
+      rules: minimal
+    },
     recommended: {
       plugins: ['test-a11y-js'],
       rules: recommended
