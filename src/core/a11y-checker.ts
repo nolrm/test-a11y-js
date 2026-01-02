@@ -234,6 +234,33 @@ export class A11yChecker {
     return violations
   }
 
+  static checkDetailsSummary(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    const detailsElements = element.getElementsByTagName('details')
+    
+    for (const details of Array.from(detailsElements)) {
+      // Check for summary as first child
+      const firstChild = details.firstElementChild
+      if (!firstChild || firstChild.tagName.toLowerCase() !== 'summary') {
+        violations.push({
+          id: 'details-summary',
+          description: 'details element must have a summary element as its first child',
+          element: details,
+          impact: 'serious'
+        })
+      } else if (!firstChild.textContent?.trim()) {
+        violations.push({
+          id: 'details-summary-empty',
+          description: 'details summary element must have non-empty text content',
+          element: details,
+          impact: 'serious'
+        })
+      }
+    }
+    
+    return violations
+  }
+
   static async check(element: Element): Promise<A11yResults> {
     const violations = [
       ...this.checkImageAlt(element),
@@ -243,7 +270,8 @@ export class A11yChecker {
       ...this.checkHeadingOrder(element),
       ...this.checkIframeTitle(element),
       ...this.checkFieldsetLegend(element),
-      ...this.checkTableStructure(element)
+      ...this.checkTableStructure(element),
+      ...this.checkDetailsSummary(element)
     ]
     
     // Log violations for debugging

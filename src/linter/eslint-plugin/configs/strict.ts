@@ -16,7 +16,8 @@ const strict: RuleConfig = {
   'test-a11y-js/heading-order': 'error',
   'test-a11y-js/iframe-title': 'error',
   'test-a11y-js/fieldset-legend': 'error',
-  'test-a11y-js/table-structure': 'error'
+  'test-a11y-js/table-structure': 'error',
+  'test-a11y-js/details-summary': 'error'
 }
 
 export default strict

@@ -280,4 +280,70 @@ describe('A11yChecker', () => {
       expect(violations).toHaveLength(0)
     })
   })
+
+  describe('Details/Summary Tests', () => {
+    it('should detect details without summary', () => {
+      document.body.innerHTML = `
+        <div>
+          <details>
+            <div>Some content</div>
+          </details>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkDetailsSummary(document.body)
+      expect(violations).toHaveLength(1)
+      expect(violations[0]).toMatchObject({
+        id: 'details-summary',
+        impact: 'serious'
+      })
+    })
+
+    it('should detect details with empty summary', () => {
+      document.body.innerHTML = `
+        <div>
+          <details>
+            <summary></summary>
+            <div>Some content</div>
+          </details>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkDetailsSummary(document.body)
+      expect(violations).toHaveLength(1)
+      expect(violations[0]).toMatchObject({
+        id: 'details-summary-empty',
+        impact: 'serious'
+      })
+    })
+
+    it('should pass when details has valid summary as first child', () => {
+      document.body.innerHTML = `
+        <div>
+          <details>
+            <summary>Click to expand</summary>
+            <div>Some content</div>
+          </details>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkDetailsSummary(document.body)
+      expect(violations).toHaveLength(0)
+    })
+
+    it('should fail when summary is not first child', () => {
+      document.body.innerHTML = `
+        <div>
+          <details>
+            <div>Other content</div>
+            <summary>Summary</summary>
+          </details>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkDetailsSummary(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'details-summary')).toBe(true)
+    })
+  })
 }) 

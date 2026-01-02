@@ -249,6 +249,32 @@
         "<table><caption>Test Table</caption><tr><th scope='col'>Header</th></tr><tr><td>Data</td></tr></table>",
         "<table aria-label='Test Table'><tr><th scope='row'>Header</th><td>Data</td></tr></table>"
       ]
+    },
+    "details-summary": {
+      "ruleId": "test-a11y-js/details-summary",
+      "method": "checkDetailsSummary",
+      "elements": ["details"],
+      "attributes": {
+        "checked": []
+      },
+      "violations": [
+        {
+          "id": "details-summary",
+          "description": "details element must have a summary element as its first child",
+          "impact": "serious",
+          "condition": "Element lacks 'summary' as first child"
+        },
+        {
+          "id": "details-summary-empty",
+          "description": "details summary element must have non-empty text content",
+          "impact": "serious",
+          "condition": "Element has empty 'summary' text content"
+        }
+      ],
+      "validPatterns": [
+        "<details><summary>Click to expand</summary><div>Content</div></details>",
+        "<details><summary>More information</summary></details>"
+      ]
     }
   },
   "ariaAttributes": {
@@ -452,6 +478,16 @@
         "element": "table",
         "rules": ["table-structure"],
         "checks": ["caption or aria-label/aria-labelledby", "header cells (th)", "scope attribute on headers"]
+      },
+      {
+        "element": "details",
+        "rules": ["details-summary"],
+        "checks": ["summary element as first child with non-empty text"]
+      },
+      {
+        "element": "summary",
+        "rules": ["details-summary"],
+        "checks": ["must be first child of details with non-empty text"]
       }
     ],
     "notSupported": [
@@ -503,16 +539,6 @@
       {
         "element": "dialog",
         "reason": "Not yet implemented - would require modal accessibility validation",
-        "planned": false
-      },
-      {
-        "element": "summary",
-        "reason": "Not yet implemented - would require details/summary validation",
-        "planned": false
-      },
-      {
-        "element": "details",
-        "reason": "Not yet implemented - would require details/summary validation",
         "planned": false
       }
     ]
@@ -582,9 +608,9 @@
     ]
   },
   "summary": {
-    "totalRules": 8,
-    "totalElementsSupported": 15,
-    "totalElementsNotSupported": 12,
+    "totalRules": 9,
+    "totalElementsSupported": 17,
+    "totalElementsNotSupported": 10,
     "totalAriaAttributesSupported": 2,
     "totalAriaAttributesNotSupported": 8,
     "totalHtmlAttributesSupported": 5,
@@ -605,11 +631,13 @@
       "h6",
       "iframe",
       "fieldset",
-      "table"
+      "table",
+      "details",
+      "summary"
     ],
     "impactLevels": {
       "critical": ["button-label", "form-label"],
-      "serious": ["image-alt", "link-text", "iframe-title", "fieldset-legend", "table-structure"],
+      "serious": ["image-alt", "link-text", "iframe-title", "fieldset-legend", "table-structure", "details-summary"],
       "moderate": ["link-text", "heading-order", "table-structure"]
     }
   }

@@ -18,4 +18,5 @@ export const formLabel = getRule('form-label')
 export const headingOrder = getRule('heading-order')
 export const fieldsetLegend = getRule('fieldset-legend')
 export const tableStructure = getRule('table-structure')
+export const detailsSummary = getRule('details-summary')
 
