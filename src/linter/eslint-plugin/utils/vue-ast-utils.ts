@@ -2,12 +2,36 @@
  * Vue template AST parsing utilities
  * 
  * Note: This requires vue-eslint-parser to be installed.
- * Full implementation will be completed in Phase 4.
+ * Also requires jsdom for DOM element conversion.
  */
 
 import type { Rule } from 'eslint'
-// @ts-ignore - jsdom types may not be available
-import { JSDOM } from 'jsdom'
+
+// Lazy load jsdom - make it optional
+let JSDOM: any = null
+let jsdomWarningShown = false
+
+function getJSDOM(): any {
+  if (JSDOM !== null) {
+    return JSDOM
+  }
+  
+  try {
+    // @ts-ignore - jsdom types may not be available
+    JSDOM = require('jsdom').JSDOM
+    return JSDOM
+  } catch (error) {
+    // jsdom not available - Vue checks will be limited
+    if (!jsdomWarningShown) {
+      console.warn(
+        '[test-a11y-js] jsdom not found. Vue element conversion will be skipped. ' +
+        'Install jsdom if you need Vue accessibility checks: npm install --save-dev jsdom'
+      )
+      jsdomWarningShown = true
+    }
+    return null
+  }
+}
 
 /**
  * Vue Element AST node type (from vue-eslint-parser)

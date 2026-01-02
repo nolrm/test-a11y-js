@@ -3,22 +3,54 @@
  * 
  * Parses HTML strings from template literals or string literals
  * and converts them to DOM Elements
+ * 
+ * Note: Requires jsdom to be installed for HTML string parsing.
+ * If jsdom is not available, HTML string checks will be skipped gracefully.
  */
 
-// @ts-ignore - jsdom types may not be available
-import { JSDOM } from 'jsdom'
 import type { Rule } from 'eslint'
 import { getNodeText } from './ast-utils'
+
+// Lazy load jsdom - make it optional
+let JSDOM: any = null
+let jsdomWarningShown = false
+
+function getJSDOM(): any {
+  if (JSDOM !== null) {
+    return JSDOM
+  }
+  
+  try {
+    // @ts-ignore - jsdom types may not be available
+    JSDOM = require('jsdom').JSDOM
+    return JSDOM
+  } catch (error) {
+    // jsdom not available - HTML string parsing will be limited
+    if (!jsdomWarningShown) {
+      console.warn(
+        '[test-a11y-js] jsdom not found. HTML string parsing will be skipped. ' +
+        'Install jsdom if you need HTML string accessibility checks: npm install --save-dev jsdom'
+      )
+      jsdomWarningShown = true
+    }
+    return null
+  }
+}
 
 /**
  * Parse HTML string to DOM Element
  * 
  * @param html - HTML string to parse
- * @returns DOM Element or null if parsing fails
+ * @returns DOM Element or null if parsing fails or jsdom is not available
  */
 export function parseHTMLString(html: string): Element | null {
+  const JSDOMClass = getJSDOM()
+  if (!JSDOMClass) {
+    return null
+  }
+  
   try {
-    const dom = new JSDOM(html, { contentType: 'text/html' })
+    const dom = new JSDOMClass(html, { contentType: 'text/html' })
     const body = dom.window.document.body
     
     // If body has a single child, return it; otherwise return body

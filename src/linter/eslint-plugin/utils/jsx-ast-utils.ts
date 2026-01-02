@@ -2,11 +2,38 @@
  * JSX AST to DOM Element conversion utilities
  * 
  * Converts JSX AST nodes to DOM Elements so they can be checked by A11yChecker
+ * 
+ * Note: Requires jsdom to be installed. If jsdom is not available,
+ * JSX checks will be skipped gracefully.
  */
 
 import type { Rule } from 'eslint'
-// @ts-ignore - jsdom types may not be available
-import { JSDOM } from 'jsdom'
+
+// Lazy load jsdom - make it optional
+let JSDOM: any = null
+let jsdomWarningShown = false
+
+function getJSDOM(): any {
+  if (JSDOM !== null) {
+    return JSDOM
+  }
+  
+  try {
+    // @ts-ignore - jsdom types may not be available
+    JSDOM = require('jsdom').JSDOM
+    return JSDOM
+  } catch (error) {
+    // jsdom not available - JSX checks will be limited
+    if (!jsdomWarningShown) {
+      console.warn(
+        '[test-a11y-js] jsdom not found. JSX element conversion will be skipped. ' +
+        'Install jsdom if you need JSX accessibility checks: npm install --save-dev jsdom'
+      )
+      jsdomWarningShown = true
+    }
+    return null
+  }
+}
 
 /**
  * JSX Attribute AST node type

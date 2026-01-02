@@ -64,7 +64,14 @@
   "peerDependenciesMeta": {
     "vue-eslint-parser": {
       "optional": true
+    },
+    "jsdom": {
+      "optional": true,
+      "description": "Required only for HTML string parsing in ESLint rules"
     }
+  },
+  "optionalDependencies": {
+    "jsdom": "^23.0.0"
   },
   "devDependencies": {
     "@testing-library/dom": "^9.0.0",

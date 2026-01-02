@@ -12,6 +12,9 @@ npm install --save-dev test-a11y-js
 
 - `eslint` (>=8.0.0) - Required for ESLint plugin
 - `vue-eslint-parser` (>=9.0.0) - Optional, only needed for Vue support
+- `jsdom` (>=23.0.0) - Optional, only needed for HTML string parsing in ESLint rules
+
+**Note:** jsdom is only required if you use HTML strings in your code. JSX and Vue templates work without jsdom. See [jsdom Guide](./docs/JSDOM.md) for details.
 
 ## Usage
 
