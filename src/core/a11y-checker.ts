@@ -941,7 +941,7 @@ export class A11yChecker {
     
     // Check elements that require accessible names
     const elementsRequiringName = element.querySelectorAll(
-      'button, a, input, select, textarea, [role="button"], [role="link"], [role="dialog"], [role="alertdialog"]'
+      'button, a, input, select, textarea, dialog, [role="button"], [role="link"], [role="dialog"], [role="alertdialog"]'
     )
     
     for (const el of Array.from(elementsRequiringName)) {
