@@ -18,7 +18,8 @@ const strict: RuleConfig = {
   'test-a11y-js/fieldset-legend': 'error',
   'test-a11y-js/table-structure': 'error',
   'test-a11y-js/details-summary': 'error',
-  'test-a11y-js/video-captions': 'error'
+  'test-a11y-js/video-captions': 'error',
+  'test-a11y-js/audio-captions': 'error'
 }
 
 export default strict

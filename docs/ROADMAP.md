@@ -6,7 +6,7 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 
 **Version:** 0.5.6
 
-**Supported Rules:** 10
+**Supported Rules:** 11
 - `image-alt` - Image alt attribute validation
 - `button-label` - Button label validation
 - `link-text` - Link text validation
@@ -17,9 +17,10 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 - `table-structure` - Table structure validation
 - `details-summary` - Details/Summary validation
 - `video-captions` - Video captions validation
+- `audio-captions` - Audio captions validation
 
-**Supported Elements:** 18
-- img, button, a, input, select, textarea, h1-h6, iframe, fieldset, table, details, summary, video
+**Supported Elements:** 19
+- img, button, a, input, select, textarea, h1-h6, iframe, fieldset, table, details, summary, video, audio
 
 ## Implementation Priority
 
@@ -95,10 +96,10 @@ Validate that `<video>` elements have captions via `<track>` elements.
 
 ---
 
-#### 4. audio-captions Rule
+#### 4. audio-captions Rule ✅ COMPLETED
 **Priority:** Medium  
 **Complexity:** Medium  
-**Estimated Time:** 2-3 days
+**Status:** Implemented in v0.6.0
 
 **Description:**  
 Validate that `<audio>` elements have captions/transcripts.
@@ -107,8 +108,8 @@ Validate that `<audio>` elements have captions/transcripts.
 - Success Criterion 1.2.1 (Audio-only and Video-only)
 
 **Checks:**
-- Audio elements should have `<track>` elements or transcripts
-- Similar validation to video-captions
+- ✅ Audio elements should have `<track>` elements or transcripts
+- ✅ Similar validation to video-captions
 
 **Resources:**
 - MDN: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/audio#accessibility
@@ -397,11 +398,11 @@ For each new rule, follow this checklist:
 
 ## Version Planning
 
-### v0.5.9 (Current Release)
-- [x] video-captions rule
+### v0.6.0 (Current Release)
+- [x] audio-captions rule
 
-### v0.6.0 (Next Release)
-- [ ] audio-captions rule
+### v0.6.1 (Next Release)
+- [ ] Landmark elements validation
 
 ### v0.5.0
 - [ ] video-captions rule

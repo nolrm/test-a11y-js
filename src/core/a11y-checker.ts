@@ -305,6 +305,50 @@ export class A11yChecker {
     return violations
   }
 
+  static checkAudioCaptions(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    const audios = element.getElementsByTagName('audio')
+    
+    for (const audio of Array.from(audios)) {
+      // Check for track elements or transcript link
+      const tracks = audio.querySelectorAll('track')
+      const hasTranscript = audio.hasAttribute('aria-describedby') || 
+                           audio.querySelector('a[href*="transcript"]') ||
+                           audio.closest('div')?.querySelector('a[href*="transcript"]')
+      
+      if (tracks.length === 0 && !hasTranscript) {
+        violations.push({
+          id: 'audio-captions',
+          description: 'Audio element must have track elements or a transcript link',
+          element: audio,
+          impact: 'serious'
+        })
+      } else if (tracks.length > 0) {
+        // Check that tracks have required attributes
+        for (const track of Array.from(tracks)) {
+          if (!track.hasAttribute('srclang')) {
+            violations.push({
+              id: 'audio-track-srclang',
+              description: 'Audio track must have a srclang attribute',
+              element: track,
+              impact: 'serious'
+            })
+          }
+          if (!track.hasAttribute('label')) {
+            violations.push({
+              id: 'audio-track-label',
+              description: 'Audio track should have a label attribute',
+              element: track,
+              impact: 'moderate'
+            })
+          }
+        }
+      }
+    }
+    
+    return violations
+  }
+
   static async check(element: Element): Promise<A11yResults> {
     const violations = [
       ...this.checkImageAlt(element),
@@ -316,7 +360,8 @@ export class A11yChecker {
       ...this.checkFieldsetLegend(element),
       ...this.checkTableStructure(element),
       ...this.checkDetailsSummary(element),
-      ...this.checkVideoCaptions(element)
+      ...this.checkVideoCaptions(element),
+      ...this.checkAudioCaptions(element)
     ]
     
     // Log violations for debugging

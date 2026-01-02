@@ -406,4 +406,64 @@ describe('A11yChecker', () => {
       expect(violations.some(v => v.id === 'video-track-label')).toBe(true)
     })
   })
+
+  describe('Audio Tests', () => {
+    it('should detect audio without tracks or transcript', () => {
+      document.body.innerHTML = `
+        <div>
+          <audio>
+            <source src="audio.mp3" />
+          </audio>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkAudioCaptions(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'audio-captions')).toBe(true)
+    })
+
+    it('should detect audio track without srclang', () => {
+      document.body.innerHTML = `
+        <div>
+          <audio>
+            <source src="audio.mp3" />
+            <track />
+          </audio>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkAudioCaptions(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'audio-track-srclang')).toBe(true)
+    })
+
+    it('should pass when audio has valid track', () => {
+      document.body.innerHTML = `
+        <div>
+          <audio>
+            <source src="audio.mp3" />
+            <track srclang="en" label="English" />
+          </audio>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkAudioCaptions(document.body)
+      expect(violations).toHaveLength(0)
+    })
+
+    it('should warn when track lacks label', () => {
+      document.body.innerHTML = `
+        <div>
+          <audio>
+            <source src="audio.mp3" />
+            <track srclang="en" />
+          </audio>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkAudioCaptions(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'audio-track-label')).toBe(true)
+    })
+  })
 }) 

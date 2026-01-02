@@ -28,6 +28,7 @@ import fieldsetLegend from './rules/fieldset-legend'
 import tableStructure from './rules/table-structure'
 import detailsSummary from './rules/details-summary'
 import videoCaptions from './rules/video-captions'
+import audioCaptions from './rules/audio-captions'
 
 /**
  * ESLint plugin for accessibility checking
@@ -35,7 +36,7 @@ import videoCaptions from './rules/video-captions'
 const plugin: ESLint.Plugin = {
   meta: {
     name: 'test-a11y-js',
-    version: '0.5.9'
+    version: '0.6.0'
   },
   rules: {
     'image-alt': imageAlt,
@@ -47,7 +48,8 @@ const plugin: ESLint.Plugin = {
     'fieldset-legend': fieldsetLegend,
     'table-structure': tableStructure,
     'details-summary': detailsSummary,
-    'video-captions': videoCaptions
+    'video-captions': videoCaptions,
+    'audio-captions': audioCaptions
   },
   configs: {
     recommended: {
