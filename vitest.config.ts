@@ -8,7 +8,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src')
-    }
+    },
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.vue', '.json']
   },
   test: {
     globals: true,
@@ -20,5 +21,8 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       exclude: ['node_modules/', 'tests/']
     }
+  },
+  esbuild: {
+    target: 'node14'
   }
 }) 
