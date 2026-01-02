@@ -580,4 +580,226 @@ describe('A11yChecker', () => {
       expect(violations.filter(v => v.id === 'dialog-missing-name')).toHaveLength(0)
     })
   })
+
+  describe('ARIA Validation', () => {
+    describe('checkAriaRoles', () => {
+      it('should detect invalid ARIA role', () => {
+        const div = document.createElement('div')
+        div.setAttribute('role', 'invalid-role')
+        document.body.appendChild(div)
+
+        const violations = A11yChecker.checkAriaRoles(document.body)
+        expect(violations.some(v => v.id === 'aria-invalid-role')).toBe(true)
+
+        document.body.removeChild(div)
+      })
+
+      it('should detect redundant role', () => {
+        const button = document.createElement('button')
+        button.setAttribute('role', 'button')
+        document.body.appendChild(button)
+
+        const violations = A11yChecker.checkAriaRoles(document.body)
+        expect(violations.some(v => v.id === 'aria-redundant-role')).toBe(true)
+
+        document.body.removeChild(button)
+      })
+
+      it('should detect missing context role', () => {
+        const tab = document.createElement('div')
+        tab.setAttribute('role', 'tab')
+        document.body.appendChild(tab)
+
+        const violations = A11yChecker.checkAriaRoles(document.body)
+        expect(violations.some(v => v.id === 'aria-missing-context-role')).toBe(true)
+
+        document.body.removeChild(tab)
+      })
+    })
+
+    describe('checkAriaProperties', () => {
+      it('should detect invalid ARIA property', () => {
+        const div = document.createElement('div')
+        div.setAttribute('aria-invalid-prop', 'value')
+        document.body.appendChild(div)
+
+        const violations = A11yChecker.checkAriaProperties(document.body)
+        expect(violations.some(v => v.id === 'aria-invalid-property')).toBe(true)
+
+        document.body.removeChild(div)
+      })
+
+      it('should detect deprecated property', () => {
+        const div = document.createElement('div')
+        div.setAttribute('aria-dropeffect', 'copy')
+        document.body.appendChild(div)
+
+        const violations = A11yChecker.checkAriaProperties(document.body)
+        expect(violations.some(v => v.id === 'aria-deprecated-property')).toBe(true)
+
+        document.body.removeChild(div)
+      })
+
+      it('should detect empty aria-label', () => {
+        const button = document.createElement('button')
+        button.setAttribute('aria-label', '')
+        document.body.appendChild(button)
+
+        const violations = A11yChecker.checkAriaProperties(document.body)
+        expect(violations.some(v => v.id === 'aria-label-empty')).toBe(true)
+
+        document.body.removeChild(button)
+      })
+    })
+
+    describe('checkAriaRelationships', () => {
+      it('should detect missing ID reference', () => {
+        const input = document.createElement('input')
+        input.setAttribute('aria-labelledby', 'missing-id')
+        document.body.appendChild(input)
+
+        const violations = A11yChecker.checkAriaRelationships(document.body)
+        expect(violations.some(v => v.id === 'aria-labelledby-reference-missing')).toBe(true)
+
+        document.body.removeChild(input)
+      })
+
+      it('should detect duplicate IDs', () => {
+        const label1 = document.createElement('label')
+        label1.id = 'test-id'
+        const label2 = document.createElement('label')
+        label2.id = 'test-id'
+        const input = document.createElement('input')
+        input.setAttribute('aria-labelledby', 'test-id')
+        document.body.appendChild(label1)
+        document.body.appendChild(label2)
+        document.body.appendChild(input)
+
+        const violations = A11yChecker.checkAriaRelationships(document.body)
+        expect(violations.some(v => v.id === 'aria-labelledby-duplicate-id')).toBe(true)
+
+        document.body.removeChild(label1)
+        document.body.removeChild(label2)
+        document.body.removeChild(input)
+      })
+    })
+
+    describe('checkAccessibleName', () => {
+      it('should detect dialog without accessible name', () => {
+        const dialog = document.createElement('dialog')
+        // Ensure dialog is in the query selector results
+        document.body.appendChild(dialog)
+
+        const violations = A11yChecker.checkAccessibleName(document.body)
+        // Check if any violation mentions dialog
+        const dialogViolations = violations.filter(v => 
+          v.id === 'dialog-missing-name' || v.description.includes('Dialog')
+        )
+        expect(dialogViolations.length).toBeGreaterThan(0)
+
+        document.body.removeChild(dialog)
+      })
+    })
+
+    describe('checkCompositePatterns', () => {
+      it('should detect tab without tablist', () => {
+        const tab = document.createElement('div')
+        tab.setAttribute('role', 'tab')
+        document.body.appendChild(tab)
+
+        const violations = A11yChecker.checkCompositePatterns(document.body)
+        expect(violations.some(v => v.id === 'tab-missing-tablist')).toBe(true)
+
+        document.body.removeChild(tab)
+      })
+    })
+  })
+
+  describe('Semantic HTML Validation', () => {
+    describe('checkSemanticHTML', () => {
+      it('should detect nested interactive elements', () => {
+        const button = document.createElement('button')
+        const anchor = document.createElement('a')
+        anchor.href = '#'
+        anchor.textContent = 'Link'
+        button.appendChild(anchor)
+        document.body.appendChild(button)
+
+        const violations = A11yChecker.checkSemanticHTML(document.body)
+        expect(violations.some(v => v.id === 'nested-interactive')).toBe(true)
+
+        document.body.removeChild(button)
+      })
+
+      it('should detect anchor without href', () => {
+        const anchor = document.createElement('a')
+        document.body.appendChild(anchor)
+
+        const violations = A11yChecker.checkSemanticHTML(document.body)
+        expect(violations.some(v => v.id === 'anchor-without-href')).toBe(true)
+
+        document.body.removeChild(anchor)
+      })
+
+      it('should detect multiple main elements', () => {
+        const main1 = document.createElement('main')
+        const main2 = document.createElement('main')
+        document.body.appendChild(main1)
+        document.body.appendChild(main2)
+
+        const violations = A11yChecker.checkSemanticHTML(document.body)
+        expect(violations.some(v => v.id === 'multiple-main')).toBe(true)
+
+        document.body.removeChild(main1)
+        document.body.removeChild(main2)
+      })
+
+      it('should detect duplicate IDs', () => {
+        const div1 = document.createElement('div')
+        div1.id = 'test-id'
+        const div2 = document.createElement('div')
+        div2.id = 'test-id'
+        document.body.appendChild(div1)
+        document.body.appendChild(div2)
+
+        const violations = A11yChecker.checkSemanticHTML(document.body)
+        expect(violations.some(v => v.id === 'duplicate-id')).toBe(true)
+
+        document.body.removeChild(div1)
+        document.body.removeChild(div2)
+      })
+    })
+  })
+
+  describe('Form Validation Messages', () => {
+    describe('checkFormValidationMessages', () => {
+      it('should detect aria-invalid without error message', () => {
+        const input = document.createElement('input')
+        input.setAttribute('aria-invalid', 'true')
+        document.body.appendChild(input)
+
+        const violations = A11yChecker.checkFormValidationMessages(document.body)
+        expect(violations.some(v => v.id === 'aria-invalid-without-describedby')).toBe(true)
+
+        document.body.removeChild(input)
+      })
+
+      it('should detect aria-invalid with empty error message', () => {
+        const input = document.createElement('input')
+        input.setAttribute('aria-invalid', 'true')
+        input.setAttribute('aria-describedby', 'error-msg')
+        const error = document.createElement('div')
+        error.id = 'error-msg'
+        // Empty error message
+        document.body.appendChild(input)
+        document.body.appendChild(error)
+
+        const violations = A11yChecker.checkFormValidationMessages(document.body)
+        expect(violations.some(v => v.id === 'aria-invalid-without-message')).toBe(true)
+
+        document.body.removeChild(input)
+        document.body.removeChild(error)
+      })
+    })
+  })
 }) 

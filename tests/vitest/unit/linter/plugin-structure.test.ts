@@ -12,7 +12,7 @@ describe('ESLint Plugin Structure', () => {
   it('should have meta information', () => {
     expect(eslintPlugin.meta).toBeDefined()
     expect(eslintPlugin.meta.name).toBe('test-a11y-js')
-    expect(eslintPlugin.meta.version).toBe('0.2.0')
+    expect(eslintPlugin.meta.version).toBe('0.8.0')
   })
 
   it('should have rules object (even if empty)', () => {

@@ -628,7 +628,10 @@ export class A11yChecker {
    */
   static checkAriaProperties(element: Element): A11yViolation[] {
     const violations: A11yViolation[] = []
-    const allElements = element.querySelectorAll('[aria-*]')
+    // Get all elements and filter those with aria-* attributes
+    const allElements = Array.from(element.querySelectorAll('*')).filter(el => {
+      return Array.from(el.attributes).some(attr => attr.name.startsWith('aria-'))
+    })
     
     for (const el of Array.from(allElements)) {
       const attributes = Array.from(el.attributes)
