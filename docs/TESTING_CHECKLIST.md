@@ -25,31 +25,31 @@ This document tracks testing improvements and coverage for `test-a11y-js`.
 ## 🔥 High Priority (Immediate)
 
 ### Missing ESLint Rule Tests
-- [ ] `iframe-title-rule.test.ts` - ESLint rule tests for iframe-title
-- [ ] `landmark-roles-rule.test.ts` - ESLint rule tests for landmark-roles
-- [ ] `dialog-modal-rule.test.ts` - ESLint rule tests for dialog-modal
+- [x] `iframe-title-rule.test.ts` - ESLint rule tests for iframe-title
+- [x] `landmark-roles-rule.test.ts` - ESLint rule tests for landmark-roles
+- [x] `dialog-modal-rule.test.ts` - ESLint rule tests for dialog-modal
 
 ### Vue Integration Tests
-- [ ] Vue SFC (Single File Component) tests with `<template>`, `<script>`, `<style>`
-- [ ] Vue 3 Composition API scenarios
-- [ ] Vue dynamic props and computed attributes
-- [ ] Vue slots and conditional rendering
-- [ ] Vue v-if, v-for, v-show patterns
+- [x] Vue SFC (Single File Component) tests with `<template>`, `<script>`, `<style>`
+- [x] Vue 3 Composition API scenarios
+- [x] Vue dynamic props and computed attributes
+- [x] Vue slots and conditional rendering
+- [x] Vue v-if, v-for, v-show patterns
 
 ### React Advanced Scenarios
-- [ ] React hooks components (useState, useEffect patterns)
-- [ ] React functional components with props
-- [ ] React fragments (`<>...</>`)
-- [ ] React conditional rendering patterns
-- [ ] TypeScript React with interfaces/types
-- [ ] React children patterns
+- [x] React hooks components (useState, useEffect patterns)
+- [x] React functional components with props
+- [x] React fragments (`<>...</>`)
+- [x] React conditional rendering patterns
+- [x] TypeScript React with interfaces/types
+- [x] React children patterns
 
 ### Configuration Preset Tests
-- [ ] Minimal config preset tests
-- [ ] Recommended config preset tests
-- [ ] Strict config preset tests
-- [ ] React config preset tests
-- [ ] Vue config preset tests
+- [x] Minimal config preset tests
+- [x] Recommended config preset tests
+- [x] Strict config preset tests
+- [x] React config preset tests
+- [x] Vue config preset tests
 
 ## 📋 Short Term (Medium Priority)
 
