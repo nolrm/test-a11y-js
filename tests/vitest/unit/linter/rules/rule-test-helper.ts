@@ -22,4 +22,5 @@ export const detailsSummary = getRule('details-summary')
 export const videoCaptions = getRule('video-captions')
 export const audioCaptions = getRule('audio-captions')
 export const landmarkRoles = getRule('landmark-roles')
+export const dialogModal = getRule('dialog-modal')
 

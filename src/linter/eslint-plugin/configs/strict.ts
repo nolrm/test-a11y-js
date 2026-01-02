@@ -20,7 +20,8 @@ const strict: RuleConfig = {
   'test-a11y-js/details-summary': 'error',
   'test-a11y-js/video-captions': 'error',
   'test-a11y-js/audio-captions': 'error',
-  'test-a11y-js/landmark-roles': 'error'
+  'test-a11y-js/landmark-roles': 'error',
+  'test-a11y-js/dialog-modal': 'error'
 }
 
 export default strict

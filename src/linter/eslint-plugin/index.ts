@@ -30,6 +30,7 @@ import detailsSummary from './rules/details-summary'
 import videoCaptions from './rules/video-captions'
 import audioCaptions from './rules/audio-captions'
 import landmarkRoles from './rules/landmark-roles'
+import dialogModal from './rules/dialog-modal'
 
 /**
  * ESLint plugin for accessibility checking
@@ -37,7 +38,7 @@ import landmarkRoles from './rules/landmark-roles'
 const plugin: ESLint.Plugin = {
   meta: {
     name: 'test-a11y-js',
-    version: '0.6.1'
+    version: '0.6.2'
   },
   rules: {
     'image-alt': imageAlt,
@@ -51,7 +52,8 @@ const plugin: ESLint.Plugin = {
     'details-summary': detailsSummary,
     'video-captions': videoCaptions,
     'audio-captions': audioCaptions,
-    'landmark-roles': landmarkRoles
+    'landmark-roles': landmarkRoles,
+    'dialog-modal': dialogModal
   },
   configs: {
     recommended: {

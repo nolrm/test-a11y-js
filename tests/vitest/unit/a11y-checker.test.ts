@@ -522,4 +522,62 @@ describe('A11yChecker', () => {
       expect(violations.filter(v => v.id === 'landmark-missing-name')).toHaveLength(0)
     })
   })
+
+  describe('Dialog Tests', () => {
+    it('should detect dialog without accessible name', () => {
+      document.body.innerHTML = `
+        <div>
+          <dialog>
+            <div>Dialog content</div>
+          </dialog>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkDialogModal(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'dialog-missing-name')).toBe(true)
+    })
+
+    it('should detect modal dialog without aria-modal', () => {
+      document.body.innerHTML = `
+        <div>
+          <dialog open>
+            <h2>Modal Title</h2>
+            <div>Dialog content</div>
+          </dialog>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkDialogModal(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'dialog-missing-modal')).toBe(true)
+    })
+
+    it('should pass when dialog has heading', () => {
+      document.body.innerHTML = `
+        <div>
+          <dialog>
+            <h2>Dialog Title</h2>
+            <div>Dialog content</div>
+          </dialog>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkDialogModal(document.body)
+      expect(violations.filter(v => v.id === 'dialog-missing-name')).toHaveLength(0)
+    })
+
+    it('should pass when dialog has aria-label', () => {
+      document.body.innerHTML = `
+        <div>
+          <dialog aria-label="Confirmation Dialog" aria-modal="true">
+            <div>Dialog content</div>
+          </dialog>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkDialogModal(document.body)
+      expect(violations.filter(v => v.id === 'dialog-missing-name')).toHaveLength(0)
+    })
+  })
 }) 

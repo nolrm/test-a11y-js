@@ -6,7 +6,7 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 
 **Version:** 0.5.6
 
-**Supported Rules:** 12
+**Supported Rules:** 13
 - `image-alt` - Image alt attribute validation
 - `button-label` - Button label validation
 - `link-text` - Link text validation
@@ -19,9 +19,10 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 - `video-captions` - Video captions validation
 - `audio-captions` - Audio captions validation
 - `landmark-roles` - Landmark elements validation
+- `dialog-modal` - Dialog/Modal validation
 
-**Supported Elements:** 26
-- img, button, a, input, select, textarea, h1-h6, iframe, fieldset, table, details, summary, video, audio, nav, main, header, footer, aside, section, article
+**Supported Elements:** 27
+- img, button, a, input, select, textarea, h1-h6, iframe, fieldset, table, details, summary, video, audio, nav, main, header, footer, aside, section, article, dialog
 
 ## Implementation Priority
 
@@ -161,10 +162,10 @@ Validate proper use of landmark elements (`<nav>`, `<main>`, `<header>`, `<foote
 
 ---
 
-#### 7. dialog-modal Rule
+#### 7. dialog-modal Rule ✅ COMPLETED
 **Priority:** Low  
 **Complexity:** High  
-**Estimated Time:** 3-5 days
+**Status:** Implemented in v0.6.2
 
 **Description:**  
 Validate modal dialog accessibility patterns.
@@ -174,10 +175,10 @@ Validate modal dialog accessibility patterns.
 - Success Criterion 4.1.3 (Status Messages)
 
 **Checks:**
-- Dialog should have accessible name (`aria-label` or `aria-labelledby`)
-- Focus management (focus trap)
-- Escape key handling
-- ARIA attributes (`aria-modal`, `role="dialog"`)
+- ✅ Dialog should have accessible name (`aria-label` or `aria-labelledby`)
+- ✅ ARIA attributes (`aria-modal`, `role="dialog"`)
+- ⚠️ Focus management (focus trap) - requires runtime testing
+- ⚠️ Escape key handling - requires runtime testing
 
 **Resources:**
 - ARIA Authoring Practices: https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
@@ -399,11 +400,10 @@ For each new rule, follow this checklist:
 
 ## Version Planning
 
-### v0.6.1 (Current Release)
-- [x] Landmark elements validation
+### v0.6.2 (Current Release)
+- [x] dialog-modal rule
 
-### v0.6.2 (Next Release)
-- [ ] dialog-modal rule
+**🎉 All planned HTML elements are now supported!**
 
 ### v0.5.0
 - [ ] video-captions rule

@@ -565,15 +565,14 @@
         "element": "article",
         "rules": ["landmark-roles"],
         "checks": ["only one main per page", "accessible names when needed", "proper nesting"]
-      }
-    ],
-    "notSupported": [
+      },
       {
         "element": "dialog",
-        "reason": "Not yet implemented - would require modal accessibility validation",
-        "planned": false
+        "rules": ["dialog-modal"],
+        "checks": ["accessible name", "aria-modal for modals", "proper role"]
       }
-    ]
+    ],
+    "notSupported": []
   },
   "rules": {
     "notSupported": [
@@ -640,9 +639,9 @@
     ]
   },
   "summary": {
-    "totalRules": 12,
-    "totalElementsSupported": 26,
-    "totalElementsNotSupported": 1,
+    "totalRules": 13,
+    "totalElementsSupported": 27,
+    "totalElementsNotSupported": 0,
     "totalAriaAttributesSupported": 2,
     "totalAriaAttributesNotSupported": 8,
     "totalHtmlAttributesSupported": 5,
@@ -674,12 +673,13 @@
       "footer",
       "aside",
       "section",
-      "article"
+      "article",
+      "dialog"
     ],
     "impactLevels": {
       "critical": ["button-label", "form-label"],
-      "serious": ["image-alt", "link-text", "iframe-title", "fieldset-legend", "table-structure", "details-summary", "video-captions", "audio-captions", "landmark-roles"],
-      "moderate": ["link-text", "heading-order", "table-structure", "video-captions", "audio-captions", "landmark-roles"]
+      "serious": ["image-alt", "link-text", "iframe-title", "fieldset-legend", "table-structure", "details-summary", "video-captions", "audio-captions", "landmark-roles", "dialog-modal"],
+      "moderate": ["link-text", "heading-order", "table-structure", "video-captions", "audio-captions", "landmark-roles", "dialog-modal"]
     }
   }
 }

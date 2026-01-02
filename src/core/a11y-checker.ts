@@ -415,6 +415,52 @@ export class A11yChecker {
     return violations
   }
 
+  static checkDialogModal(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    const dialogs = element.getElementsByTagName('dialog')
+    
+    for (const dialog of Array.from(dialogs)) {
+      // Check for accessible name
+      const hasAriaLabel = dialog.hasAttribute('aria-label')
+      const hasAriaLabelledBy = dialog.hasAttribute('aria-labelledby')
+      const hasHeading = dialog.querySelector('h1, h2, h3, h4, h5, h6')
+      
+      if (!hasAriaLabel && !hasAriaLabelledBy && !hasHeading) {
+        violations.push({
+          id: 'dialog-missing-name',
+          description: 'Dialog element must have an accessible name (aria-label, aria-labelledby, or heading)',
+          element: dialog,
+          impact: 'serious'
+        })
+      }
+      
+      // Check for aria-modal attribute (should be true for modal dialogs)
+      const isModal = dialog.hasAttribute('open') || dialog.getAttribute('aria-modal') === 'true'
+      if (isModal && !dialog.hasAttribute('aria-modal')) {
+        violations.push({
+          id: 'dialog-missing-modal',
+          description: 'Modal dialog should have aria-modal="true" attribute',
+          element: dialog,
+          impact: 'moderate'
+        })
+      }
+      
+      // Check for role="dialog" if using div with role
+      const hasRole = dialog.hasAttribute('role')
+      const roleValue = dialog.getAttribute('role')
+      if (hasRole && roleValue !== 'dialog' && roleValue !== 'alertdialog') {
+        violations.push({
+          id: 'dialog-invalid-role',
+          description: 'Dialog element should have role="dialog" or role="alertdialog"',
+          element: dialog,
+          impact: 'moderate'
+        })
+      }
+    }
+    
+    return violations
+  }
+
   static async check(element: Element): Promise<A11yResults> {
     const violations = [
       ...this.checkImageAlt(element),
@@ -428,7 +474,8 @@ export class A11yChecker {
       ...this.checkDetailsSummary(element),
       ...this.checkVideoCaptions(element),
       ...this.checkAudioCaptions(element),
-      ...this.checkLandmarks(element)
+      ...this.checkLandmarks(element),
+      ...this.checkDialogModal(element)
     ]
     
     // Log violations for debugging

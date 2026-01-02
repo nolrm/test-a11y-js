@@ -19,6 +19,7 @@ const recommended: RuleConfig = {
   'test-a11y-js/video-captions': 'error',
   'test-a11y-js/audio-captions': 'error',
   'test-a11y-js/landmark-roles': 'warn',
+  'test-a11y-js/dialog-modal': 'error',
   
   // Moderate/Minor violations - set to warn
   'test-a11y-js/link-text': 'warn',
