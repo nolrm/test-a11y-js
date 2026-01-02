@@ -62,11 +62,14 @@ Quick reference for Phase 1 implementation scope.
 - Media: img, video, audio, picture, source, track, figure, figcaption
 
 **Validation Patterns:**
-- Generic element misuse: div/span with roles, div/span with onclick
-- List structure: ul/ol must contain li, li must be in ul/ol, dl structure
+- Generic element misuse: div/span with roles, framework-aware event handlers (JSX/Vue/HTML)
+- Interactive misuse: nested interactive, `<a>` without href, button type in forms, clickable non-focusable
+- List structure: ul/ol must contain li, li must be in ul/ol/menu, dl structure (allows div wrappers)
+- Accessible text alternatives: img alt, svg accessibility, figure/figcaption structure
+- Landmark uniqueness + labeling: single main, multiple nav/header/footer labels, section accessible name
+- Form label completeness: all label mechanisms, ID uniqueness, autocomplete recommendations
 - Heading hierarchy: No skipped levels, proper nesting
-- Form structure: fieldset/legend, form element nesting
-- Table structure: caption, thead/tbody/tfoot, th scope
+- Table structure: nesting validation, caption recommendation (warn), th scope recommendation (warn)
 - Media structure: figure/figcaption, picture/source
 
 **See:** [Semantic HTML Validation Scope](./SEMANTIC_HTML_SCOPE.md) for complete list
@@ -115,8 +118,9 @@ Quick reference for Phase 1 implementation scope.
 
 ### Semantic HTML Validation
 - **Elements:** 60 supported / ~100+ total
-- **Patterns:** 7 validation patterns
-- **Coverage:** ~90% of common semantic HTML usage
+- **Patterns:** 9 validation patterns (7 original + 2 new: interactive misuse, accessible text alternatives)
+- **Coverage:** ~95% of common semantic HTML usage (enhanced with practical rules)
+- **Severity Levels:** Error (invalid structure), Warn (should prefer semantic), Info (recommendations)
 
 ### Form Validation
 - **Patterns:** 3 validation patterns
