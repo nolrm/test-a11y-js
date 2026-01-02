@@ -312,23 +312,17 @@ describe('Complex Scenarios', () => {
     })
 
     it('should detect dialog accessibility issues', async () => {
-      // Note: Vue has issues with dialog open attribute, so we test without it
-      const wrapper = mount({
-        template: `
-          <dialog>
-            <div>Content without heading</div>
-          </dialog>
-        `
-      })
+      // Note: Vue has issues with dialog element, so we test with plain DOM
+      const div = document.createElement('div')
+      const dialog = document.createElement('dialog')
+      dialog.innerHTML = '<div>Content without heading</div>'
+      div.appendChild(dialog)
 
-      const results = await A11yChecker.check(wrapper.element)
+      const results = await A11yChecker.check(div)
       // Dialog without accessible name should be detected
-      // Check for any dialog-related violations
-      const dialogViolations = results.violations.filter(v => 
-        v.id.includes('dialog') || 
-        v.description.toLowerCase().includes('dialog')
-      )
-      expect(dialogViolations.length).toBeGreaterThan(0)
+      expect(results.violations.some(v => 
+        v.id === 'dialog-missing-name'
+      )).toBe(true)
     })
   })
 
