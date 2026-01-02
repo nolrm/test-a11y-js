@@ -716,37 +716,46 @@ export class A11yChecker {
     enumValues?: string[]
   ): boolean {
     switch (type) {
-      case 'boolean':
+      case 'boolean': {
         return value === 'true' || value === 'false'
+      }
       
-      case 'tristate':
+      case 'tristate': {
         return value === 'true' || value === 'false' || value === 'mixed'
+      }
       
-      case 'idref':
+      case 'idref': {
         return value.length > 0 && /^[a-zA-Z][\w-]*$/.test(value)
+      }
       
-      case 'idrefs':
+      case 'idrefs': {
         if (value.trim() === '') return false
         const ids = value.trim().split(/\s+/)
         return ids.every(id => /^[a-zA-Z][\w-]*$/.test(id))
+      }
       
-      case 'string':
+      case 'string': {
         return true // Strings are always valid
+      }
       
-      case 'enum':
+      case 'enum': {
         if (!enumValues) return true
         return enumValues.includes(value)
+      }
       
-      case 'integer':
+      case 'integer': {
         const intValue = parseInt(value, 10)
         return !isNaN(intValue) && intValue.toString() === value
+      }
       
-      case 'number':
+      case 'number': {
         const numValue = parseFloat(value)
         return !isNaN(numValue) && isFinite(numValue)
+      }
       
-      default:
+      default: {
         return true
+      }
     }
   }
 
