@@ -1251,18 +1251,7 @@ export class A11yChecker {
       }
     }
     
-    // Check image alt text
-    const images = element.querySelectorAll('img')
-    for (const img of Array.from(images)) {
-      if (!img.hasAttribute('alt')) {
-        violations.push({
-          id: 'image-missing-alt',
-          description: '<img> must have alt attribute (use alt="" for decorative images)',
-          element: img,
-          impact: 'serious'
-        })
-      }
-    }
+    // Note: Image alt text is checked by checkImageAlt() - not duplicated here
     
     // Check figure structure
     const figcaptions = element.querySelectorAll('figcaption')
