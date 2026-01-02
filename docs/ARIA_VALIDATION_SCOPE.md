@@ -97,7 +97,7 @@ This document lists all ARIA roles, properties, and states that will be validate
 - ❌ `term` - Term role
 - ❌ `definition` - Definition role
 
-**Total Supported in Phase 1: ~40 roles**  
+**Total Supported in Phase 1: ~50 roles** (40 original + 10 high priority additions)  
 **Total ARIA Roles: ~80 roles**
 
 ---
@@ -123,9 +123,9 @@ This document lists all ARIA roles, properties, and states that will be validate
 - ✅ `aria-relevant` - Relevant changes
 - ✅ `aria-busy` - Busy state
 
-#### Drag and Drop Properties
-- ✅ `aria-dropeffect` - Drop effect
-- ✅ `aria-grabbed` - Grabbed state
+#### Drag and Drop Properties (Deprecated - Warn/Error)
+- ⚠️ `aria-dropeffect` - Drop effect (Deprecated in ARIA 1.1 - warn by default, error in strict)
+- ⚠️ `aria-grabbed` - Grabbed state (Deprecated in ARIA 1.1 - warn by default, error in strict)
 
 #### Global Properties
 - ✅ `aria-hidden` - Hidden from accessibility tree
@@ -158,6 +158,15 @@ This document lists all ARIA roles, properties, and states that will be validate
 - ✅ `aria-valuenow` - Current value
 - ✅ `aria-valuetext` - Value text alternative
 
+### High Priority Additions (Move to Phase 1)
+
+#### Common Properties (Should be in Phase 1)
+- ✅ `aria-current` - Current item (extremely common in navigation/tabs/steppers)
+- ✅ `aria-keyshortcuts` - Keyboard shortcuts (often abused, good as warn-level)
+- ✅ `aria-roledescription` - Custom role description (often abused, good as warn-level)
+- ✅ `aria-posinset` - Position in set (lists/menus/tabs sometimes need)
+- ✅ `aria-setsize` - Set size (lists/menus/tabs sometimes need)
+
 ### Not Supported in Phase 1 (Future)
 
 #### Specialized Properties (Phase 2+)
@@ -167,14 +176,9 @@ This document lists all ARIA roles, properties, and states that will be validate
 - ❌ `aria-rowcount` - Row count
 - ❌ `aria-rowindex` - Row index
 - ❌ `aria-rowspan` - Row span
-- ❌ `aria-keyshortcuts` - Keyboard shortcuts
-- ❌ `aria-roledescription` - Custom role description
-- ❌ `aria-current` - Current item
-- ❌ `aria-posinset` - Position in set
-- ❌ `aria-setsize` - Set size
 - ❌ `aria-details` - Details reference
 
-**Total Supported in Phase 1: ~35 properties**  
+**Total Supported in Phase 1: ~40 properties** (35 original + 5 high priority additions)  
 **Total ARIA Properties: ~50 properties**
 
 ---
@@ -202,8 +206,7 @@ This document lists all ARIA roles, properties, and states that will be validate
 ### Not Supported in Phase 1 (Future)
 
 #### Specialized States (Phase 2+)
-- ❌ `aria-current` - Current item state (page | step | location | date | time | true | false)
-- ❌ `aria-grabbed` - Grabbed state (true | false | undefined)
+- ❌ `aria-grabbed` - Grabbed state (true | false | undefined) - Deprecated
 
 **Total Supported in Phase 1: ~10 states**  
 **Total ARIA States: ~12 states**
@@ -217,6 +220,7 @@ This document lists all ARIA roles, properties, and states that will be validate
 #### 1. Valid Role Check
 - ✅ Role exists in ARIA specification
 - ✅ Role is not abstract (or warn if abstract)
+- ✅ Role is not deprecated (warn for deprecated roles)
 - ✅ Role is appropriate for element type
 
 #### 2. Role-Property Relationships
@@ -225,9 +229,25 @@ This document lists all ARIA roles, properties, and states that will be validate
 - ✅ Property combinations
 
 #### 3. Role-Element Relationships
-- ✅ Role is allowed on element type
+- ✅ Role is allowed on element type (ARIA-in-HTML conformance)
 - ✅ Native element semantics vs role
-- ✅ Redundant role warnings
+- ✅ **Redundant role detection** (e.g., `<button role="button">` - warn)
+- ✅ **Conflicting semantics** (e.g., role="button" on element with different strong native role)
+
+#### 4. Role Context Rules (Required Parent/Children) ⭐ NEW
+- ✅ `tab` must be owned by `tablist`
+- ✅ `tabpanel` must be associated with a `tab` (via aria-labelledby or aria-controls)
+- ✅ `option` must be in `listbox` (or combobox popup listbox pattern)
+- ✅ `menuitem*` must be in `menu` or `menubar`
+- ✅ `treeitem` must be in `tree`
+- ✅ `row` must be in `grid` or `treegrid`
+- ✅ Validate required owned elements
+- ✅ Validate required context role
+
+#### 5. ARIA-in-HTML Conformance ⭐ NEW
+- ✅ Attributes that are technically global but discouraged/invalid on certain native elements
+- ✅ Cases where native semantics should be used instead of forcing roles
+- ✅ Encode authoring restrictions from ARIA in HTML spec
 
 ### Property Validation Rules
 
@@ -235,17 +255,30 @@ This document lists all ARIA roles, properties, and states that will be validate
 - ✅ Property exists in ARIA specification
 - ✅ Property value type is correct (boolean, tristate, idref, etc.)
 - ✅ Property value is valid enum value
+- ✅ **Deprecated properties** (aria-dropeffect, aria-grabbed) - warn by default, error in strict
 
 #### 2. Property-Element Relationships
-- ✅ Property is allowed on element type
+- ✅ Property is allowed on element type (ARIA-in-HTML conformance)
 - ✅ Property is allowed with specific role
 
-#### 3. ID Reference Validation
+#### 3. Accessible Name Computation ⭐ NEW
+- ✅ **aria-label="" or aria-labelledby pointing to empty text** should be an error
+- ✅ **Flag "name from content" vs aria-label mismatches** for common controls (e.g., icon button has visible text "Save" but aria-label is "Close")
+- ✅ **Ensure aria-label is only used when appropriate** - WCAG guidance: should be used to provide a name when a visible label isn't available
+- ✅ **For dialog/alertdialog, enforce accessible name** - prefer aria-labelledby when there's a visible title
+- ✅ Validate accessible name rules in a more general way (not just "has aria-label")
+
+#### 3. ID Reference Validation (Enhanced) ⭐ UPDATED
 - ✅ `aria-labelledby` references exist
 - ✅ `aria-describedby` references exist
 - ✅ `aria-controls` references exist
 - ✅ `aria-owns` references exist
 - ✅ `aria-activedescendant` references exist
+- ✅ **No self-reference** (aria-labelledby="self")
+- ✅ **No circular references** (circular aria-owns)
+- ✅ **Referenced IDs must be unique** in the document
+- ✅ **Referenced elements shouldn't be aria-hidden="true"** (makes name/description disappear for AT)
+- ✅ **aria-activedescendant**: referenced element should be in same widget "scope" and owning element should be focusable
 
 ### State Validation Rules
 
@@ -256,44 +289,74 @@ This document lists all ARIA roles, properties, and states that will be validate
 
 #### 2. State Consistency
 - ✅ State combinations are valid
-- ✅ State transitions are logical
+- ✅ **Detect obviously impossible combinations** (rather than state transitions - hard to do statically)
 
 ---
 
 ## Implementation Priority
 
-### Phase 1.1: Core Roles (Week 1)
+### Phase 1.1: Core Roles + High Priority Additions (Week 1)
 **Priority: High**
 - button, checkbox, radio, switch
 - dialog, alertdialog
 - menu, menubar, menuitem
 - tab, tablist, tabpanel
+- **link, heading** (high frequency)
+- **img** (common)
+- **progressbar, meter** (common)
+- **separator** (often misused)
+- **toolbar, tooltip** (common)
+- **none, presentation** (very common, easy to misuse)
 
-### Phase 1.2: Common Properties (Week 1-2)
+### Phase 1.2: Common Properties + High Priority (Week 1-2)
 **Priority: High**
 - aria-label, aria-labelledby
 - aria-describedby
 - aria-hidden, aria-disabled
 - aria-required, aria-invalid
+- **aria-current** (extremely common)
+- **aria-keyshortcuts, aria-roledescription** (often abused, warn-level)
+- **aria-posinset, aria-setsize** (lists/menus/tabs)
 
-### Phase 1.3: Relationship Properties (Week 2)
+### Phase 1.3: Relationship Properties + Enhanced Validation (Week 2)
 **Priority: Medium**
 - aria-controls
 - aria-owns
 - aria-activedescendant
+- **Enhanced ID reference validation** (no self-ref, no circular, unique IDs, not aria-hidden)
+- **Role context rules** (required parent/children)
 
 ### Phase 1.4: Widget States (Week 2)
 **Priority: Medium**
 - aria-checked, aria-selected
 - aria-expanded, aria-pressed
 
-### Phase 1.5: Remaining Roles (Week 2-3)
+### Phase 1.5: Accessible Name Computation (Week 2-3) ⭐ NEW
+**Priority: High**
+- Validate empty aria-label/aria-labelledby
+- Flag name from content vs aria-label mismatches
+- Ensure aria-label is used appropriately
+- Dialog/alertdialog accessible name enforcement
+
+### Phase 1.6: ARIA-in-HTML Conformance + Redundant Roles (Week 3) ⭐ NEW
+**Priority: High**
+- ARIA-in-HTML authoring restrictions
+- Redundant role detection
+- Conflicting semantics detection
+
+### Phase 1.7: Composite Pattern Validator (Week 3) ⭐ NEW
+**Priority: High**
+- Validates required parent/child roles
+- Validates required linking attributes (aria-controls, aria-labelledby) for patterns
+- Validates focusability + keyboard affordances for non-native elements
+
+### Phase 1.8: Remaining Roles (Week 3)
 **Priority: Medium**
 - All document structure roles
 - All landmark roles
 - All live region roles
 
-### Phase 1.6: Remaining Properties (Week 3)
+### Phase 1.9: Remaining Properties (Week 3)
 **Priority: Low**
 - All widget properties
 - All range properties
@@ -341,11 +404,15 @@ This document lists all ARIA roles, properties, and states that will be validate
 
 ## Success Criteria
 
-- ✅ All 40+ common ARIA roles validated
-- ✅ All 35+ common ARIA properties validated
-- ✅ All ID references validated
+- ✅ All 50+ common ARIA roles validated (including high priority additions)
+- ✅ All 40+ common ARIA properties validated (including high priority additions)
+- ✅ All ID references validated (with enhanced checks)
 - ✅ Role-property relationships validated
-- ✅ Role-element relationships validated
+- ✅ Role-element relationships validated (ARIA-in-HTML conformance)
+- ✅ **Role context rules validated** (required parent/children)
+- ✅ **Accessible name computation validated**
+- ✅ **Redundant/conflicting role detection**
+- ✅ **Composite pattern validation**
 - ✅ ESLint rule working for JSX, Vue, HTML
 - ✅ 90%+ test coverage
 - ✅ Documentation complete

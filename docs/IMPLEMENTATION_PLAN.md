@@ -32,28 +32,61 @@ Validate ARIA attributes, roles, and properties according to ARIA 1.2 specificat
 - Check role is appropriate for element type
 - Validate role combinations (e.g., button + menu)
 - Check for invalid role usage
+- **Detect deprecated roles** (warn by default, error in strict)
+- **Detect redundant roles** (e.g., `<button role="button">` - warn)
+- **Detect conflicting semantics** (role conflicts with native element semantics)
 
 #### 1.2 ARIA Property Validation
 - Validate all `aria-*` attributes
 - Check required properties for specific roles
 - Validate property values (enums, booleans, IDs, etc.)
 - Check property relationships (e.g., aria-labelledby references)
+- **Detect deprecated properties** (aria-dropeffect, aria-grabbed - warn by default, error in strict)
+- **ARIA-in-HTML conformance** (attributes allowed/prohibited on native elements)
 
 #### 1.3 ARIA State Validation
 - Validate state attributes (aria-checked, aria-expanded, etc.)
 - Check state consistency with element type
-- Validate state transitions
+- **Detect obviously impossible state combinations** (rather than transitions)
 
-#### 1.4 ARIA Relationship Validation
+#### 1.4 ARIA Relationship Validation (Enhanced)
 - Validate aria-labelledby references exist
 - Validate aria-describedby references exist
 - Check aria-owns relationships
 - Validate aria-controls references
+- **No self-reference** (aria-labelledby="self")
+- **No circular references** (circular aria-owns)
+- **Referenced IDs must be unique** in document
+- **Referenced elements shouldn't be aria-hidden="true"**
+- **aria-activedescendant**: referenced element in same widget scope, owning element focusable
 
 #### 1.5 ARIA Live Region Validation
 - Validate aria-live usage
 - Check aria-atomic and aria-relevant
 - Validate live region content
+
+#### 1.6 Role Context Rules ⭐ NEW
+- **Required parent/child role relationships**
+  - `tab` must be owned by `tablist`
+  - `tabpanel` must be associated with `tab` (via aria-labelledby or aria-controls)
+  - `option` must be in `listbox` (or combobox popup listbox)
+  - `menuitem*` must be in `menu` or `menubar`
+  - `treeitem` must be in `tree`
+  - `row` must be in `grid` or `treegrid`
+- Validate required owned elements
+- Validate required context role
+
+#### 1.7 Accessible Name Computation ⭐ NEW
+- **Empty aria-label/aria-labelledby** should be error
+- **Flag "name from content" vs aria-label mismatches** (e.g., icon button has visible text "Save" but aria-label is "Close")
+- **Ensure aria-label is used appropriately** - only when visible label isn't available
+- **Dialog/alertdialog accessible name enforcement** - prefer aria-labelledby when visible title exists
+- Validate accessible name rules in general way (not just "has aria-label")
+
+#### 1.8 Composite Pattern Validator ⭐ NEW
+- Validates required parent/child roles
+- Validates required linking attributes (aria-controls, aria-labelledby) for patterns like tabs/combobox/listbox/menu
+- Validates focusability + keyboard affordances when using non-native elements
 
 ### Implementation Steps
 
@@ -66,14 +99,84 @@ export const ARIA_ROLES = {
   'button': {
     requiredProperties: [],
     allowedProperties: ['aria-label', 'aria-labelledby', 'aria-pressed', 'aria-expanded'],
-    allowedOn: ['button', 'a', 'div', 'span']
+    allowedOn: ['button', 'a', 'div', 'span'],
+    requiredContext: null, // No required parent
+    requiredOwned: [], // No required children
+    deprecated: false,
+    abstract: false
   },
   'dialog': {
     requiredProperties: ['aria-label', 'aria-labelledby'], // One required
     allowedProperties: ['aria-modal', 'aria-describedby'],
-    allowedOn: ['dialog', 'div']
+    allowedOn: ['dialog', 'div'],
+    requiredContext: null,
+    requiredOwned: [],
+    deprecated: false,
+    abstract: false
+  },
+  'tab': {
+    requiredProperties: [],
+    allowedProperties: ['aria-selected', 'aria-controls', 'aria-labelledby'],
+    allowedOn: ['button', 'a', 'div', 'span'],
+    requiredContext: 'tablist', // ⭐ NEW: Must be in tablist
+    requiredOwned: [],
+    deprecated: false,
+    abstract: false
+  },
+  'tabpanel': {
+    requiredProperties: [],
+    allowedProperties: ['aria-labelledby'],
+    allowedOn: ['div', 'section'],
+    requiredContext: null,
+    requiredOwned: [],
+    deprecated: false,
+    abstract: false
+  },
+  'option': {
+    requiredProperties: [],
+    allowedProperties: ['aria-selected', 'aria-checked'],
+    allowedOn: ['li', 'div', 'span'],
+    requiredContext: 'listbox', // ⭐ NEW: Must be in listbox
+    requiredOwned: [],
+    deprecated: false,
+    abstract: false
+  },
+  'menuitem': {
+    requiredProperties: [],
+    allowedProperties: ['aria-label', 'aria-labelledby'],
+    allowedOn: ['li', 'div', 'span'],
+    requiredContext: ['menu', 'menubar'], // ⭐ NEW: Must be in menu or menubar
+    requiredOwned: [],
+    deprecated: false,
+    abstract: false
   },
   // ... more roles
+}
+
+// Deprecated roles/properties
+export const DEPRECATED_ARIA = {
+  roles: [],
+  properties: ['aria-dropeffect', 'aria-grabbed'],
+  states: ['aria-grabbed']
+}
+
+// ARIA-in-HTML restrictions
+export const ARIA_IN_HTML = {
+  // Attributes that are global but discouraged on certain elements
+  discouraged: {
+    'input[type="text"]': ['aria-label'], // Should use <label> instead
+    'button': ['role'], // Redundant if role="button"
+    // ... more restrictions
+  },
+  // Native elements that already have implicit roles
+  implicitRoles: {
+    'button': 'button',
+    'a': 'link',
+    'img': 'img',
+    'h1': 'heading',
+    'h2': 'heading',
+    // ... more mappings
+  }
 }
 
 // ARIA property definitions
@@ -113,6 +216,7 @@ static checkAriaRoles(element: Element): A11yViolation[] {
   
   for (const el of Array.from(allElements)) {
     const role = el.getAttribute('role')
+    const tagName = el.tagName.toLowerCase()
     
     // Check role is valid
     if (!ARIA_ROLES[role]) {
@@ -125,9 +229,50 @@ static checkAriaRoles(element: Element): A11yViolation[] {
       continue
     }
     
-    // Check role is allowed on element type
     const roleDef = ARIA_ROLES[role]
-    const tagName = el.tagName.toLowerCase()
+    
+    // Check if deprecated
+    if (DEPRECATED_ARIA.roles.includes(role)) {
+      violations.push({
+        id: 'aria-deprecated-role',
+        description: `ARIA role "${role}" is deprecated`,
+        element: el,
+        impact: 'moderate' // Warn by default, configurable to error
+      })
+    }
+    
+    // Check if abstract (warn)
+    if (roleDef.abstract) {
+      violations.push({
+        id: 'aria-abstract-role',
+        description: `ARIA role "${role}" is abstract and should not be used`,
+        element: el,
+        impact: 'moderate'
+      })
+    }
+    
+    // Check redundant role (e.g., <button role="button">)
+    const implicitRole = ARIA_IN_HTML.implicitRoles[tagName]
+    if (implicitRole === role) {
+      violations.push({
+        id: 'aria-redundant-role',
+        description: `Redundant role: <${tagName}> already has implicit role "${role}"`,
+        element: el,
+        impact: 'minor'
+      })
+    }
+    
+    // Check conflicting semantics
+    if (implicitRole && implicitRole !== role && this.hasStrongNativeSemantics(tagName)) {
+      violations.push({
+        id: 'aria-conflicting-semantics',
+        description: `Conflicting semantics: <${tagName}> has implicit role "${implicitRole}" but role="${role}" is specified`,
+        element: el,
+        impact: 'serious'
+      })
+    }
+    
+    // Check role is allowed on element type (ARIA-in-HTML)
     if (!roleDef.allowedOn.includes('*') && !roleDef.allowedOn.includes(tagName)) {
       violations.push({
         id: 'aria-role-on-wrong-element',
@@ -135,6 +280,24 @@ static checkAriaRoles(element: Element): A11yViolation[] {
         element: el,
         impact: 'serious'
       })
+    }
+    
+    // ⭐ NEW: Check required context (parent role)
+    if (roleDef.requiredContext) {
+      const parent = el.parentElement
+      const parentRole = parent?.getAttribute('role')
+      const contexts = Array.isArray(roleDef.requiredContext) 
+        ? roleDef.requiredContext 
+        : [roleDef.requiredContext]
+      
+      if (!parentRole || !contexts.includes(parentRole)) {
+        violations.push({
+          id: 'aria-missing-context-role',
+          description: `Role "${role}" must be in context of ${contexts.join(' or ')}`,
+          element: el,
+          impact: 'serious'
+        })
+      }
     }
     
     // Check required properties
@@ -151,6 +314,11 @@ static checkAriaRoles(element: Element): A11yViolation[] {
   }
   
   return violations
+}
+
+private static hasStrongNativeSemantics(tagName: string): boolean {
+  const strongSemanticElements = ['button', 'a', 'input', 'select', 'textarea', 'img', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']
+  return strongSemanticElements.includes(tagName)
 }
 ```
 
@@ -242,38 +410,122 @@ private static validateAriaPropertyValue(value: string, type: string): boolean {
 - [ ] Add ID reference validation
 - [ ] Write unit tests
 
-#### Step 4: Implement ARIA Relationship Checker (Week 2, Days 4-5)
+#### Step 4: Implement ARIA Relationship Checker (Enhanced) (Week 2, Days 4-5)
 **File:** `src/core/a11y-checker.ts`
 
 ```typescript
 static checkAriaRelationships(element: Element): A11yViolation[] {
   const violations: A11yViolation[] = []
   
-  // Check aria-labelledby references
-  const labelledByElements = element.querySelectorAll('[aria-labelledby]')
-  for (const el of Array.from(labelledByElements)) {
-    const ids = el.getAttribute('aria-labelledby')?.split(/\s+/) || []
-    for (const id of ids) {
-      if (!element.querySelector(`#${id}`)) {
+  // Helper to check ID references
+  const checkIdReferences = (
+    elements: NodeListOf<Element>,
+    attribute: string,
+    violationId: string
+  ) => {
+    for (const el of Array.from(elements)) {
+      const ids = el.getAttribute(attribute)?.split(/\s+/) || []
+      
+      // ⭐ NEW: Check for self-reference
+      if (ids.includes(el.id || 'self')) {
         violations.push({
-          id: 'aria-labelledby-reference-missing',
-          description: `aria-labelledby references non-existent ID: ${id}`,
+          id: `${violationId}-self-reference`,
+          description: `${attribute} should not reference itself`,
           element: el,
           impact: 'serious'
         })
       }
+      
+      for (const id of ids) {
+        const referencedEl = element.querySelector(`#${id}`)
+        
+        // Check if reference exists
+        if (!referencedEl) {
+          violations.push({
+            id: `${violationId}-reference-missing`,
+            description: `${attribute} references non-existent ID: ${id}`,
+            element: el,
+            impact: 'serious'
+          })
+          continue
+        }
+        
+        // ⭐ NEW: Check if referenced element is aria-hidden
+        if (referencedEl.getAttribute('aria-hidden') === 'true') {
+          violations.push({
+            id: `${violationId}-reference-hidden`,
+            description: `${attribute} references element with aria-hidden="true" (name/description will be hidden from AT)`,
+            element: el,
+            impact: 'serious'
+          })
+        }
+        
+        // ⭐ NEW: Check for duplicate IDs (IDs must be unique)
+        const allWithId = element.querySelectorAll(`#${id}`)
+        if (allWithId.length > 1) {
+          violations.push({
+            id: `${violationId}-duplicate-id`,
+            description: `ID "${id}" is not unique in document (referenced by ${attribute})`,
+            element: el,
+            impact: 'serious'
+          })
+        }
+      }
     }
   }
+  
+  // Check aria-labelledby references
+  checkIdReferences(
+    element.querySelectorAll('[aria-labelledby]'),
+    'aria-labelledby',
+    'aria-labelledby'
+  )
   
   // Check aria-describedby references
-  const describedByElements = element.querySelectorAll('[aria-describedby]')
-  for (const el of Array.from(describedByElements)) {
-    const ids = el.getAttribute('aria-describedby')?.split(/\s+/) || []
-    for (const id of ids) {
-      if (!element.querySelector(`#${id}`)) {
+  checkIdReferences(
+    element.querySelectorAll('[aria-describedby]'),
+    'aria-describedby',
+    'aria-describedby'
+  )
+  
+  // Check aria-controls references
+  checkIdReferences(
+    element.querySelectorAll('[aria-controls]'),
+    'aria-controls',
+    'aria-controls'
+  )
+  
+  // Check aria-owns references
+  checkIdReferences(
+    element.querySelectorAll('[aria-owns]'),
+    'aria-owns',
+    'aria-owns'
+  )
+  
+  // ⭐ NEW: Check aria-activedescendant
+  const activedescendantElements = element.querySelectorAll('[aria-activedescendant]')
+  for (const el of Array.from(activedescendantElements)) {
+    const id = el.getAttribute('aria-activedescendant')
+    if (id) {
+      const referencedEl = element.querySelector(`#${id}`)
+      
+      if (!referencedEl) {
         violations.push({
-          id: 'aria-describedby-reference-missing',
-          description: `aria-describedby references non-existent ID: ${id}`,
+          id: 'aria-activedescendant-reference-missing',
+          description: `aria-activedescendant references non-existent ID: ${id}`,
+          element: el,
+          impact: 'serious'
+        })
+        continue
+      }
+      
+      // ⭐ NEW: Check referenced element is in same widget scope
+      // ⭐ NEW: Check owning element is focusable
+      const isFocusable = this.isFocusable(el)
+      if (!isFocusable) {
+        violations.push({
+          id: 'aria-activedescendant-owner-not-focusable',
+          description: 'Element with aria-activedescendant should be focusable',
           element: el,
           impact: 'serious'
         })
@@ -281,23 +533,41 @@ static checkAriaRelationships(element: Element): A11yViolation[] {
     }
   }
   
-  // Check aria-controls references
-  const controlsElements = element.querySelectorAll('[aria-controls]')
-  for (const el of Array.from(controlsElements)) {
-    const ids = el.getAttribute('aria-controls')?.split(/\s+/) || []
+  // ⭐ NEW: Check for circular aria-owns
+  const ownsElements = element.querySelectorAll('[aria-owns]')
+  for (const el of Array.from(ownsElements)) {
+    const ids = el.getAttribute('aria-owns')?.split(/\s+/) || []
     for (const id of ids) {
-      if (!element.querySelector(`#${id}`)) {
+      const referencedEl = element.querySelector(`#${id}`)
+      if (referencedEl && referencedEl.getAttribute('aria-owns')?.includes(el.id || '')) {
         violations.push({
-          id: 'aria-controls-reference-missing',
-          description: `aria-controls references non-existent ID: ${id}`,
+          id: 'aria-owns-circular-reference',
+          description: 'Circular aria-owns reference detected',
           element: el,
-          impact: 'moderate'
+          impact: 'serious'
         })
       }
     }
   }
   
   return violations
+}
+
+private static isFocusable(element: Element): boolean {
+  const tagName = element.tagName.toLowerCase()
+  const tabindex = element.getAttribute('tabindex')
+  
+  // Native focusable elements
+  if (['a', 'button', 'input', 'select', 'textarea'].includes(tagName)) {
+    return !element.hasAttribute('disabled')
+  }
+  
+  // Elements with tabindex
+  if (tabindex !== null) {
+    return tabindex !== '-1'
+  }
+  
+  return false
 }
 ```
 
@@ -354,7 +624,7 @@ export default {
 - [ ] Add HTML string support
 - [ ] Write rule tests
 
-#### Step 6: Testing & Documentation (Week 3, Days 3-5)
+#### Step 8: Testing & Documentation (Week 3, Days 3-5)
 **Tasks:**
 - [ ] Write comprehensive unit tests
 - [ ] Write ESLint rule tests
@@ -371,7 +641,13 @@ export default {
 - ✅ 90%+ test coverage
 - ✅ Documentation complete
 
-### Estimated Time: 2-3 weeks
+### Estimated Time: 3-4 weeks (updated with new features)
+
+**Updated Timeline:**
+- Week 1: ARIA data structure + core role/property validation
+- Week 2: Enhanced relationship validation + accessible name computation + composite patterns
+- Week 3: ESLint rule implementation
+- Week 4: Testing & documentation
 
 ---
 
@@ -899,15 +1175,19 @@ export default {
 
 ## Implementation Timeline
 
-### Week 1-2: ARIA Validation
-- Days 1-2: ARIA data structure
-- Days 3-5: ARIA role checker
-- Days 6-8: ARIA property checker
-- Days 9-10: ARIA relationship checker
+### Week 1: ARIA Validation Core
+- Days 1-2: ARIA data structure (with deprecated, context rules, ARIA-in-HTML)
+- Days 3-5: ARIA role checker (with redundant/conflicting detection, context validation)
 
-### Week 3: ARIA ESLint Rule & Testing
-- Days 1-2: ESLint rule implementation
-- Days 3-5: Testing & documentation
+### Week 2: ARIA Validation Enhanced
+- Days 1-3: ARIA property checker (with deprecated detection, ARIA-in-HTML restrictions)
+- Days 4-5: Enhanced relationship checker (self-ref, circular, unique IDs, aria-hidden checks)
+- Days 4-5: Accessible name computation
+- Days 4-5: Composite pattern validator
+
+### Week 3: ARIA ESLint Rule
+- Days 1-3: ESLint rule implementation (integrate all validators)
+- Days 4-5: Testing & documentation
 
 ### Week 4: Semantic HTML Validation
 - Days 1-2: Semantic element mappings
@@ -927,7 +1207,7 @@ export default {
 - Days 1-2: ESLint rule implementation
 - Days 3-5: Testing & documentation
 
-**Total Estimated Time: 6-7 weeks**
+**Total Estimated Time: 7-8 weeks** (updated with enhanced ARIA validation features)
 
 ---
 
