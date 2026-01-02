@@ -9,7 +9,7 @@
 **Why test-a11y-js?**
 - ✅ **Zero config** - Works out of the box with React, Vue, and JSX
 - ✅ **Real-time feedback** - Catch issues in your editor, not in production
-- ✅ **13 accessibility rules** - Covers images, forms, buttons, landmarks, and more
+- ✅ **16 accessibility rules** - Covers images, forms, buttons, landmarks, ARIA, semantic HTML, and more
 - ✅ **Dual API** - Use as ESLint plugin OR programmatic API
 - ✅ **Large project ready** - Minimal preset for incremental adoption
 - ✅ **Framework agnostic** - Works with React, Vue, Preact, Solid, and more
@@ -214,6 +214,27 @@ Validates proper use of landmark elements.
 #### `checkDialogModal(element: Element): A11yViolation[]`
 Validates dialog elements have proper accessibility attributes.
 
+#### `checkAriaRoles(element: Element): A11yViolation[]`
+Validates ARIA roles for validity, appropriateness, and context.
+
+#### `checkAriaProperties(element: Element): A11yViolation[]`
+Validates ARIA properties for validity, appropriateness, and values.
+
+#### `checkAriaRelationships(element: Element): A11yViolation[]`
+Validates ARIA ID references with enhanced checks.
+
+#### `checkAccessibleName(element: Element): A11yViolation[]`
+Validates accessible name computation.
+
+#### `checkCompositePatterns(element: Element): A11yViolation[]`
+Validates composite ARIA patterns (tab/listbox/menu/tree).
+
+#### `checkSemanticHTML(element: Element): A11yViolation[]`
+Validates semantic HTML usage and structure.
+
+#### `checkFormValidationMessages(element: Element): A11yViolation[]`
+Validates form validation messages and error handling.
+
 ### Types
 
 ```typescript
@@ -245,6 +266,9 @@ interface A11yResults {
 - **Audio captions validation** - Validates audio elements have tracks or transcripts
 - **Landmark roles validation** - Checks proper use of semantic landmarks
 - **Dialog/Modal validation** - Validates dialog accessibility patterns
+- **Comprehensive ARIA validation** - Validates ARIA roles, properties, relationships, accessible names, and composite patterns
+- **Semantic HTML validation** - Validates proper use of semantic HTML and detects misuse
+- **Form validation messages** - Validates form validation and error handling
 
 ### ESLint Plugin
 - Real-time accessibility linting in your editor
@@ -257,7 +281,7 @@ interface A11yResults {
 
 ## ESLint Rules
 
-The plugin provides 13 accessibility rules:
+The plugin provides 16 accessibility rules:
 
 - `test-a11y-js/image-alt` - Enforce images have alt attributes
 - `test-a11y-js/button-label` - Enforce buttons have labels
@@ -272,6 +296,9 @@ The plugin provides 13 accessibility rules:
 - `test-a11y-js/audio-captions` - Enforce audio elements have tracks or transcripts
 - `test-a11y-js/landmark-roles` - Enforce proper use of landmark elements (nav, main, header, footer, aside, section, article)
 - `test-a11y-js/dialog-modal` - Enforce dialog elements have proper accessibility attributes
+- `test-a11y-js/aria-validation` - Enforce valid ARIA roles, properties, relationships, and accessible names
+- `test-a11y-js/semantic-html` - Enforce proper use of semantic HTML elements
+- `test-a11y-js/form-validation` - Enforce proper form validation messages and error handling
 
 See [`src/checks.json`](./src/checks.json) for a complete list of supported elements, ARIA attributes, and rules (including what's not yet supported).
 
