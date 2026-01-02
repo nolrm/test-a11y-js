@@ -2,6 +2,41 @@
 
 This document outlines the planned features and improvements for `test-a11y-js`.
 
+## Implementation Phases
+
+### Phase 1: Static Validation (v0.8.0) - In Progress
+**Timeline:** 6-7 weeks  
+**Status:** Planning complete, ready for implementation  
+**See:** [Detailed Implementation Plan](./IMPLEMENTATION_PLAN.md)
+
+1. ✅ **Comprehensive ARIA Validation** (2-3 weeks)
+   - ARIA role validation
+   - ARIA property validation
+   - ARIA relationship validation
+
+2. ✅ **Semantic HTML Validation** (1-2 weeks)
+   - Semantic element detection
+   - List structure validation
+
+3. ✅ **Form Validation Messages** (1-2 weeks)
+   - Error message association
+   - Required field indicators
+
+### Phase 2: Runtime Validation (v0.9.0) - Planned
+**Timeline:** 7-10 weeks  
+**Status:** Research phase
+
+4. **Keyboard Navigation Testing** (4-6 weeks)
+   - Tab order validation
+   - Focus trap detection
+   - Keyboard event handling
+   - **Note:** Programmatic API only, not ESLint compatible
+
+5. **Focus Visible Indicators** (3-4 weeks)
+   - Focus indicator validation
+   - CSS parsing for focus styles
+   - **Note:** Programmatic API only, requires CSS parsing
+
 ## Current Status
 
 **Version:** 0.7.3
@@ -414,14 +449,21 @@ For each new rule, follow this checklist:
 - [ ] Landmark elements validation
 - [ ] dialog-modal rule
 
-### v0.7.0+
-- [ ] color-contrast rule
-- [ ] keyboard-navigation rule
-- [ ] focus-visible rule
-- [ ] aria-roles rule
-- [ ] aria-properties rule
-- [ ] semantic-html rule
-- [ ] form-validation rule
+### v0.8.0 - Phase 1: Static Validation (Planned)
+- [ ] Comprehensive ARIA validation (aria-roles, aria-properties, aria-relationships)
+- [ ] Semantic HTML validation
+- [ ] Form validation messages
+- **Timeline:** 6-7 weeks
+- **See:** [Implementation Plan](./IMPLEMENTATION_PLAN.md)
+
+### v0.9.0 - Phase 2: Runtime Validation (Planned)
+- [ ] Keyboard navigation testing (Programmatic API only)
+- [ ] Focus visible indicators (Programmatic API only)
+- **Timeline:** 7-10 weeks
+- **Note:** These features require runtime/DOM APIs and are not ESLint compatible
+
+### Future Considerations
+- [ ] color-contrast rule (requires color calculation)
 
 ## Contributing
 
