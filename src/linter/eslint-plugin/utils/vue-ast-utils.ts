@@ -116,7 +116,12 @@ export function vueElementToDOM(
   }
   
   const tagName = vueNode.name.toLowerCase()
-  const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>')
+  const JSDOMClass = getJSDOM()
+  if (!JSDOMClass) {
+    return null
+  }
+  
+  const dom = new JSDOMClass('<!DOCTYPE html><html><body></body></html>')
   const element = dom.window.document.createElement(tagName)
   
   // Set attributes
