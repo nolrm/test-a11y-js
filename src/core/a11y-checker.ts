@@ -185,6 +185,55 @@ export class A11yChecker {
     return violations
   }
 
+  static checkTableStructure(element: Element): A11yViolation[] {
+    const violations: A11yViolation[] = []
+    const tables = element.getElementsByTagName('table')
+    
+    for (const table of Array.from(tables)) {
+      // Check for caption or aria-label/aria-labelledby
+      const hasCaption = table.querySelector('caption')
+      const hasAriaLabel = table.hasAttribute('aria-label')
+      const hasAriaLabelledBy = table.hasAttribute('aria-labelledby')
+      
+      if (!hasCaption && !hasAriaLabel && !hasAriaLabelledBy) {
+        violations.push({
+          id: 'table-caption',
+          description: 'Table must have a caption or aria-label/aria-labelledby',
+          element: table,
+          impact: 'serious'
+        })
+      }
+      
+      // Check for header cells (th elements)
+      const headerCells = table.querySelectorAll('th')
+      const dataCells = table.querySelectorAll('td')
+      
+      // If there are data cells but no header cells, that's a problem
+      if (dataCells.length > 0 && headerCells.length === 0) {
+        violations.push({
+          id: 'table-headers',
+          description: 'Table must have header cells (th elements) when it has data cells',
+          element: table,
+          impact: 'serious'
+        })
+      }
+      
+      // Check that header cells have scope attribute
+      for (const th of Array.from(headerCells)) {
+        if (!th.hasAttribute('scope')) {
+          violations.push({
+            id: 'table-header-scope',
+            description: 'Table header cells (th) should have a scope attribute',
+            element: th,
+            impact: 'moderate'
+          })
+        }
+      }
+    }
+    
+    return violations
+  }
+
   static async check(element: Element): Promise<A11yResults> {
     const violations = [
       ...this.checkImageAlt(element),
@@ -193,7 +242,8 @@ export class A11yChecker {
       ...this.checkFormLabels(element),
       ...this.checkHeadingOrder(element),
       ...this.checkIframeTitle(element),
-      ...this.checkFieldsetLegend(element)
+      ...this.checkFieldsetLegend(element),
+      ...this.checkTableStructure(element)
     ]
     
     // Log violations for debugging

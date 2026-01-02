@@ -6,7 +6,7 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 
 **Version:** 0.5.6
 
-**Supported Rules:** 7
+**Supported Rules:** 8
 - `image-alt` - Image alt attribute validation
 - `button-label` - Button label validation
 - `link-text` - Link text validation
@@ -14,9 +14,10 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 - `heading-order` - Heading hierarchy validation
 - `iframe-title` - Iframe title attribute validation
 - `fieldset-legend` - Fieldset legend validation
+- `table-structure` - Table structure validation
 
-**Supported Elements:** 14
-- img, button, a, input, select, textarea, h1-h6, iframe, fieldset
+**Supported Elements:** 15
+- img, button, a, input, select, textarea, h1-h6, iframe, fieldset, table
 
 ## Implementation Priority
 
@@ -45,10 +46,10 @@ Validate that `<fieldset>` elements have an associated `<legend>` child element.
 
 ---
 
-#### 2. table-structure Rule
+#### 2. table-structure Rule ✅ COMPLETED
 **Priority:** High  
 **Complexity:** Medium  
-**Estimated Time:** 2-3 days
+**Status:** Implemented in v0.5.7
 
 **Description:**  
 Validate table accessibility including caption, header cells (`<th>`), and scope attributes.
@@ -57,10 +58,10 @@ Validate table accessibility including caption, header cells (`<th>`), and scope
 - Success Criterion 1.3.1 (Info and Relationships)
 
 **Checks:**
-- Tables should have `<caption>` or `aria-label`/`aria-labelledby`
-- Header cells should use `<th>` instead of styled `<td>`
-- Header cells should have `scope` attribute
-- Complex tables should use `headers` attribute
+- ✅ Tables should have `<caption>` or `aria-label`/`aria-labelledby`
+- ✅ Header cells should use `<th>` instead of styled `<td>`
+- ✅ Header cells should have `scope` attribute
+- ⚠️ Complex tables should use `headers` attribute (future enhancement)
 
 **Resources:**
 - MDN: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table#accessibility
@@ -394,11 +395,11 @@ For each new rule, follow this checklist:
 
 ## Version Planning
 
-### v0.5.6 (Current Release)
-- [x] fieldset-legend rule
+### v0.5.7 (Current Release)
+- [x] table-structure rule
 
 ### v0.6.0 (Next Release)
-- [ ] table-structure rule
+- [ ] details-summary rule
 
 ### v0.5.0
 - [ ] video-captions rule

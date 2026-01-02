@@ -205,4 +205,79 @@ describe('A11yChecker', () => {
       expect(violations[0].id).toBe('fieldset-legend')
     })
   })
+
+  describe('Table Tests', () => {
+    it('should detect table without caption or aria-label', () => {
+      document.body.innerHTML = `
+        <div>
+          <table>
+            <tr><td>Data</td></tr>
+          </table>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkTableStructure(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'table-caption')).toBe(true)
+    })
+
+    it('should detect table without header cells', () => {
+      document.body.innerHTML = `
+        <div>
+          <table>
+            <caption>Test Table</caption>
+            <tr><td>Data</td></tr>
+          </table>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkTableStructure(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'table-headers')).toBe(true)
+    })
+
+    it('should detect header cells without scope', () => {
+      document.body.innerHTML = `
+        <div>
+          <table>
+            <caption>Test Table</caption>
+            <tr><th>Header</th><td>Data</td></tr>
+          </table>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkTableStructure(document.body)
+      expect(violations.length).toBeGreaterThan(0)
+      expect(violations.some(v => v.id === 'table-header-scope')).toBe(true)
+    })
+
+    it('should pass when table has caption and proper headers', () => {
+      document.body.innerHTML = `
+        <div>
+          <table>
+            <caption>Test Table</caption>
+            <tr><th scope="col">Header</th></tr>
+            <tr><td>Data</td></tr>
+          </table>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkTableStructure(document.body)
+      expect(violations).toHaveLength(0)
+    })
+
+    it('should pass when table has aria-label instead of caption', () => {
+      document.body.innerHTML = `
+        <div>
+          <table aria-label="Test Table">
+            <tr><th scope="col">Header</th></tr>
+            <tr><td>Data</td></tr>
+          </table>
+        </div>
+      `
+      
+      const violations = A11yChecker.checkTableStructure(document.body)
+      expect(violations).toHaveLength(0)
+    })
+  })
 }) 

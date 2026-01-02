@@ -217,6 +217,38 @@
         "<fieldset><legend>Personal Information</legend><input /></fieldset>",
         "<fieldset><legend>Contact Details</legend></fieldset>"
       ]
+    },
+    "table-structure": {
+      "ruleId": "test-a11y-js/table-structure",
+      "method": "checkTableStructure",
+      "elements": ["table"],
+      "attributes": {
+        "checked": ["caption", "aria-label", "aria-labelledby", "scope"]
+      },
+      "violations": [
+        {
+          "id": "table-caption",
+          "description": "Table must have a caption or aria-label/aria-labelledby",
+          "impact": "serious",
+          "condition": "Element lacks 'caption' child AND 'aria-label'/'aria-labelledby' attributes"
+        },
+        {
+          "id": "table-headers",
+          "description": "Table must have header cells (th elements) when it has data cells",
+          "impact": "serious",
+          "condition": "Table has data cells (td) but no header cells (th)"
+        },
+        {
+          "id": "table-header-scope",
+          "description": "Table header cells (th) should have a scope attribute",
+          "impact": "moderate",
+          "condition": "Header cell (th) lacks 'scope' attribute"
+        }
+      ],
+      "validPatterns": [
+        "<table><caption>Test Table</caption><tr><th scope='col'>Header</th></tr><tr><td>Data</td></tr></table>",
+        "<table aria-label='Test Table'><tr><th scope='row'>Header</th><td>Data</td></tr></table>"
+      ]
     }
   },
   "ariaAttributes": {
@@ -415,6 +447,11 @@
         "element": "fieldset",
         "rules": ["fieldset-legend"],
         "checks": ["legend element as direct child with non-empty text"]
+      },
+      {
+        "element": "table",
+        "rules": ["table-structure"],
+        "checks": ["caption or aria-label/aria-labelledby", "header cells (th)", "scope attribute on headers"]
       }
     ],
     "notSupported": [
@@ -426,11 +463,6 @@
       {
         "element": "audio",
         "reason": "Not yet implemented - would require captions/track validation",
-        "planned": false
-      },
-      {
-        "element": "table",
-        "reason": "Not yet implemented - would require caption, th, scope validation",
         "planned": false
       },
       {
@@ -550,9 +582,9 @@
     ]
   },
   "summary": {
-    "totalRules": 7,
-    "totalElementsSupported": 14,
-    "totalElementsNotSupported": 13,
+    "totalRules": 8,
+    "totalElementsSupported": 15,
+    "totalElementsNotSupported": 12,
     "totalAriaAttributesSupported": 2,
     "totalAriaAttributesNotSupported": 8,
     "totalHtmlAttributesSupported": 5,
@@ -572,12 +604,13 @@
       "h5",
       "h6",
       "iframe",
-      "fieldset"
+      "fieldset",
+      "table"
     ],
     "impactLevels": {
       "critical": ["button-label", "form-label"],
-      "serious": ["image-alt", "link-text", "iframe-title", "fieldset-legend"],
-      "moderate": ["link-text", "heading-order"]
+      "serious": ["image-alt", "link-text", "iframe-title", "fieldset-legend", "table-structure"],
+      "moderate": ["link-text", "heading-order", "table-structure"]
     }
   }
 }

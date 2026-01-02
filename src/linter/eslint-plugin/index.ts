@@ -25,6 +25,7 @@ import formLabel from './rules/form-label'
 import headingOrder from './rules/heading-order'
 import iframeTitle from './rules/iframe-title'
 import fieldsetLegend from './rules/fieldset-legend'
+import tableStructure from './rules/table-structure'
 
 /**
  * ESLint plugin for accessibility checking
@@ -32,7 +33,7 @@ import fieldsetLegend from './rules/fieldset-legend'
 const plugin: ESLint.Plugin = {
   meta: {
     name: 'test-a11y-js',
-    version: '0.5.6'
+    version: '0.5.7'
   },
   rules: {
     'image-alt': imageAlt,
@@ -41,7 +42,8 @@ const plugin: ESLint.Plugin = {
     'form-label': formLabel,
     'heading-order': headingOrder,
     'iframe-title': iframeTitle,
-    'fieldset-legend': fieldsetLegend
+    'fieldset-legend': fieldsetLegend,
+    'table-structure': tableStructure
   },
   configs: {
     recommended: {
