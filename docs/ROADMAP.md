@@ -4,7 +4,7 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 
 ## Current Status
 
-**Version:** 0.5.6
+**Version:** 0.7.3
 
 **Supported Rules:** 13
 - `image-alt` - Image alt attribute validation
