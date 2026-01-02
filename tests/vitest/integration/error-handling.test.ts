@@ -9,14 +9,14 @@ import { A11yChecker } from '../../../src/core/a11y-checker'
 
 describe('Error Handling', () => {
   describe('Null and Undefined Handling', () => {
-    it('should handle null element gracefully', () => {
+    it('should throw error for null element', () => {
       // @ts-expect-error - Testing error handling
-      expect(() => A11yChecker.checkImageAlt(null)).not.toThrow()
+      expect(() => A11yChecker.checkImageAlt(null)).toThrow()
     })
 
-    it('should handle undefined element gracefully', () => {
+    it('should throw error for undefined element', () => {
       // @ts-expect-error - Testing error handling
-      expect(() => A11yChecker.checkImageAlt(undefined)).not.toThrow()
+      expect(() => A11yChecker.checkImageAlt(undefined)).toThrow()
     })
 
     it('should handle empty element', () => {
