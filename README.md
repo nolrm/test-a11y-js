@@ -166,7 +166,18 @@ const videoViolations = A11yChecker.checkVideoCaptions(element)
 const audioViolations = A11yChecker.checkAudioCaptions(element)
 const landmarkViolations = A11yChecker.checkLandmarks(element)
 const dialogViolations = A11yChecker.checkDialogModal(element)
+
+// Phase 1: ARIA, Semantic HTML, Form Validation
+const ariaRoleViolations = A11yChecker.checkAriaRoles(element)
+const ariaPropertyViolations = A11yChecker.checkAriaProperties(element)
+const ariaRelationshipViolations = A11yChecker.checkAriaRelationships(element)
+const accessibleNameViolations = A11yChecker.checkAccessibleName(element)
+const compositePatternViolations = A11yChecker.checkCompositePatterns(element)
+const semanticHTMLViolations = A11yChecker.checkSemanticHTML(element)
+const formValidationViolations = A11yChecker.checkFormValidationMessages(element)
 ```
+<｜tool▁calls▁begin｜><｜tool▁call▁begin｜>
+read_file
 
 ## API
 
@@ -361,6 +372,64 @@ function MyComponent() {
   <button aria-label="Close menu">×</button>
 </template>
 ```
+
+### ARIA Validation (Phase 1)
+
+```tsx
+// ❌ ESLint will catch these ARIA issues
+function MyComponent() {
+  return (
+    <div>
+      <div role="invalid-role">Content</div>  {/* Invalid role */}
+      <button role="button">Click</button>     {/* Redundant role */}
+      <div role="tab">Tab</div>                {/* Missing tablist context */}
+      <input aria-label="" />                  {/* Empty aria-label */}
+    </div>
+  )
+}
+
+// ✅ Fixed
+function MyComponent() {
+  return (
+    <div role="tablist">
+      <button>Click</button>                    {/* Native button, no role needed */}
+      <div role="tab" aria-controls="panel-1">Tab</div>
+      <input aria-label="Email address" />
+    </div>
+  )
+}
+```
+
+### Semantic HTML (Phase 1)
+
+```tsx
+// ❌ ESLint will catch semantic HTML misuse
+function MyComponent() {
+  return (
+    <div>
+      <div role="button" onClick={handleClick}>Click</div>  {/* Use <button> */}
+      <a>Link without href</a>                               {/* Missing href */}
+      <button><a href="/">Nested link</a></button>          {/* Nested interactive */}
+      <main>Content</main>
+      <main>Another main</main>                             {/* Multiple main */}
+    </div>
+  )
+}
+
+// ✅ Fixed
+function MyComponent() {
+  return (
+    <div>
+      <button onClick={handleClick}>Click</button>
+      <a href="/page">Link</a>
+      <button>Action</button>
+      <main>Content</main>
+    </div>
+  )
+}
+```
+<｜tool▁calls▁begin｜><｜tool▁call▁begin｜>
+run_terminal_cmd
 
 ## How It Compares
 
