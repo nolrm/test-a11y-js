@@ -181,7 +181,12 @@ export function jsxToElement(
   const attributes = getJSXAttributes(openingElement)
   
   // Create DOM element using JSDOM
-  const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>')
+  const JSDOMClass = getJSDOM()
+  if (!JSDOMClass) {
+    throw new Error('jsdom is required for JSX element conversion')
+  }
+  
+  const dom = new JSDOMClass('<!DOCTYPE html><html><body></body></html>')
   const element = dom.window.document.createElement(tagName)
   
   // Set attributes
