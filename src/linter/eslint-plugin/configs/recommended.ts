@@ -23,7 +23,12 @@ const recommended: RuleConfig = {
   
   // Moderate/Minor violations - set to warn
   'test-a11y-js/link-text': 'warn',
-  'test-a11y-js/heading-order': 'warn'
+  'test-a11y-js/heading-order': 'warn',
+  
+  // Phase 1: ARIA, Semantic HTML, Form Validation
+  'test-a11y-js/aria-validation': 'warn',
+  'test-a11y-js/semantic-html': 'warn',
+  'test-a11y-js/form-validation': 'warn'
 }
 
 export default recommended

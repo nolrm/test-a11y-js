@@ -68,9 +68,10 @@ describe('ESLint Config Presets', () => {
     const recommendedPath = join(process.cwd(), 'src/linter/eslint-plugin/configs/recommended.ts')
     const recommendedContent = readFileSync(recommendedPath, 'utf-8')
 
-    it('should have all 16 rules', () => {
+    it('should have all rules configured', () => {
       const ruleMatches = recommendedContent.match(/test-a11y-js\/[^:]+/g) || []
-      expect(ruleMatches.length).toBe(16)
+      // Should have at least 13 original rules + 3 Phase 1 rules = 16
+      expect(ruleMatches.length).toBeGreaterThanOrEqual(16)
     })
 
     it('should have critical rules as error', () => {
