@@ -28,7 +28,7 @@ The `test-a11y-js` ESLint plugin provides real-time accessibility linting for yo
 ## Installation
 
 ```bash
-npm install --save-dev test-a11y-js eslint
+npm install --save-dev eslint-plugin-test-a11y-js eslint
 ```
 
 ### Peer Dependencies

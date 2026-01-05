@@ -1,8 +1,32 @@
-# test-a11y-js
+# eslint-plugin-test-a11y-js
 
 > **Catch accessibility issues in your editor, not in production.** Zero-config ESLint plugin + programmatic API for React, Vue, and JSX.
 
-[![npm version](https://img.shields.io/npm/v/test-a11y-js.svg)](https://www.npmjs.com/package/test-a11y-js)
+[![npm version](https://img.shields.io/npm/v/eslint-plugin-test-a11y-js.svg)](https://www.npmjs.com/package/eslint-plugin-test-a11y-js)
+
+## ⚠️ Breaking Change in v0.9.0
+
+The package has been renamed to `eslint-plugin-test-a11y-js` to follow ESLint naming conventions.
+
+**What changed:**
+- Package name: `test-a11y-js` → `eslint-plugin-test-a11y-js`
+- Core library import: `from 'test-a11y-js'` → `from 'eslint-plugin-test-a11y-js/core'`
+- ESLint config: No changes needed! Still use `plugins: ['test-a11y-js']`
+
+**Quick migration:**
+```bash
+npm uninstall test-a11y-js
+npm install --save-dev eslint-plugin-test-a11y-js
+```
+
+Then update imports:
+```typescript
+// Before
+import { A11yChecker } from 'test-a11y-js'
+
+// After  
+import { A11yChecker } from 'eslint-plugin-test-a11y-js/core'
+```
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
@@ -17,7 +41,7 @@
 ## Installation
 
 ```bash
-npm install --save-dev test-a11y-js
+npm install --save-dev eslint-plugin-test-a11y-js
 ```
 
 ### Peer Dependencies
@@ -41,7 +65,7 @@ module.exports = {
 
 **Option 2: Programmatic API**
 ```typescript
-import { A11yChecker } from 'test-a11y-js'
+import { A11yChecker } from 'eslint-plugin-test-a11y-js/core'
 
 const violations = A11yChecker.checkImageAlt(element)
 ```
@@ -202,7 +226,7 @@ See [Configuration Guide](./docs/CONFIGURATION.md) for more details and [Large P
 Use the `A11yChecker` class to test DOM elements programmatically in your test suites:
 
 ```typescript
-import { A11yChecker } from 'test-a11y-js'
+import { A11yChecker } from 'eslint-plugin-test-a11y-js/core'
 
 // Test a DOM element for accessibility violations
 const results = await A11yChecker.check(element)

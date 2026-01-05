@@ -66,12 +66,12 @@ Common issues and solutions when using the `test-a11y-js` ESLint plugin.
 
 1. **Reinstall the plugin:**
    ```bash
-   npm install --save-dev test-a11y-js
+   npm install --save-dev eslint-plugin-test-a11y-js
    ```
 
 2. **Check node_modules:**
    ```bash
-   ls node_modules/test-a11y-js
+   ls node_modules/eslint-plugin-test-a11y-js
    ```
 
 3. **Clear cache:**

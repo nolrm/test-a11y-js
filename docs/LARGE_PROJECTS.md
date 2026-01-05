@@ -7,7 +7,7 @@ This guide helps you integrate `test-a11y-js` into large codebases with minimal 
 ### Step 1: Install
 
 ```bash
-npm install --save-dev test-a11y-js eslint
+npm install --save-dev eslint-plugin-test-a11y-js eslint
 ```
 
 ### Step 2: Start with Minimal Configuration

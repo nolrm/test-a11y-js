@@ -1,6 +1,6 @@
 # Integration Guide
 
-This document explains how to integrate the `test-a11y-js` ESLint plugin into your project.
+This document explains how to integrate the `eslint-plugin-test-a11y-js` ESLint plugin into your project.
 
 > **Note:** For detailed ESLint configuration options, see [Configuration Guide](./CONFIGURATION.md). For comprehensive plugin documentation, see [ESLint Plugin Guide](./ESLINT_PLUGIN.md).
 
@@ -8,24 +8,24 @@ This document explains how to integrate the `test-a11y-js` ESLint plugin into yo
 
 The package provides two main export paths:
 
-### Main Export (Core Library)
+### Main Export (ESLint Plugin)
 
 ```javascript
 // ESM
-import { A11yChecker } from 'test-a11y-js'
+import plugin from 'eslint-plugin-test-a11y-js'
 
 // CJS
-const { A11yChecker } = require('test-a11y-js')
+const plugin = require('eslint-plugin-test-a11y-js')
 ```
 
-### ESLint Plugin Export
+### Core Library Export
 
 ```javascript
 // ESM
-import plugin from 'test-a11y-js/eslint-plugin'
+import { A11yChecker } from 'eslint-plugin-test-a11y-js/core'
 
 // CJS
-const plugin = require('test-a11y-js/eslint-plugin')
+const { A11yChecker } = require('eslint-plugin-test-a11y-js/core')
 ```
 
 ## Build Output
@@ -48,19 +48,20 @@ The package.json is configured with proper exports:
 
 ```json
 {
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "name": "eslint-plugin-test-a11y-js",
+  "main": "dist/linter/eslint-plugin/index.js",
+  "module": "dist/linter/eslint-plugin/index.mjs",
+  "types": "dist/linter/eslint-plugin/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./eslint-plugin": {
       "import": "./dist/linter/eslint-plugin/index.mjs",
       "require": "./dist/linter/eslint-plugin/index.js",
       "types": "./dist/linter/eslint-plugin/index.d.ts"
+    },
+    "./core": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   }
 }
@@ -72,7 +73,7 @@ The package.json is configured with proper exports:
 
 1. Install the package:
 ```bash
-npm install --save-dev test-a11y-js eslint
+npm install --save-dev eslint-plugin-test-a11y-js eslint
 ```
 
 2. Configure ESLint:

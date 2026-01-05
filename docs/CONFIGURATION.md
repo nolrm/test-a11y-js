@@ -333,7 +333,7 @@ module.exports = {
 
 ### Rules not working
 
-1. Ensure the plugin is installed: `npm install test-a11y-js`
+1. Ensure the plugin is installed: `npm install eslint-plugin-test-a11y-js`
 2. Verify the plugin is in your ESLint config
 3. Check that your parser supports JSX (for React) or Vue (for Vue)
 4. Ensure file extensions are included in ESLint's file patterns
