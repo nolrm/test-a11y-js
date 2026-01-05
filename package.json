@@ -1,20 +1,20 @@
 {
-  "name": "test-a11y-js",
-  "version": "0.8.2",
-  "description": "Zero-config accessibility testing for React, Vue & JSX. ESLint plugin + programmatic API. Catch a11y issues before production.",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "name": "eslint-plugin-test-a11y-js",
+  "version": "0.9.0",
+  "description": "ESLint plugin for accessibility testing. Zero-config for React, Vue & JSX. Includes programmatic API.",
+  "main": "dist/linter/eslint-plugin/index.js",
+  "module": "dist/linter/eslint-plugin/index.mjs",
+  "types": "dist/linter/eslint-plugin/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./eslint-plugin": {
       "import": "./dist/linter/eslint-plugin/index.mjs",
       "require": "./dist/linter/eslint-plugin/index.js",
       "types": "./dist/linter/eslint-plugin/index.d.ts"
+    },
+    "./core": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "files": [
