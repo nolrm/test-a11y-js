@@ -18,7 +18,7 @@ const rule: Rule.RuleModule = {
       description: 'Enforce fieldset elements have a legend element as a direct child',
       category: 'Accessibility',
       recommended: true,
-      url: 'https://github.com/nolrm/test-a11y-js'
+      url: 'https://github.com/nolrm/eslint-plugin-test-a11y-js'
     },
     messages: {
       missingLegend: 'fieldset must have a legend element as a direct child',

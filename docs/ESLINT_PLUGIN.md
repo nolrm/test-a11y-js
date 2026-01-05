@@ -429,6 +429,6 @@ Add ESLint to your CI/CD pipeline:
 ## Support
 
 For issues, questions, or contributions, please visit:
-- GitHub: https://github.com/nolrm/test-a11y-js
-- Issues: https://github.com/nolrm/test-a11y-js/issues
+- GitHub: https://github.com/nolrm/eslint-plugin-test-a11y-js
+- Issues: https://github.com/nolrm/eslint-plugin-test-a11y-js/issues
 

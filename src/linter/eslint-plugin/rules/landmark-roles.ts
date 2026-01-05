@@ -18,7 +18,7 @@ const rule: Rule.RuleModule = {
       description: 'Enforce proper use of landmark elements (nav, main, header, footer, aside, section, article)',
       category: 'Accessibility',
       recommended: true,
-      url: 'https://github.com/nolrm/test-a11y-js'
+      url: 'https://github.com/nolrm/eslint-plugin-test-a11y-js'
     },
     messages: {
       multipleMain: 'Page should have only one main element',

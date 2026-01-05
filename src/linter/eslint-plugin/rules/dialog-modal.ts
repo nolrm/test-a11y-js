@@ -18,7 +18,7 @@ const rule: Rule.RuleModule = {
       description: 'Enforce dialog elements have proper accessibility attributes',
       category: 'Accessibility',
       recommended: true,
-      url: 'https://github.com/nolrm/test-a11y-js'
+      url: 'https://github.com/nolrm/eslint-plugin-test-a11y-js'
     },
     messages: {
       missingName: 'Dialog element must have an accessible name (aria-label, aria-labelledby, or heading)',

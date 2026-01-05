@@ -403,7 +403,7 @@ Common issues and solutions when using the `test-a11y-js` ESLint plugin.
 If you're still experiencing issues:
 
 1. **Check existing issues:**
-   https://github.com/nolrm/test-a11y-js/issues
+   https://github.com/nolrm/eslint-plugin-test-a11y-js/issues
 
 2. **Create a minimal reproduction:**
    - Small code example
@@ -417,5 +417,5 @@ If you're still experiencing issues:
    - Framework (React/Vue)
 
 4. **Open an issue:**
-   https://github.com/nolrm/test-a11y-js/issues/new
+   https://github.com/nolrm/eslint-plugin-test-a11y-js/issues/new
 

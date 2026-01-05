@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-test-a11y-js",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "ESLint plugin for accessibility testing. Zero-config for React, Vue & JSX. Includes programmatic API.",
   "main": "dist/linter/eslint-plugin/index.js",
   "module": "dist/linter/eslint-plugin/index.mjs",
@@ -62,12 +62,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nolrm/test-a11y-js.git"
+    "url": "git+https://github.com/nolrm/eslint-plugin-test-a11y-js.git"
   },
   "bugs": {
-    "url": "https://github.com/nolrm/test-a11y-js/issues"
+    "url": "https://github.com/nolrm/eslint-plugin-test-a11y-js/issues"
   },
-  "homepage": "https://github.com/nolrm/test-a11y-js#readme",
+  "homepage": "https://github.com/nolrm/eslint-plugin-test-a11y-js#readme",
   "dependencies": {},
   "peerDependencies": {
     "vitest": ">=0.30.0",

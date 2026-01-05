@@ -18,7 +18,7 @@ const rule: Rule.RuleModule = {
       description: 'Enforce links have descriptive text',
       category: 'Accessibility',
       recommended: true,
-      url: 'https://github.com/nolrm/test-a11y-js'
+      url: 'https://github.com/nolrm/eslint-plugin-test-a11y-js'
     },
     messages: {
       missingText: 'Link must have descriptive text',
