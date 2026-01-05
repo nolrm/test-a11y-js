@@ -129,6 +129,61 @@ module.exports = {
 - `plugin:test-a11y-js/react` - Optimized for React/JSX
 - `plugin:test-a11y-js/vue` - Optimized for Vue SFC
 
+#### Ignoring Files and Lines
+
+Sometimes you need to ignore specific files or lines. Here are your options:
+
+**Ignore a single line:**
+```jsx
+// eslint-disable-next-line test-a11y-js/image-alt
+<img src="decorative.jpg" alt="" />
+```
+
+**Ignore an entire file:**
+```jsx
+/* eslint-disable test-a11y-js/heading-order */
+// Entire file exempt from heading-order rule
+```
+
+**Ignore directories:**
+```javascript
+// .eslintrc.js
+module.exports = {
+  plugins: ['test-a11y-js'],
+  extends: ['plugin:test-a11y-js/recommended'],
+  ignorePatterns: [
+    '**/node_modules/**',
+    '**/dist/**',
+    '**/*.test.{js,ts,jsx,tsx}' // Optional: exclude test files
+  ]
+}
+```
+
+**Disable rules for specific files:**
+```javascript
+// .eslintrc.js
+module.exports = {
+  plugins: ['test-a11y-js'],
+  extends: ['plugin:test-a11y-js/recommended'],
+  overrides: [
+    {
+      files: ['**/legacy/**'],
+      rules: {
+        'test-a11y-js/**': 'warn' // Only warnings in legacy code
+      }
+    }
+  ]
+}
+```
+
+**Vue template ignore:**
+```vue
+<!-- eslint-disable-next-line test-a11y-js/image-alt -->
+<img src="photo.jpg" />
+```
+
+> **Best Practice:** Always add a comment explaining why you're ignoring a rule. For example: `// eslint-disable-next-line test-a11y-js/image-alt -- Decorative image, no semantic meaning`
+
 ### Quick Start for Large Projects
 
 ```javascript
