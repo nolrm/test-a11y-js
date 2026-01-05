@@ -14,22 +14,30 @@ const packageJsonPath = join(process.cwd(), 'package.json')
 
 describe('ESLint Plugin Export Configuration', () => {
   describe('Package.json exports', () => {
-    it('should have eslint-plugin export path configured', () => {
+    it('should have correct package name for ESLint auto-resolution', () => {
       const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
       
-      expect(pkg.exports['./eslint-plugin']).toBeDefined()
-      expect(pkg.exports['./eslint-plugin'].import).toBe('./dist/linter/eslint-plugin/index.mjs')
-      expect(pkg.exports['./eslint-plugin'].require).toBe('./dist/linter/eslint-plugin/index.js')
-      expect(pkg.exports['./eslint-plugin'].types).toBe('./dist/linter/eslint-plugin/index.d.ts')
+      expect(pkg.name).toBe('eslint-plugin-test-a11y-js')
+      expect(pkg.name).toMatch(/^eslint-plugin-/)
     })
 
-    it('should have main export configured', () => {
+    it('should have main export pointing to ESLint plugin', () => {
       const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
       
+      expect(pkg.main).toBe('dist/linter/eslint-plugin/index.js')
       expect(pkg.exports['.']).toBeDefined()
-      expect(pkg.exports['.'].import).toBe('./dist/index.mjs')
-      expect(pkg.exports['.'].require).toBe('./dist/index.js')
-      expect(pkg.exports['.'].types).toBe('./dist/index.d.ts')
+      expect(pkg.exports['.'].import).toBe('./dist/linter/eslint-plugin/index.mjs')
+      expect(pkg.exports['.'].require).toBe('./dist/linter/eslint-plugin/index.js')
+      expect(pkg.exports['.'].types).toBe('./dist/linter/eslint-plugin/index.d.ts')
+    })
+
+    it('should have core library at ./core export', () => {
+      const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
+      
+      expect(pkg.exports['./core']).toBeDefined()
+      expect(pkg.exports['./core'].import).toBe('./dist/index.mjs')
+      expect(pkg.exports['./core'].require).toBe('./dist/index.js')
+      expect(pkg.exports['./core'].types).toBe('./dist/index.d.ts')
     })
   })
 
@@ -57,12 +65,12 @@ describe('ESLint Plugin Export Configuration', () => {
   })
 
   describe('Export paths match package.json', () => {
-    it('should have matching export paths for main entry', () => {
+    it('should have matching export paths for main entry (ESLint plugin)', () => {
       const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
       
-      expect(pkg.main).toBe('dist/index.js')
-      expect(pkg.module).toBe('dist/index.mjs')
-      expect(pkg.types).toBe('dist/index.d.ts')
+      expect(pkg.main).toBe('dist/linter/eslint-plugin/index.js')
+      expect(pkg.module).toBe('dist/linter/eslint-plugin/index.mjs')
+      expect(pkg.types).toBe('dist/linter/eslint-plugin/index.d.ts')
       
       // Verify exports match
       expect(pkg.exports['.'].require).toBe(`./${pkg.main}`)

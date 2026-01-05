@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 // Import from built version to test the actual export
-// In a real scenario, users would import from 'test-a11y-js/eslint-plugin'
+// In a real scenario, users would import from 'eslint-plugin-test-a11y-js'
 import eslintPlugin from '../../../../dist/linter/eslint-plugin/index.js'
 
 describe('ESLint Plugin Structure', () => {
@@ -11,8 +11,8 @@ describe('ESLint Plugin Structure', () => {
 
   it('should have meta information', () => {
     expect(eslintPlugin.meta).toBeDefined()
-    expect(eslintPlugin.meta.name).toBe('test-a11y-js')
-    expect(eslintPlugin.meta.version).toBe('0.8.0')
+    expect(eslintPlugin.meta.name).toBe('eslint-plugin-test-a11y-js')
+    expect(eslintPlugin.meta.version).toBe('0.9.0')
   })
 
   it('should have rules object (even if empty)', () => {

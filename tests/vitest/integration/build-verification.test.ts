@@ -46,36 +46,42 @@ describe('Build Verification', () => {
   })
 
   describe('Package.json exports', () => {
+    it('should have correct package name', () => {
+      const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
+      
+      expect(pkg.name).toBe('eslint-plugin-test-a11y-js')
+    })
+
     it('should have correct exports configuration', () => {
       const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
       
       expect(pkg.exports).toBeDefined()
       expect(pkg.exports['.']).toBeDefined()
-      expect(pkg.exports['./eslint-plugin']).toBeDefined()
+      expect(pkg.exports['./core']).toBeDefined()
     })
 
-    it('should export main entry point correctly', () => {
+    it('should export main entry point as ESLint plugin', () => {
       const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
       
-      expect(pkg.exports['.'].import).toBe('./dist/index.mjs')
-      expect(pkg.exports['.'].require).toBe('./dist/index.js')
-      expect(pkg.exports['.'].types).toBe('./dist/index.d.ts')
+      expect(pkg.exports['.'].import).toBe('./dist/linter/eslint-plugin/index.mjs')
+      expect(pkg.exports['.'].require).toBe('./dist/linter/eslint-plugin/index.js')
+      expect(pkg.exports['.'].types).toBe('./dist/linter/eslint-plugin/index.d.ts')
     })
 
-    it('should export eslint-plugin correctly', () => {
+    it('should export core library at ./core', () => {
       const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
       
-      expect(pkg.exports['./eslint-plugin'].import).toBe('./dist/linter/eslint-plugin/index.mjs')
-      expect(pkg.exports['./eslint-plugin'].require).toBe('./dist/linter/eslint-plugin/index.js')
-      expect(pkg.exports['./eslint-plugin'].types).toBe('./dist/linter/eslint-plugin/index.d.ts')
+      expect(pkg.exports['./core'].import).toBe('./dist/index.mjs')
+      expect(pkg.exports['./core'].require).toBe('./dist/index.js')
+      expect(pkg.exports['./core'].types).toBe('./dist/index.d.ts')
     })
 
-    it('should have correct main, module, and types fields', () => {
+    it('should have correct main, module, and types fields (ESLint plugin)', () => {
       const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'))
       
-      expect(pkg.main).toBe('dist/index.js')
-      expect(pkg.module).toBe('dist/index.mjs')
-      expect(pkg.types).toBe('dist/index.d.ts')
+      expect(pkg.main).toBe('dist/linter/eslint-plugin/index.js')
+      expect(pkg.module).toBe('dist/linter/eslint-plugin/index.mjs')
+      expect(pkg.types).toBe('dist/linter/eslint-plugin/index.d.ts')
     })
   })
 
