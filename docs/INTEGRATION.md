@@ -2,6 +2,8 @@
 
 This document explains how to integrate the `test-a11y-js` ESLint plugin into your project.
 
+> **Note:** For detailed ESLint configuration options, see [Configuration Guide](./CONFIGURATION.md). For comprehensive plugin documentation, see [ESLint Plugin Guide](./ESLINT_PLUGIN.md).
+
 ## Package Exports
 
 The package provides two main export paths:
@@ -134,8 +136,8 @@ npx eslint your-file.jsx
 
 The plugin should export:
 - `meta` - Plugin metadata
-- `rules` - All 5 accessibility rules
-- `configs` - All 4 configuration presets
+- `rules` - All 16 accessibility rules
+- `configs` - All 5 configuration presets (minimal, recommended, strict, react, vue)
 
 ## Troubleshooting
 

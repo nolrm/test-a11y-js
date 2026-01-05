@@ -4,23 +4,29 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 
 ## Implementation Phases
 
-### Phase 1: Static Validation (v0.8.0) - In Progress
+### Phase 1: Static Validation (v0.8.0) - ✅ Completed
 **Timeline:** 6-7 weeks  
-**Status:** Planning complete, ready for implementation  
+**Status:** ✅ Completed in v0.8.0  
+**Completion Date:** 2024-12-22  
 **See:** [Detailed Implementation Plan](./IMPLEMENTATION_PLAN.md)
 
-1. ✅ **Comprehensive ARIA Validation** (2-3 weeks)
+1. ✅ **Comprehensive ARIA Validation** (2-3 weeks) - ✅ Completed
    - ARIA role validation
    - ARIA property validation
    - ARIA relationship validation
+   - Accessible name computation
+   - Composite pattern validation
 
-2. ✅ **Semantic HTML Validation** (1-2 weeks)
+2. ✅ **Semantic HTML Validation** (1-2 weeks) - ✅ Completed
    - Semantic element detection
    - List structure validation
+   - Interactive misuse detection
+   - Landmark uniqueness validation
 
-3. ✅ **Form Validation Messages** (1-2 weeks)
+3. ✅ **Form Validation Messages** (1-2 weeks) - ✅ Completed
    - Error message association
    - Required field indicators
+   - aria-invalid validation
 
 ### Phase 2: Runtime Validation (v0.9.0) - Planned
 **Timeline:** 7-10 weeks  
@@ -39,9 +45,9 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 
 ## Current Status
 
-**Version:** 0.7.3
+**Version:** 0.8.1
 
-**Supported Rules:** 13
+**Supported Rules:** 16
 - `image-alt` - Image alt attribute validation
 - `button-label` - Button label validation
 - `link-text` - Link text validation
@@ -55,6 +61,9 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 - `audio-captions` - Audio captions validation
 - `landmark-roles` - Landmark elements validation
 - `dialog-modal` - Dialog/Modal validation
+- `aria-validation` - Comprehensive ARIA validation (roles, properties, relationships, accessible names, composite patterns)
+- `semantic-html` - Semantic HTML validation and misuse detection
+- `form-validation` - Form validation messages and error handling
 
 **Supported Elements:** 27
 - img, button, a, input, select, textarea, h1-h6, iframe, fieldset, table, details, summary, video, audio, nav, main, header, footer, aside, section, article, dialog
@@ -449,11 +458,12 @@ For each new rule, follow this checklist:
 - [ ] Landmark elements validation
 - [ ] dialog-modal rule
 
-### v0.8.0 - Phase 1: Static Validation (Planned)
-- [ ] Comprehensive ARIA validation (aria-roles, aria-properties, aria-relationships)
-- [ ] Semantic HTML validation
-- [ ] Form validation messages
+### v0.8.0 - Phase 1: Static Validation (✅ Completed)
+- [x] Comprehensive ARIA validation (aria-roles, aria-properties, aria-relationships, accessible names, composite patterns)
+- [x] Semantic HTML validation
+- [x] Form validation messages
 - **Timeline:** 6-7 weeks
+- **Completed:** 2024-12-22
 - **See:** [Implementation Plan](./IMPLEMENTATION_PLAN.md)
 
 ### v0.9.0 - Phase 2: Runtime Validation (Planned)
@@ -484,5 +494,5 @@ If you'd like to contribute by implementing one of these features:
 ---
 
 **Last Updated:** 2024-12-22  
-**Current Version:** 0.3.0
+**Current Version:** 0.8.1
 

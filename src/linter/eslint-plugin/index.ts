@@ -42,7 +42,7 @@ import formValidation from './rules/form-validation'
 const plugin: ESLint.Plugin = {
   meta: {
     name: 'test-a11y-js',
-    version: '0.8.1'
+    version: '0.8.2'
   },
   rules: {
     'image-alt': imageAlt,
