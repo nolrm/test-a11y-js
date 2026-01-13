@@ -5,8 +5,6 @@
  */
 
 import type { Rule } from 'eslint'
-import { jsxToElement } from '../utils/jsx-ast-utils'
-import { vueElementToDOM } from '../utils/vue-ast-utils'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -18,8 +16,7 @@ const rule: Rule.RuleModule = {
       url: 'https://github.com/nolrm/eslint-plugin-test-a11y-js'
     },
     messages: {
-      missingCaption: 'Table must have a caption or aria-label/aria-labelledby',
-      missingHeaders: 'Table must have header cells (th elements) when it has data cells',
+      missingCaption: 'Table must have a caption element or aria-label/aria-labelledby attribute',
       missingScope: 'Table header cells (th) should have a scope attribute'
     },
     fixable: undefined,
@@ -31,75 +28,34 @@ const rule: Rule.RuleModule = {
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
         if (jsxNode.name?.name === 'table') {
-          try {
-            const element = jsxToElement(node, context)
-            const violations = A11yChecker.checkTableStructure(element)
-            
-            for (const violation of violations) {
-              if (violation.id === 'table-caption') {
-                context.report({
-                  node,
-                  messageId: 'missingCaption'
-                })
-              } else if (violation.id === 'table-headers') {
-                context.report({
-                  node,
-                  messageId: 'missingHeaders'
-                })
-              } else if (violation.id === 'table-header-scope') {
-                context.report({
-                  node: violation.element as any,
-                  messageId: 'missingScope'
-                })
-              }
-            }
-          } catch (error) {
-            // If conversion fails, we can't check, so skip
+          // Check if table has caption as child or aria-label/aria-labelledby
+          const hasAriaLabel = jsxNode.attributes?.some((attr: any) =>
+            attr.name?.name === 'aria-label' || attr.name?.name === 'aria-labelledby'
+          )
+          
+          const parent = (node as any).parent
+          const hasCaption = parent?.children?.some((child: any) =>
+            child.type === 'JSXElement' && child.openingElement?.name?.name === 'caption'
+          )
+          
+          if (!hasAriaLabel && !hasCaption) {
+            context.report({
+              node,
+              messageId: 'missingCaption'
+            })
           }
         }
-      },
-
-      // Check HTML strings
-      Literal(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkTableStructure(element)
-            for (const violation of violations) {
-              if (violation.id === 'table-caption') {
-                context.report({
-                  node,
-                  messageId: 'missingCaption'
-                })
-              } else if (violation.id === 'table-headers') {
-                context.report({
-                  node,
-                  messageId: 'missingHeaders'
-                })
-              }
-            }
-          }
-        }
-      },
-
-      TemplateLiteral(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkTableStructure(element)
-            for (const violation of violations) {
-              if (violation.id === 'table-caption') {
-                context.report({
-                  node,
-                  messageId: 'missingCaption'
-                })
-              } else if (violation.id === 'table-headers') {
-                context.report({
-                  node,
-                  messageId: 'missingHeaders'
-                })
-              }
-            }
+        
+        // Check th elements for scope
+        if (jsxNode.name?.name === 'th') {
+          const hasScope = jsxNode.attributes?.some((attr: any) =>
+            attr.name?.name === 'scope'
+          )
+          if (!hasScope) {
+            context.report({
+              node,
+              messageId: 'missingScope'
+            })
           }
         }
       },
@@ -108,31 +64,33 @@ const rule: Rule.RuleModule = {
       VElement(node: Rule.Node) {
         const vueNode = node as any
         if (vueNode.name === 'table') {
-          try {
-            const element = vueElementToDOM(node, context)
-            if (element) {
-              const violations = A11yChecker.checkTableStructure(element)
-              for (const violation of violations) {
-                if (violation.id === 'table-caption') {
-                  context.report({
-                    node,
-                    messageId: 'missingCaption'
-                  })
-                } else if (violation.id === 'table-headers') {
-                  context.report({
-                    node,
-                    messageId: 'missingHeaders'
-                  })
-                } else if (violation.id === 'table-header-scope') {
-                  context.report({
-                    node: violation.element as any,
-                    messageId: 'missingScope'
-                  })
-                }
-              }
-            }
-          } catch (error) {
-            // If conversion fails, we can't check, so skip
+          // Check if table has caption or aria attributes
+          const hasAriaLabel = vueNode.startTag?.attributes?.some((attr: any) =>
+            attr.key?.name === 'aria-label' || attr.key?.name === 'aria-labelledby'
+          )
+          
+          const hasCaption = vueNode.children?.some((child: any) =>
+            child.type === 'VElement' && child.name === 'caption'
+          )
+          
+          if (!hasAriaLabel && !hasCaption) {
+            context.report({
+              node,
+              messageId: 'missingCaption'
+            })
+          }
+        }
+        
+        // Check th elements for scope
+        if (vueNode.name === 'th') {
+          const hasScope = vueNode.startTag?.attributes?.some((attr: any) =>
+            attr.key?.name === 'scope'
+          )
+          if (!hasScope) {
+            context.report({
+              node,
+              messageId: 'missingScope'
+            })
           }
         }
       }
@@ -141,4 +99,3 @@ const rule: Rule.RuleModule = {
 }
 
 export default rule
-
