@@ -27,7 +27,13 @@ const rule: Rule.RuleModule = {
       // Check JSX fieldset elements
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
-        if (jsxNode.name?.name === 'fieldset') {
+        
+        // Only handle simple identifiers (not member expressions)
+        if (!jsxNode.name || jsxNode.name.type !== 'JSXIdentifier') {
+          return
+        }
+        
+        if (jsxNode.name.name === 'fieldset') {
           // Check if fieldset has legend as a child
           const parent = (node as any).parent
           const hasLegend = parent?.children?.some((child: any) =>

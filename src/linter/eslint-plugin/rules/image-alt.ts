@@ -30,7 +30,13 @@ const rule: Rule.RuleModule = {
       // Check JSX img elements
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
-        if (jsxNode.name?.name === 'img') {
+        
+        // Only handle simple identifiers (not member expressions like <UI.Image>)
+        if (!jsxNode.name || jsxNode.name.type !== 'JSXIdentifier') {
+          return
+        }
+        
+        if (jsxNode.name.name === 'img') {
           // Check if alt attribute exists
           if (!hasJSXAttribute(jsxNode, 'alt')) {
             context.report({

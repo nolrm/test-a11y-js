@@ -27,7 +27,13 @@ const rule: Rule.RuleModule = {
       // Check JSX details elements
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
-        if (jsxNode.name?.name === 'details') {
+        
+        // Only handle simple identifiers (not member expressions)
+        if (!jsxNode.name || jsxNode.name.type !== 'JSXIdentifier') {
+          return
+        }
+        
+        if (jsxNode.name.name === 'details') {
           // Check if details has summary as first child
           const parent = (node as any).parent
           const firstChild = parent?.children?.[0]

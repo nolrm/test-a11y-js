@@ -28,7 +28,13 @@ const rule: Rule.RuleModule = {
       // Check JSX audio elements
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
-        if (jsxNode.name?.name === 'audio') {
+        
+        // Only handle simple identifiers (not member expressions)
+        if (!jsxNode.name || jsxNode.name.type !== 'JSXIdentifier') {
+          return
+        }
+        
+        if (jsxNode.name.name === 'audio') {
           // Check if audio has track elements as children
           const parent = (node as any).parent
           const hasTrackChild = parent?.children?.some((child: any) => 
@@ -44,7 +50,7 @@ const rule: Rule.RuleModule = {
         }
         
         // Check track elements for srclang
-        if (jsxNode.name?.name === 'track') {
+        if (jsxNode.name.name === 'track') {
           const hasSrclang = jsxNode.attributes?.some((attr: any) =>
             attr.name?.name === 'srclang'
           )

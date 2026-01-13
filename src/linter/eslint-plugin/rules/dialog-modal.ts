@@ -28,7 +28,13 @@ const rule: Rule.RuleModule = {
       // Check JSX dialog elements
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
-        const isDialog = jsxNode.name?.name === 'dialog'
+        
+        // Only handle simple identifiers (not member expressions)
+        if (!jsxNode.name || jsxNode.name.type !== 'JSXIdentifier') {
+          return
+        }
+        
+        const isDialog = jsxNode.name.name === 'dialog'
         const hasDialogRole = jsxNode.attributes?.some((attr: any) => 
           attr.name?.name === 'role' && 
           (attr.value?.value === 'dialog' || attr.value?.value === 'alertdialog')

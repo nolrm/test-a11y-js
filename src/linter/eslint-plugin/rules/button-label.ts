@@ -29,7 +29,13 @@ const rule: Rule.RuleModule = {
       // Check JSX button elements
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
-        if (jsxNode.name?.name === 'button') {
+        
+        // Only handle simple identifiers (not member expressions like <UI.Button>)
+        if (!jsxNode.name || jsxNode.name.type !== 'JSXIdentifier') {
+          return
+        }
+        
+        if (jsxNode.name.name === 'button') {
           // Quick check: if no aria-label and no text content, report
           const hasAriaLabel = hasJSXAttribute(jsxNode, 'aria-label')
           const hasAriaLabelledBy = hasJSXAttribute(jsxNode, 'aria-labelledby')

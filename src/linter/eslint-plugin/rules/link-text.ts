@@ -30,7 +30,13 @@ const rule: Rule.RuleModule = {
       // Check JSX anchor elements
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
-        if (jsxNode.name?.name === 'a') {
+        
+        // Only handle simple identifiers (not member expressions)
+        if (!jsxNode.name || jsxNode.name.type !== 'JSXIdentifier') {
+          return
+        }
+        
+        if (jsxNode.name.name === 'a') {
           // Check if aria-label exists
           const hasAriaLabel = hasJSXAttribute(jsxNode, 'aria-label')
           

@@ -30,7 +30,13 @@ const rule: Rule.RuleModule = {
       // Check JSX iframe elements
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
-        if (jsxNode.name?.name === 'iframe') {
+        
+        // Only handle simple identifiers (not member expressions)
+        if (!jsxNode.name || jsxNode.name.type !== 'JSXIdentifier') {
+          return
+        }
+        
+        if (jsxNode.name.name === 'iframe') {
           // Check if title attribute exists
           if (!hasJSXAttribute(jsxNode, 'title')) {
             context.report({

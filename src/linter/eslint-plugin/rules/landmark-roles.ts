@@ -32,7 +32,13 @@ const rule: Rule.RuleModule = {
       // Check JSX landmark elements
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
-        const tagName = jsxNode.name?.name?.toLowerCase()
+        
+        // Only handle simple identifiers (not member expressions)
+        if (!jsxNode.name || jsxNode.name.type !== 'JSXIdentifier') {
+          return
+        }
+        
+        const tagName = jsxNode.name.name?.toLowerCase()
         const landmarkTags = ['nav', 'main', 'header', 'footer', 'aside']
         
         if (landmarkTags.includes(tagName)) {

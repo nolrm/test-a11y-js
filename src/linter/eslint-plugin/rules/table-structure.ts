@@ -27,7 +27,13 @@ const rule: Rule.RuleModule = {
       // Check JSX table elements
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
-        if (jsxNode.name?.name === 'table') {
+        
+        // Only handle simple identifiers (not member expressions)
+        if (!jsxNode.name || jsxNode.name.type !== 'JSXIdentifier') {
+          return
+        }
+        
+        if (jsxNode.name.name === 'table') {
           // Check if table has caption as child or aria-label/aria-labelledby
           const hasAriaLabel = jsxNode.attributes?.some((attr: any) =>
             attr.name?.name === 'aria-label' || attr.name?.name === 'aria-labelledby'
@@ -47,7 +53,7 @@ const rule: Rule.RuleModule = {
         }
         
         // Check th elements for scope
-        if (jsxNode.name?.name === 'th') {
+        if (jsxNode.name.name === 'th') {
           const hasScope = jsxNode.attributes?.some((attr: any) =>
             attr.name?.name === 'scope'
           )

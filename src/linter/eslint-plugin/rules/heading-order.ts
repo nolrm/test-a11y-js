@@ -29,7 +29,13 @@ const rule: Rule.RuleModule = {
       // Check JSX heading elements
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
-        const tagName = jsxNode.name?.name?.toLowerCase()
+        
+        // Only handle simple identifiers (not member expressions)
+        if (!jsxNode.name || jsxNode.name.type !== 'JSXIdentifier') {
+          return
+        }
+        
+        const tagName = jsxNode.name.name?.toLowerCase()
         
         if (tagName && /^h[1-6]$/.test(tagName)) {
           const currentLevel = parseInt(tagName[1])

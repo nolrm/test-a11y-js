@@ -32,7 +32,13 @@ const rule: Rule.RuleModule = {
       // Check JSX form control elements
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
-        const tagName = jsxNode.name?.name?.toLowerCase()
+        
+        // Only handle simple identifiers (not member expressions like <Form.Input>)
+        if (!jsxNode.name || jsxNode.name.type !== 'JSXIdentifier') {
+          return
+        }
+        
+        const tagName = jsxNode.name.name?.toLowerCase()
         
         if (tagName === 'input' || tagName === 'select' || tagName === 'textarea') {
           // Check if it has aria-label or aria-labelledby
