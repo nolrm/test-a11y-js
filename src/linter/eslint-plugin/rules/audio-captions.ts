@@ -5,8 +5,6 @@
  */
 
 import type { Rule } from 'eslint'
-import { jsxToElement } from '../utils/jsx-ast-utils'
-import { vueElementToDOM } from '../utils/vue-ast-utils'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -31,100 +29,60 @@ const rule: Rule.RuleModule = {
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
         if (jsxNode.name?.name === 'audio') {
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = jsxToElement(node, context)
-            const violations = A11yChecker.checkAudioCaptions(element)
-            
-            for (const violation of violations) {
-              if (violation.id === 'audio-captions') {
-                context.report({
-                  node,
-                  messageId: 'missingCaptions'
-                })
-              } else if (violation.id === 'audio-track-srclang') {
-                context.report({
-                  node: violation.element as any,
-                  messageId: 'missingSrclang'
-                })
-              } else if (violation.id === 'audio-track-label') {
-                context.report({
-                  node: violation.element as any,
-                  messageId: 'missingLabel'
-                })
-              }
-            }
-          } catch (error) {
-            // If conversion fails, we can't check, so skip
+          // Check if audio has track elements as children
+          const parent = (node as any).parent
+          const hasTrackChild = parent?.children?.some((child: any) => 
+            child.type === 'JSXElement' && child.openingElement?.name?.name === 'track'
+          )
+          
+          if (!hasTrackChild) {
+            context.report({
+              node,
+              messageId: 'missingCaptions'
+            })
+          }
+        }
+        
+        // Check track elements for srclang
+        if (jsxNode.name?.name === 'track') {
+          const hasSrclang = jsxNode.attributes?.some((attr: any) =>
+            attr.name?.name === 'srclang'
+          )
+          if (!hasSrclang) {
+            context.report({
+              node,
+              messageId: 'missingSrclang'
+            })
           }
         }
       },
 
-      // Check HTML strings
-      Literal(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkAudioCaptions(element)
-            for (const violation of violations) {
-              if (violation.id === 'audio-captions') {
-                context.report({
-                  node,
-                  messageId: 'missingCaptions'
-                })
-              }
-            }
-          }
-        }
-      },
-
-      TemplateLiteral(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkAudioCaptions(element)
-            for (const violation of violations) {
-              if (violation.id === 'audio-captions') {
-                context.report({
-                  node,
-                  messageId: 'missingCaptions'
-                })
-              }
-            }
-          }
-        }
-      },
-
-      // Check Vue template audio elements
+      // Check Vue template elements
       VElement(node: Rule.Node) {
         const vueNode = node as any
         if (vueNode.name === 'audio') {
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = vueElementToDOM(node, context)
-            if (element) {
-              const violations = A11yChecker.checkAudioCaptions(element)
-              for (const violation of violations) {
-                if (violation.id === 'audio-captions') {
-                  context.report({
-                    node,
-                    messageId: 'missingCaptions'
-                  })
-                } else if (violation.id === 'audio-track-srclang') {
-                  context.report({
-                    node: violation.element as any,
-                    messageId: 'missingSrclang'
-                  })
-                } else if (violation.id === 'audio-track-label') {
-                  context.report({
-                    node: violation.element as any,
-                    messageId: 'missingLabel'
-                  })
-                }
-              }
-            }
-          } catch (error) {
-            // If conversion fails, we can't check, so skip
+          const hasTrackChild = vueNode.children?.some((child: any) =>
+            child.type === 'VElement' && child.name === 'track'
+          )
+          
+          if (!hasTrackChild) {
+            context.report({
+              node,
+              messageId: 'missingCaptions'
+            })
+          }
+        }
+        
+        // Check track elements
+        if (vueNode.name === 'track') {
+          const hasSrclang = vueNode.startTag?.attributes?.some((attr: any) =>
+            attr.key?.name === 'srclang'
+          )
+          if (!hasSrclang) {
+            context.report({
+              node,
+              messageId: 'missingSrclang'
+            })
           }
         }
       }
@@ -133,4 +91,3 @@ const rule: Rule.RuleModule = {
 }
 
 export default rule
-
