@@ -5,11 +5,8 @@
  */
 
 import type { Rule } from 'eslint'
-import { A11yChecker } from '../../../core/a11y-checker'
-import { jsxToElement, hasJSXAttribute, isJSXAttributeDynamic } from '../utils/jsx-ast-utils'
-import { htmlNodeToElement } from '../utils/html-ast-utils'
-import { vueElementToDOM, hasVueAttribute, isVueAttributeDynamic } from '../utils/vue-ast-utils'
-import { isHTMLLiteral } from '../utils/ast-utils'
+import { hasJSXAttribute, isJSXAttributeDynamic } from '../utils/jsx-ast-utils'
+import { hasVueAttribute, isVueAttributeDynamic } from '../utils/vue-ast-utils'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -49,60 +46,22 @@ const rule: Rule.RuleModule = {
             }
           }
 
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = jsxToElement(node, context)
-            const violations = A11yChecker.checkLinkText(element)
+          // Check if link has no accessible name
+          if (!hasAriaLabel) {
+            const parent = node as any
+            const jsxElement = parent.parent
+            const hasChildren = jsxElement?.children && jsxElement.children.length > 0
             
-            for (const violation of violations) {
-              if (violation.id === 'link-text') {
-                context.report({
-                  node,
-                  messageId: 'missingText'
-                })
-              } else if (violation.id === 'link-text-descriptive') {
-                context.report({
-                  node,
-                  messageId: 'nonDescriptive',
-                })
-              }
-            }
-          } catch (error) {
-            // If conversion fails, we can't check
-          }
-        }
-      },
-
-      // Check HTML strings
-      Literal(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkLinkText(element)
-            for (const violation of violations) {
+            if (!hasChildren) {
               context.report({
                 node,
-                messageId: violation.id === 'link-text' ? 'missingText' : 'nonDescriptive',
+                messageId: 'missingText'
               })
             }
           }
         }
       },
 
-      TemplateLiteral(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkLinkText(element)
-            for (const violation of violations) {
-              context.report({
-                node,
-                messageId: violation.id === 'link-text' ? 'missingText' : 'nonDescriptive',
-              })
-            }
-          }
-        }
-      },
 
       // Check Vue template elements
       VElement(node: Rule.Node) {
@@ -123,27 +82,15 @@ const rule: Rule.RuleModule = {
             }
           }
 
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = vueElementToDOM(node, context)
-            if (element) {
-              const violations = A11yChecker.checkLinkText(element)
-              for (const violation of violations) {
-                if (violation.id === 'link-text') {
-                  context.report({
-                    node,
-                    messageId: 'missingText'
-                  })
-                } else if (violation.id === 'link-text-descriptive') {
-                  context.report({
-                    node,
-                    messageId: 'nonDescriptive',
-                  })
-                }
-              }
+          // Check if link has no accessible name
+          if (!hasAriaLabel) {
+            const hasChildren = vueNode.children && vueNode.children.length > 0
+            if (!hasChildren) {
+              context.report({
+                node,
+                messageId: 'missingText'
+              })
             }
-          } catch (error) {
-            // If conversion fails, we can't check
           }
         }
       }

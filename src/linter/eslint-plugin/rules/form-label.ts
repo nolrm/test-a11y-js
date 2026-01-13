@@ -5,11 +5,8 @@
  */
 
 import type { Rule } from 'eslint'
-import { A11yChecker } from '../../../core/a11y-checker'
-import { jsxToElement, hasJSXAttribute } from '../utils/jsx-ast-utils'
-import { htmlNodeToElement } from '../utils/html-ast-utils'
+import { hasJSXAttribute } from '../utils/jsx-ast-utils'
 import { hasVueAttribute, getVueAttribute } from '../utils/vue-ast-utils'
-import { isHTMLLiteral } from '../utils/ast-utils'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -77,53 +74,10 @@ const rule: Rule.RuleModule = {
         // Check if form controls have matching labels
         for (const [id, node] of formControls.entries()) {
           if (!labels.has(id)) {
-            // Convert to DOM and check with A11yChecker
-            try {
-              const element = jsxToElement(node, context)
-              const violations = A11yChecker.checkFormLabels(element)
-              
-              for (const violation of violations) {
-                if (violation.id === 'form-label') {
-                  context.report({
-                    node,
-                    messageId: 'missingLabel'
-                  })
-                }
-              }
-            } catch (error) {
-              // If conversion fails, we already checked above
-            }
-          }
-        }
-      },
-
-      // Check HTML strings
-      Literal(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkFormLabels(element)
-            if (violations.length > 0) {
-              context.report({
-                node,
-                messageId: 'missingLabel'
-              })
-            }
-          }
-        }
-      },
-
-      TemplateLiteral(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkFormLabels(element)
-            if (violations.length > 0) {
-              context.report({
-                node,
-                messageId: 'missingLabel'
-              })
-            }
+            context.report({
+              node,
+              messageId: 'missingLabel'
+            })
           }
         }
       },

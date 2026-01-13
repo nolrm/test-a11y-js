@@ -5,11 +5,8 @@
  */
 
 import type { Rule } from 'eslint'
-import { A11yChecker } from '../../../core/a11y-checker'
 import { jsxToElement } from '../utils/jsx-ast-utils'
-import { htmlNodeToElement } from '../utils/html-ast-utils'
 import { vueElementToDOM } from '../utils/vue-ast-utils'
-import { isHTMLLiteral } from '../utils/ast-utils'
 
 const rule: Rule.RuleModule = {
   meta: {

@@ -5,11 +5,8 @@
  */
 
 import type { Rule } from 'eslint'
-import { A11yChecker } from '../../../core/a11y-checker'
-import { jsxToElement, hasJSXAttribute, isJSXAttributeDynamic } from '../utils/jsx-ast-utils'
-import { htmlNodeToElement } from '../utils/html-ast-utils'
-import { vueElementToDOM, hasVueAttribute, isVueAttributeDynamic } from '../utils/vue-ast-utils'
-import { isHTMLLiteral } from '../utils/ast-utils'
+import { hasJSXAttribute, isJSXAttributeDynamic } from '../utils/jsx-ast-utils'
+import { hasVueAttribute, isVueAttributeDynamic } from '../utils/vue-ast-utils'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -43,31 +40,22 @@ const rule: Rule.RuleModule = {
               attr.name?.name === 'aria-label'
             )
             if (ariaLabelAttr && isJSXAttributeDynamic(ariaLabelAttr)) {
-              // Use context's options to determine severity (warn by default for dynamic)
               context.report({
                 node,
                 messageId: 'dynamicLabel'
               })
+              return
             }
           }
 
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = jsxToElement(node, context)
-            const violations = A11yChecker.checkButtonLabel(element)
+          // Check if button has no accessible name
+          if (!hasAriaLabel && !hasAriaLabelledBy) {
+            // Check if JSXElement has children (text content)
+            const parent = node as any
+            const jsxElement = parent.parent
+            const hasChildren = jsxElement?.children && jsxElement.children.length > 0
             
-            for (const violation of violations) {
-              if (violation.id === 'button-label') {
-                context.report({
-                  node,
-                  messageId: 'missingLabel'
-                })
-              }
-            }
-          } catch (error) {
-            // If conversion fails, check manually
-            if (!hasAriaLabel && !hasAriaLabelledBy) {
-              // If we can't determine, report
+            if (!hasChildren) {
               context.report({
                 node,
                 messageId: 'missingLabel'
@@ -77,36 +65,6 @@ const rule: Rule.RuleModule = {
         }
       },
 
-      // Check HTML strings
-      Literal(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkButtonLabel(element)
-            if (violations.length > 0) {
-              context.report({
-                node,
-                messageId: 'missingLabel'
-              })
-            }
-          }
-        }
-      },
-
-      TemplateLiteral(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkButtonLabel(element)
-            if (violations.length > 0) {
-              context.report({
-                node,
-                messageId: 'missingLabel'
-              })
-            }
-          }
-        }
-      },
 
       // Check Vue template elements
       VElement(node: Rule.Node) {
@@ -126,32 +84,19 @@ const rule: Rule.RuleModule = {
                 node,
                 messageId: 'dynamicLabel'
               })
+              return
             }
           }
 
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = vueElementToDOM(node, context)
-            if (element) {
-              const violations = A11yChecker.checkButtonLabel(element)
-              if (violations.length > 0 && violations.some(v => v.id === 'button-label')) {
-                context.report({
-                  node,
-                  messageId: 'missingLabel'
-                })
-              }
-            }
-          } catch (error) {
-            // If conversion fails, check manually
-            if (!hasAriaLabel && !hasAriaLabelledBy) {
-              // Check if there are children (text content)
-              const hasChildren = vueNode.children && vueNode.children.length > 0
-              if (!hasChildren) {
-                context.report({
-                  node,
-                  messageId: 'missingLabel'
-                })
-              }
+          // Check if button has no accessible name
+          if (!hasAriaLabel && !hasAriaLabelledBy) {
+            // Check if there are children (text content)
+            const hasChildren = vueNode.children && vueNode.children.length > 0
+            if (!hasChildren) {
+              context.report({
+                node,
+                messageId: 'missingLabel'
+              })
             }
           }
         }

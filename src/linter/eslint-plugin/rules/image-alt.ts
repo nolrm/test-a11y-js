@@ -5,11 +5,8 @@
  */
 
 import type { Rule } from 'eslint'
-import { A11yChecker } from '../../../core/a11y-checker'
-import { jsxToElement, hasJSXAttribute, isJSXAttributeDynamic, getJSXAttribute } from '../utils/jsx-ast-utils'
-import { htmlNodeToElement } from '../utils/html-ast-utils'
-import { vueElementToDOM, hasVueAttribute, isVueAttributeDynamic, getVueAttribute } from '../utils/vue-ast-utils'
-import { isHTMLLiteral } from '../utils/ast-utils'
+import { hasJSXAttribute, isJSXAttributeDynamic, getJSXAttribute } from '../utils/jsx-ast-utils'
+import { hasVueAttribute, isVueAttributeDynamic, getVueAttribute } from '../utils/vue-ast-utils'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -53,55 +50,16 @@ const rule: Rule.RuleModule = {
             return
           }
 
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = jsxToElement(node, context)
-            const violations = A11yChecker.checkImageAlt(element)
-            
-            for (const violation of violations) {
-              if (violation.id === 'image-alt') {
-                context.report({
-                  node,
-                  messageId: violation.description.includes('empty') ? 'emptyAlt' : 'missingAlt'
-                })
-              }
-            }
-          } catch (error) {
-            // If conversion fails, we already checked for missing alt above
+          // Check if alt is empty string
+          if (altAttr && altAttr.value && altAttr.value.type === 'Literal' && altAttr.value.value === '') {
+            context.report({
+              node,
+              messageId: 'emptyAlt'
+            })
           }
         }
       },
 
-      // Check HTML strings in template literals
-      Literal(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkImageAlt(element)
-            for (const violation of violations) {
-              context.report({
-                node,
-                messageId: violation.description.includes('empty') ? 'emptyAlt' : 'missingAlt'
-              })
-            }
-          }
-        }
-      },
-
-      TemplateLiteral(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkImageAlt(element)
-            for (const violation of violations) {
-              context.report({
-                node,
-                messageId: violation.description.includes('empty') ? 'emptyAlt' : 'missingAlt'
-              })
-            }
-          }
-        }
-      },
 
       // Check Vue template elements
       VElement(node: Rule.Node) {
@@ -126,22 +84,12 @@ const rule: Rule.RuleModule = {
             return
           }
 
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = vueElementToDOM(node, context)
-            if (element) {
-              const violations = A11yChecker.checkImageAlt(element)
-              for (const violation of violations) {
-                if (violation.id === 'image-alt') {
-                  context.report({
-                    node,
-                    messageId: violation.description.includes('empty') ? 'emptyAlt' : 'missingAlt'
-                  })
-                }
-              }
-            }
-          } catch (error) {
-            // If conversion fails, we already checked for missing alt above
+          // Check if alt is empty string
+          if (altAttr && altAttr.value && altAttr.value.value === '') {
+            context.report({
+              node,
+              messageId: 'emptyAlt'
+            })
           }
         }
       }
