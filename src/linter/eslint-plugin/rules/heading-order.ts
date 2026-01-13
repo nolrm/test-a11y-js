@@ -37,6 +37,17 @@ const rule: Rule.RuleModule = {
         }
       },
 
+      // Check Vue template heading elements
+      VElement(node: Rule.Node) {
+        const vueNode = node as any
+        const tagName = vueNode.name?.toLowerCase()
+        
+        if (tagName && /^h[1-6]$/.test(tagName)) {
+          const currentLevel = parseInt(tagName[1])
+          headingNodes.push({ node, level: currentLevel })
+        }
+      },
+
       // After checking all nodes, verify heading order
       'Program:exit'() {
         // Check heading order
@@ -55,69 +66,9 @@ const rule: Rule.RuleModule = {
           }
           prevLevel = level
         }
-
-        // Also check with A11yChecker for HTML strings
-        // (JSX heading order is checked above)
-      },
-
-      // Check HTML strings
-      Literal(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkHeadingOrder(element)
-            for (const violation of violations) {
-              const match = violation.description.match(/from h(\d+) to h(\d+)/)
-              if (match) {
-                context.report({
-                  node,
-                  messageId: 'skippedLevel',
-                  data: {
-                    previous: match[1],
-                    current: match[2]
-                  },
-                })
-              }
-            }
-          }
-        }
-      },
-
-      TemplateLiteral(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkHeadingOrder(element)
-            for (const violation of violations) {
-              const match = violation.description.match(/from h(\d+) to h(\d+)/)
-              if (match) {
-                context.report({
-                  node,
-                  messageId: 'skippedLevel',
-                  data: {
-                    previous: match[1],
-                    current: match[2]
-                  },
-                })
-              }
-            }
-          }
-        }
-      },
-
-      // Check Vue template heading elements
-      VElement(node: Rule.Node) {
-        const vueNode = node as any
-        const tagName = vueNode.name?.toLowerCase()
-        
-        if (tagName && /^h[1-6]$/.test(tagName)) {
-          const currentLevel = parseInt(tagName[1])
-          headingNodes.push({ node, level: currentLevel })
-        }
       }
     }
   }
 }
 
 export default rule
-

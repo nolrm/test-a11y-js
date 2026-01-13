@@ -34,7 +34,6 @@ const rule: Rule.RuleModule = {
         const landmarkTags = ['nav', 'main', 'header', 'footer', 'aside', 'section', 'article']
         
         if (landmarkTags.includes(tagName)) {
-          // Convert to DOM and check with A11yChecker
           try {
             const element = jsxToElement(node, context)
             const violations = A11yChecker.checkLandmarks(element)
@@ -115,7 +114,6 @@ const rule: Rule.RuleModule = {
         const landmarkTags = ['nav', 'main', 'header', 'footer', 'aside', 'section', 'article']
         
         if (landmarkTags.includes(tagName)) {
-          // Convert to DOM and check with A11yChecker
           try {
             const element = vueElementToDOM(node, context)
             if (element) {

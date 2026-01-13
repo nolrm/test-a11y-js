@@ -31,7 +31,6 @@ const rule: Rule.RuleModule = {
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
         if (jsxNode.name?.name === 'table') {
-          // Convert to DOM and check with A11yChecker
           try {
             const element = jsxToElement(node, context)
             const violations = A11yChecker.checkTableStructure(element)
@@ -109,7 +108,6 @@ const rule: Rule.RuleModule = {
       VElement(node: Rule.Node) {
         const vueNode = node as any
         if (vueNode.name === 'table') {
-          // Convert to DOM and check with A11yChecker
           try {
             const element = vueElementToDOM(node, context)
             if (element) {

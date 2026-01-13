@@ -5,8 +5,8 @@
  */
 
 import type { Rule } from 'eslint'
-import { jsxToElement, hasJSXAttribute, isJSXAttributeDynamic, getJSXAttribute } from '../utils/jsx-ast-utils'
-import { vueElementToDOM, hasVueAttribute, isVueAttributeDynamic, getVueAttribute } from '../utils/vue-ast-utils'
+import { hasJSXAttribute, isJSXAttributeDynamic, getJSXAttribute } from '../utils/jsx-ast-utils'
+import { hasVueAttribute, isVueAttributeDynamic, getVueAttribute } from '../utils/vue-ast-utils'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -50,52 +50,12 @@ const rule: Rule.RuleModule = {
             return
           }
 
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = jsxToElement(node, context)
-            const violations = A11yChecker.checkIframeTitle(element)
-            
-            for (const violation of violations) {
-              if (violation.id === 'iframe-title') {
-                context.report({
-                  node,
-                  messageId: violation.description.includes('empty') ? 'emptyTitle' : 'missingTitle'
-                })
-              }
-            }
-          } catch (error) {
-            // If conversion fails, we already checked for missing title above
-          }
-        }
-      },
-
-      // Check HTML strings in template literals
-      Literal(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkIframeTitle(element)
-            for (const violation of violations) {
-              context.report({
-                node,
-                messageId: violation.description.includes('empty') ? 'emptyTitle' : 'missingTitle'
-              })
-            }
-          }
-        }
-      },
-
-      TemplateLiteral(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkIframeTitle(element)
-            for (const violation of violations) {
-              context.report({
-                node,
-                messageId: violation.description.includes('empty') ? 'emptyTitle' : 'missingTitle'
-              })
-            }
+          // Check if title is empty string
+          if (titleAttr && titleAttr.value && titleAttr.value.type === 'Literal' && titleAttr.value.value === '') {
+            context.report({
+              node,
+              messageId: 'emptyTitle'
+            })
           }
         }
       },
@@ -123,22 +83,12 @@ const rule: Rule.RuleModule = {
             return
           }
 
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = vueElementToDOM(node, context)
-            if (element) {
-              const violations = A11yChecker.checkIframeTitle(element)
-              for (const violation of violations) {
-                if (violation.id === 'iframe-title') {
-                  context.report({
-                    node,
-                    messageId: violation.description.includes('empty') ? 'emptyTitle' : 'missingTitle'
-                  })
-                }
-              }
-            }
-          } catch (error) {
-            // If conversion fails, we already checked for missing title above
+          // Check if title is empty string
+          if (titleAttr && titleAttr.value && titleAttr.value.value === '') {
+            context.report({
+              node,
+              messageId: 'emptyTitle'
+            })
           }
         }
       }
@@ -147,4 +97,3 @@ const rule: Rule.RuleModule = {
 }
 
 export default rule
-

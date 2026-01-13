@@ -31,7 +31,6 @@ const rule: Rule.RuleModule = {
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
         if (jsxNode.name?.name === 'video') {
-          // Convert to DOM and check with A11yChecker
           try {
             const element = jsxToElement(node, context)
             const violations = A11yChecker.checkVideoCaptions(element)
@@ -99,7 +98,6 @@ const rule: Rule.RuleModule = {
       VElement(node: Rule.Node) {
         const vueNode = node as any
         if (vueNode.name === 'video') {
-          // Convert to DOM and check with A11yChecker
           try {
             const element = vueElementToDOM(node, context)
             if (element) {
