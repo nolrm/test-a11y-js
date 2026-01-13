@@ -49,9 +49,9 @@ describe('TypeScript React Components', () => {
     expect(headingOrderRule).toContain('JSXOpeningElement')
     expect(iframeTitleRule).toContain('JSXOpeningElement')
     
-    // Rules should use jsxToElement utility (works with TypeScript AST)
-    expect(imageAltRule).toContain('jsxToElement')
-    expect(buttonLabelRule).toContain('jsxToElement')
+    // Rules should use AST utilities (works with TypeScript AST)
+    expect(imageAltRule).toContain('hasJSXAttribute')
+    expect(buttonLabelRule).toContain('hasJSXAttribute')
   })
 
   it('should verify TypeScript React component patterns are supported', () => {

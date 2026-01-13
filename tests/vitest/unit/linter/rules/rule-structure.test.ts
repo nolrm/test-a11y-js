@@ -98,12 +98,12 @@ describe('ESLint Rule Structure', () => {
     })
   })
 
-  it('should handle HTML strings', () => {
+  it('should handle JSX elements', () => {
     ruleFiles.forEach(ruleFile => {
       const rulePath = join(rulesDir, ruleFile)
       const content = readFileSync(rulePath, 'utf-8')
-      // Should check for HTML in template literals
-      expect(content).toMatch(/Literal|TemplateLiteral/)
+      // Should check for JSX/Vue elements (not HTML strings to avoid JSDOM bundling)
+      expect(content).toMatch(/JSXOpeningElement|VElement/)
     })
   })
 
