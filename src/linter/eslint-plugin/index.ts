@@ -15,6 +15,9 @@
 
 import type { ESLint } from 'eslint'
 import minimal from './configs/minimal'
+
+// Version is injected at build time from package.json
+declare const __PACKAGE_VERSION__: string
 import recommended from './configs/recommended'
 import strict from './configs/strict'
 import react from './configs/react'
@@ -42,7 +45,7 @@ import formValidation from './rules/form-validation'
 const plugin: ESLint.Plugin = {
   meta: {
     name: 'eslint-plugin-test-a11y-js',
-    version: '0.9.1'
+    version: __PACKAGE_VERSION__
   },
   rules: {
     'image-alt': imageAlt,
