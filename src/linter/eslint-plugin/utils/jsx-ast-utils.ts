@@ -114,6 +114,11 @@ function getJSXAttributes(element: JSXOpeningElement): Map<string, string> {
   const attributes = new Map<string, string>()
   
   for (const attr of element.attributes) {
+    // Skip spread attributes (e.g., {...props})
+    if (attr.type === 'JSXSpreadAttribute') {
+      continue
+    }
+    
     const attrName = attr.name.name || attr.name.type
     if (attrName) {
       const value = getJSXAttributeValue(attr)
@@ -224,7 +229,13 @@ export function getJSXAttribute(
   name: string
 ): JSXAttribute | undefined {
   return element.attributes.find(
-    attr => attr.name.name === name || attr.name.type === name
+    attr => {
+      // Skip spread attributes (e.g., {...props})
+      if (attr.type === 'JSXSpreadAttribute') {
+        return false
+      }
+      return attr.name.name === name || attr.name.type === name
+    }
   )
 }
 
