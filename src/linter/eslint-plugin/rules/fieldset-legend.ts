@@ -5,8 +5,6 @@
  */
 
 import type { Rule } from 'eslint'
-import { jsxToElement } from '../utils/jsx-ast-utils'
-import { vueElementToDOM } from '../utils/vue-ast-utils'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -30,71 +28,17 @@ const rule: Rule.RuleModule = {
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
         if (jsxNode.name?.name === 'fieldset') {
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = jsxToElement(node, context)
-            const violations = A11yChecker.checkFieldsetLegend(element)
-            
-            for (const violation of violations) {
-              if (violation.id === 'fieldset-legend') {
-                context.report({
-                  node,
-                  messageId: 'missingLegend'
-                })
-              } else if (violation.id === 'fieldset-legend-empty') {
-                context.report({
-                  node,
-                  messageId: 'emptyLegend'
-                })
-              }
-            }
-          } catch (error) {
-            // If conversion fails, we can't check, so skip
-          }
-        }
-      },
-
-      // Check HTML strings
-      Literal(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkFieldsetLegend(element)
-            for (const violation of violations) {
-              if (violation.id === 'fieldset-legend') {
-                context.report({
-                  node,
-                  messageId: 'missingLegend'
-                })
-              } else if (violation.id === 'fieldset-legend-empty') {
-                context.report({
-                  node,
-                  messageId: 'emptyLegend'
-                })
-              }
-            }
-          }
-        }
-      },
-
-      TemplateLiteral(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkFieldsetLegend(element)
-            for (const violation of violations) {
-              if (violation.id === 'fieldset-legend') {
-                context.report({
-                  node,
-                  messageId: 'missingLegend'
-                })
-              } else if (violation.id === 'fieldset-legend-empty') {
-                context.report({
-                  node,
-                  messageId: 'emptyLegend'
-                })
-              }
-            }
+          // Check if fieldset has legend as a child
+          const parent = (node as any).parent
+          const hasLegend = parent?.children?.some((child: any) =>
+            child.type === 'JSXElement' && child.openingElement?.name?.name === 'legend'
+          )
+          
+          if (!hasLegend) {
+            context.report({
+              node,
+              messageId: 'missingLegend'
+            })
           }
         }
       },
@@ -103,27 +47,15 @@ const rule: Rule.RuleModule = {
       VElement(node: Rule.Node) {
         const vueNode = node as any
         if (vueNode.name === 'fieldset') {
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = vueElementToDOM(node, context)
-            if (element) {
-              const violations = A11yChecker.checkFieldsetLegend(element)
-              for (const violation of violations) {
-                if (violation.id === 'fieldset-legend') {
-                  context.report({
-                    node,
-                    messageId: 'missingLegend'
-                  })
-                } else if (violation.id === 'fieldset-legend-empty') {
-                  context.report({
-                    node,
-                    messageId: 'emptyLegend'
-                  })
-                }
-              }
-            }
-          } catch (error) {
-            // If conversion fails, we can't check, so skip
+          const hasLegend = vueNode.children?.some((child: any) =>
+            child.type === 'VElement' && child.name === 'legend'
+          )
+          
+          if (!hasLegend) {
+            context.report({
+              node,
+              messageId: 'missingLegend'
+            })
           }
         }
       }
@@ -132,4 +64,3 @@ const rule: Rule.RuleModule = {
 }
 
 export default rule
-

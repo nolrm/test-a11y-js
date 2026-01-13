@@ -5,8 +5,6 @@
  */
 
 import type { Rule } from 'eslint'
-import { jsxToElement } from '../utils/jsx-ast-utils'
-import { vueElementToDOM } from '../utils/vue-ast-utils'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -30,71 +28,38 @@ const rule: Rule.RuleModule = {
       // Check JSX dialog elements
       JSXOpeningElement(node: Rule.Node) {
         const jsxNode = node as any
-        if (jsxNode.name?.name === 'dialog' || 
-            (jsxNode.name?.name && jsxNode.attributes?.some((attr: any) => 
-              attr.name?.name === 'role' && 
-              (attr.value?.value === 'dialog' || attr.value?.value === 'alertdialog')
-            ))) {
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = jsxToElement(node, context)
-            const violations = A11yChecker.checkDialogModal(element)
-            
-            for (const violation of violations) {
-              if (violation.id === 'dialog-missing-name') {
-                context.report({
-                  node,
-                  messageId: 'missingName'
-                })
-              } else if (violation.id === 'dialog-missing-modal') {
-                context.report({
-                  node,
-                  messageId: 'missingModal'
-                })
-              } else if (violation.id === 'dialog-invalid-role') {
-                context.report({
-                  node,
-                  messageId: 'invalidRole'
-                })
-              }
-            }
-          } catch (error) {
-            // If conversion fails, we can't check, so skip
+        const isDialog = jsxNode.name?.name === 'dialog'
+        const hasDialogRole = jsxNode.attributes?.some((attr: any) => 
+          attr.name?.name === 'role' && 
+          (attr.value?.value === 'dialog' || attr.value?.value === 'alertdialog')
+        )
+        
+        if (isDialog || hasDialogRole) {
+          // Check for accessible name
+          const hasAriaLabel = jsxNode.attributes?.some((attr: any) =>
+            attr.name?.name === 'aria-label'
+          )
+          const hasAriaLabelledBy = jsxNode.attributes?.some((attr: any) =>
+            attr.name?.name === 'aria-labelledby'
+          )
+          
+          if (!hasAriaLabel && !hasAriaLabelledBy) {
+            context.report({
+              node,
+              messageId: 'missingName'
+            })
           }
-        }
-      },
-
-      // Check HTML strings
-      Literal(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkDialogModal(element)
-            for (const violation of violations) {
-              if (violation.id === 'dialog-missing-name') {
-                context.report({
-                  node,
-                  messageId: 'missingName'
-                })
-              }
-            }
-          }
-        }
-      },
-
-      TemplateLiteral(node: Rule.Node) {
-        if (isHTMLLiteral(node)) {
-          const element = htmlNodeToElement(node, context)
-          if (element) {
-            const violations = A11yChecker.checkDialogModal(element)
-            for (const violation of violations) {
-              if (violation.id === 'dialog-missing-name') {
-                context.report({
-                  node,
-                  messageId: 'missingName'
-                })
-              }
-            }
+          
+          // Check for aria-modal
+          const hasAriaModal = jsxNode.attributes?.some((attr: any) =>
+            attr.name?.name === 'aria-modal'
+          )
+          
+          if (!hasAriaModal) {
+            context.report({
+              node,
+              messageId: 'missingModal'
+            })
           }
         }
       },
@@ -102,37 +67,38 @@ const rule: Rule.RuleModule = {
       // Check Vue template dialog elements
       VElement(node: Rule.Node) {
         const vueNode = node as any
-        if (vueNode.name === 'dialog' || 
-            (vueNode.startTag?.attributes?.some((attr: any) => 
-              attr.key?.name === 'role' && 
-              (attr.value?.value === 'dialog' || attr.value?.value === 'alertdialog')
-            ))) {
-          // Convert to DOM and check with A11yChecker
-          try {
-            const element = vueElementToDOM(node, context)
-            if (element) {
-              const violations = A11yChecker.checkDialogModal(element)
-              for (const violation of violations) {
-                if (violation.id === 'dialog-missing-name') {
-                  context.report({
-                    node,
-                    messageId: 'missingName'
-                  })
-                } else if (violation.id === 'dialog-missing-modal') {
-                  context.report({
-                    node,
-                    messageId: 'missingModal'
-                  })
-                } else if (violation.id === 'dialog-invalid-role') {
-                  context.report({
-                    node,
-                    messageId: 'invalidRole'
-                  })
-                }
-              }
-            }
-          } catch (error) {
-            // If conversion fails, we can't check, so skip
+        const isDialog = vueNode.name === 'dialog'
+        const hasDialogRole = vueNode.startTag?.attributes?.some((attr: any) => 
+          attr.key?.name === 'role' && 
+          (attr.value?.value === 'dialog' || attr.value?.value === 'alertdialog')
+        )
+        
+        if (isDialog || hasDialogRole) {
+          // Check for accessible name
+          const hasAriaLabel = vueNode.startTag?.attributes?.some((attr: any) =>
+            attr.key?.name === 'aria-label'
+          )
+          const hasAriaLabelledBy = vueNode.startTag?.attributes?.some((attr: any) =>
+            attr.key?.name === 'aria-labelledby'
+          )
+          
+          if (!hasAriaLabel && !hasAriaLabelledBy) {
+            context.report({
+              node,
+              messageId: 'missingName'
+            })
+          }
+          
+          // Check for aria-modal
+          const hasAriaModal = vueNode.startTag?.attributes?.some((attr: any) =>
+            attr.key?.name === 'aria-modal'
+          )
+          
+          if (!hasAriaModal) {
+            context.report({
+              node,
+              messageId: 'missingModal'
+            })
           }
         }
       }
@@ -141,4 +107,3 @@ const rule: Rule.RuleModule = {
 }
 
 export default rule
-
