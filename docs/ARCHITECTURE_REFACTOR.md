@@ -45,7 +45,7 @@ We now have **two distinct use cases** with **two separate tools**:
 - Pure AST (Abstract Syntax Tree) validation
 - No DOM, no JSDOM, no runtime dependencies
 - Checks syntax: "Does this `<img>` have an `alt` attribute?"
-- Fast, lightweight (55KB bundle, down from 132KB)
+- Fast, lightweight (35KB bundle, down from 132KB - 73% reduction)
 
 **Usage:**
 ```json
@@ -104,10 +104,10 @@ JSXOpeningElement(node) {
 
 ### Bundle Size Reduction
 
-| Component | Before | After | Change |
+| Component | Before (v0.9.x) | After (v0.10.2) | Change |
 |-----------|--------|-------|--------|
-| ESLint Plugin | 132KB | 55KB | **-58%** |
-| Core Library | 115KB | 115KB | No change |
+| ESLint Plugin | 132KB | 35KB | **-73%** |
+| Core Library | 115KB | 96KB | -16% (optimized) |
 
 ### Rules Status
 

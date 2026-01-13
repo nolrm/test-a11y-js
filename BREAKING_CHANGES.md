@@ -10,7 +10,7 @@ Version 0.10.0 fixes a critical issue where the ESLint plugin caused JavaScript 
 
 The ESLint plugin has been completely refactored to remove JSDOM dependency, resulting in:
 
-- ✅ **58% smaller bundle** (132KB → 55KB)
+- ✅ **73% smaller bundle** (132KB → 35KB)
 - ✅ **Zero memory issues** - no more heap exhaustion
 - ✅ **Faster linting** - pure AST validation
 - ⚠️ **3 rules temporarily disabled** (see below)
