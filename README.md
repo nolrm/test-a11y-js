@@ -27,13 +27,28 @@ import { A11yChecker } from 'test-a11y-js'
 // After  
 import { A11yChecker } from 'eslint-plugin-test-a11y-js/core'
 ```
+
+## ⚠️ Breaking Change in v0.10.0
+
+**Critical Fix:** Resolved JavaScript heap exhaustion in large projects.
+
+**What changed:**
+- ✅ **73% smaller bundle** (132KB → 35KB)
+- ✅ **Zero memory issues** - ESLint plugin no longer uses JSDOM
+- ✅ **Faster linting** - Pure AST validation
+- ⚠️ **3 rules temporarily disabled** until refactored: `aria-validation`, `semantic-html`, `form-validation`
+
+**Workaround:** Use the A11yChecker core library in tests for these checks.
+
+📖 See [BREAKING_CHANGES.md](./BREAKING_CHANGES.md) for full details.
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
 **Why test-a11y-js?**
 - ✅ **Zero config** - Works out of the box with React, Vue, and JSX
 - ✅ **Real-time feedback** - Catch issues in your editor, not in production
-- ✅ **16 accessibility rules** - Covers images, forms, buttons, landmarks, ARIA, semantic HTML, and more
+- ✅ **13 active accessibility rules** - Covers images, forms, buttons, landmarks, and more (3 more coming soon)
 - ✅ **Dual API** - Use as ESLint plugin OR programmatic API
 - ✅ **Large project ready** - Minimal preset for incremental adoption
 - ✅ **Framework agnostic** - Works with React, Vue, Preact, Solid, and more
@@ -48,9 +63,9 @@ npm install --save-dev eslint-plugin-test-a11y-js
 
 - `eslint` (>=8.0.0) - Required for ESLint plugin
 - `vue-eslint-parser` (>=9.0.0) - Optional, only needed for Vue support
-- `jsdom` (>=23.0.0) - Optional, only needed for HTML string parsing in ESLint rules
+- `jsdom` (>=23.0.0) - Optional, **only needed for A11yChecker core library** (programmatic API)
 
-**Note:** jsdom is only required if you use HTML strings in your code. JSX and Vue templates work without jsdom. See [jsdom Guide](./docs/JSDOM.md) for details.
+**Note:** The ESLint plugin does NOT use jsdom. It performs pure AST validation for maximum performance and zero memory issues. jsdom is only required if you use the programmatic A11yChecker API in your tests. See [jsdom Guide](./docs/JSDOM.md) for details.
 
 ## Quick Start (30 seconds)
 
@@ -362,16 +377,19 @@ interface A11yResults {
 
 ### ESLint Plugin
 - Real-time accessibility linting in your editor
-- Support for React/JSX, Vue, and HTML strings
+- Support for React/JSX and Vue templates
+- Pure AST validation (no JSDOM, zero memory issues)
 - Multiple configuration presets (minimal, recommended, strict)
-- Framework-agnostic core with framework-specific adapters
+- Framework-agnostic with framework-specific adapters
 - Integrates with existing ESLint workflows
-- Optional jsdom dependency (only needed for HTML strings)
-- Performance optimized with caching support
+- Performance optimized - 73% smaller bundle (35KB)
+- 13 active rules covering critical accessibility patterns
 
 ## ESLint Rules
 
-The plugin provides 16 accessibility rules:
+The plugin provides **13 active accessibility rules** (3 temporarily disabled in v0.10.0):
+
+### Active Rules (13)
 
 - `test-a11y-js/image-alt` - Enforce images have alt attributes
 - `test-a11y-js/button-label` - Enforce buttons have labels
@@ -386,9 +404,27 @@ The plugin provides 16 accessibility rules:
 - `test-a11y-js/audio-captions` - Enforce audio elements have tracks or transcripts
 - `test-a11y-js/landmark-roles` - Enforce proper use of landmark elements (nav, main, header, footer, aside, section, article)
 - `test-a11y-js/dialog-modal` - Enforce dialog elements have proper accessibility attributes
-- `test-a11y-js/aria-validation` - Enforce valid ARIA roles, properties, relationships, and accessible names
-- `test-a11y-js/semantic-html` - Enforce proper use of semantic HTML elements
-- `test-a11y-js/form-validation` - Enforce proper form validation messages and error handling
+
+### Temporarily Disabled (v0.10.0)
+
+These rules are being refactored to use AST validation and will be re-enabled in future releases:
+
+- ~~`test-a11y-js/aria-validation`~~ - Comprehensive ARIA validation (coming in v0.11.0)
+- ~~`test-a11y-js/semantic-html`~~ - Semantic HTML usage checks (coming in v0.12.0)
+- ~~`test-a11y-js/form-validation`~~ - Form validation patterns (coming in v0.12.0)
+
+**Workaround:** Use the A11yChecker core library to validate these patterns in your tests:
+
+```typescript
+import { A11yChecker } from 'eslint-plugin-test-a11y-js/core'
+
+// Validate ARIA, semantic HTML, and form validation
+const ariaViolations = A11yChecker.checkAriaRoles(element)
+const semanticViolations = A11yChecker.checkSemanticHTML(element)
+const formViolations = A11yChecker.checkFormValidationMessages(element)
+```
+
+See [BREAKING_CHANGES.md](./BREAKING_CHANGES.md) for full details and migration guide.
 
 See [`src/checks.json`](./src/checks.json) for a complete list of supported elements, ARIA attributes, and rules (including what's not yet supported).
 
