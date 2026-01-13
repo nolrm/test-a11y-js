@@ -103,3 +103,9 @@ const plugin: ESLint.Plugin = {
 
 export default plugin
 
+// CommonJS compatibility - ensure plugin is accessible without .default
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = plugin
+  module.exports.default = plugin
+}
+
