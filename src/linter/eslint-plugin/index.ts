@@ -103,11 +103,15 @@ const plugin: ESLint.Plugin = {
   }
 }
 
+// Export formatter
+export { default as formatter } from './formatter'
+
 export default plugin
 
 // CommonJS compatibility - ensure plugin is accessible without .default
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = plugin
   module.exports.default = plugin
+  module.exports.formatter = require('./formatter').default
 }
 

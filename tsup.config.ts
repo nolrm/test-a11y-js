@@ -4,13 +4,17 @@ import { readFileSync } from 'fs'
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'))
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/linter/eslint-plugin/index.ts'],
+  entry: [
+    'src/index.ts', 
+    'src/linter/eslint-plugin/index.ts',
+    'src/linter/eslint-plugin/formatter.ts'
+  ],
   format: ['cjs', 'esm'],
   dts: true,
   splitting: false,
   sourcemap: false,
   clean: true,
-  external: ['jsdom'],
+  external: ['jsdom', 'eslint'],
   onSuccess: 'echo "Build complete"',
   esbuildOptions(options) {
     // Suppress the require.resolve warning for jsdom's xhr-sync-worker.js
