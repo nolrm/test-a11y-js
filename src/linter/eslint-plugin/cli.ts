@@ -5,9 +5,7 @@
  */
 
 import { ESLint } from 'eslint'
-import { createSpinner } from './spinner'
 import { format } from './formatter'
-import { resolve } from 'path'
 
 /**
  * Create a simple spinner
@@ -84,8 +82,6 @@ async function main() {
     spinner.stop()
     
     // Calculate stats
-    const filesLinted = results.length
-    const filesWithIssues = results.filter(r => r.messages.length > 0).length
     const totalErrors = results.reduce((sum, r) => sum + r.errorCount, 0)
     const totalWarnings = results.reduce((sum, r) => sum + r.warningCount, 0)
     
