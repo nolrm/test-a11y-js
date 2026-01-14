@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-test-a11y-js",
-  "version": "0.10.5",
+  "version": "0.10.6",
   "description": "ESLint plugin for accessibility testing. Zero-config for React, Vue & JSX. Includes programmatic API.",
   "main": "dist/linter/eslint-plugin/index.js",
   "module": "dist/linter/eslint-plugin/index.mjs",
@@ -20,13 +20,22 @@
       "import": "./dist/linter/eslint-plugin/formatter.mjs",
       "require": "./dist/linter/eslint-plugin/formatter.js",
       "types": "./dist/linter/eslint-plugin/formatter.d.ts"
+    },
+    "./formatter-progress": {
+      "import": "./dist/linter/eslint-plugin/formatter-with-progress.mjs",
+      "require": "./dist/linter/eslint-plugin/formatter-with-progress.js",
+      "types": "./dist/linter/eslint-plugin/formatter-with-progress.d.ts"
     }
   },
   "files": [
     "dist",
+    "bin",
     "README.md",
     "LICENSE"
   ],
+  "bin": {
+    "eslint-with-progress": "./bin/eslint-with-progress.js"
+  },
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

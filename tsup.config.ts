@@ -7,7 +7,8 @@ export default defineConfig({
   entry: [
     'src/index.ts', 
     'src/linter/eslint-plugin/index.ts',
-    'src/linter/eslint-plugin/formatter.ts'
+    'src/linter/eslint-plugin/formatter.ts',
+    'src/linter/eslint-plugin/formatter-with-progress.ts'
   ],
   format: ['cjs', 'esm'],
   dts: true,

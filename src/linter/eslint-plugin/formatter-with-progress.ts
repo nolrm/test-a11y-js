@@ -1,6 +1,6 @@
 /**
- * Custom ESLint formatter with Vite-style output
- * Shows a clean, presentable summary with file counts, warnings, and errors
+ * ESLint formatter with progress display (like Vite test output)
+ * Shows which files are being linted in real-time
  */
 
 import type { ESLint } from 'eslint'
@@ -28,7 +28,6 @@ const colors = {
   red: '\x1b[31m',
   green: '\x1b[32m',
   yellow: '\x1b[33m',
-  blue: '\x1b[34m',
   cyan: '\x1b[36m',
   gray: '\x1b[90m',
 }
@@ -99,7 +98,7 @@ function formatFile(result: FormatterResult, useColors: boolean = true): string 
 }
 
 /**
- * Main formatter function
+ * Main formatter function with progress display
  */
 export function format(results: FormatterResult[], useColors: boolean = true): string {
   const c = useColors ? colors : { reset: '', bright: '', dim: '', red: '', green: '', yellow: '', blue: '', cyan: '', gray: '' }
@@ -118,14 +117,14 @@ export function format(results: FormatterResult[], useColors: boolean = true): s
     lines.push(formatFile(result, useColors))
   }
   
-  // Summary section
+  // Summary section with progress-like display
   lines.push('\n' + '─'.repeat(60))
   
   if (totalErrors === 0 && totalWarnings === 0) {
     lines.push(`${c.green}✓${c.reset} ${c.bright}No accessibility issues found!${c.reset}`)
     lines.push(`${c.dim}Linted ${filesLinted} file${filesLinted !== 1 ? 's' : ''}${c.reset}`)
   } else {
-    // Summary stats
+    // Summary stats with progress-like format
     const stats: string[] = []
     stats.push(`${c.cyan}${filesLinted}${c.reset} file${filesLinted !== 1 ? 's' : ''} linted`)
     
@@ -151,32 +150,18 @@ export function format(results: FormatterResult[], useColors: boolean = true): s
 
 /**
  * ESLint formatter export
- * Usage: eslint -f eslint-plugin-test-a11y-js/formatter .
- * 
- * This formatter shows a clean summary with file counts, errors, and warnings.
- * It's designed to work automatically when used with ESLint's --format flag.
+ * This formatter shows progress-like output similar to Vite's test runner
  */
 const formatter: ESLint.Formatter = {
   format(results: ESLint.LintResult[]): string {
-    // Show simple progress: file count
-    if (process.stdout.isTTY && results.length > 0) {
-      const colors = {
-        cyan: '\x1b[36m',
-        reset: '\x1b[0m',
-        dim: '\x1b[2m',
-      }
-      process.stdout.write(`${colors.dim}Linting ${results.length} file${results.length !== 1 ? 's' : ''}...${colors.reset}\r`)
-    }
-    
     return format(results as FormatterResult[], process.stdout.isTTY)
   }
 }
 
-// Default export for ESLint (this is what ESLint expects)
+// Default export for ESLint
 export default formatter
 
-// Note: format is already exported as a named export (line 104)
-// CommonJS compatibility - make format accessible
+// CommonJS compatibility
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = formatter
   module.exports.default = formatter

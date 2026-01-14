@@ -286,32 +286,41 @@ module.exports = {
 
 See [Large Project Setup Guide](./docs/LARGE_PROJECTS.md) for incremental adoption strategies.
 
-## Custom Formatter (Optional)
+## Progress Display (Optional)
 
-The plugin includes an optional custom formatter with Vite-style output. To use it, add the `--format` flag:
+The plugin includes a progress-aware ESLint wrapper that shows which files are being linted, similar to Vite's test output.
 
-```bash
-npx eslint --format eslint-plugin-test-a11y-js/formatter .
-```
+### Quick Setup for Next.js Projects
 
-Or in your `package.json`:
+Replace `next lint` with the progress wrapper in your `package.json`:
 
 ```json
 {
   "scripts": {
-    "lint": "eslint --format eslint-plugin-test-a11y-js/formatter ."
+    "lint": "node node_modules/eslint-plugin-test-a11y-js/bin/eslint-with-progress.js",
+    "lint:fix": "node node_modules/eslint-plugin-test-a11y-js/bin/eslint-with-progress.js --fix"
   }
 }
 ```
 
-### Output Features
+Or use the binary directly:
 
+```bash
+npx eslint-with-progress
+```
+
+### What You Get
+
+- ✅ **Progress display** - Shows "Linting files..." message
 - ✅ **File-by-file results** with line numbers
 - ✅ **Summary** showing total files, errors, and warnings
 - ✅ **Color-coded** output (errors in red, warnings in yellow)
+- ✅ **Timing information**
 
 Example output:
 ```
+Linting files...
+
 src/components/Button.tsx
   5:12  ✖ Image missing alt attribute (test-a11y-js/image-alt)
   8:3   ⚠ Button should have accessible label (test-a11y-js/button-label)
@@ -319,9 +328,11 @@ src/components/Button.tsx
 ────────────────────────────────────────────────────────────
 
 Summary: 15 files linted • 2 errors • 5 warnings
+
+Completed in 1.23s
 ```
 
-**Note:** The formatter is optional. If you don't specify it, ESLint will use its default formatter.
+**Note:** This is optional. Your plugin rules work automatically with `next lint` - this just adds progress display.
 
 ## Performance
 
