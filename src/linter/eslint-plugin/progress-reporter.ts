@@ -25,20 +25,17 @@ export function createProgressReporter(): ProgressReporter {
   }
   
   let totalFiles = 0
-  let currentFile = 0
   const processedFiles: string[] = []
   
   return {
     start(total: number) {
       totalFiles = total
-      currentFile = 0
       if (process.stdout.isTTY) {
         process.stdout.write(`\n${colors.cyan}Linting ${total} file${total !== 1 ? 's' : ''}...${colors.reset}\n`)
       }
     },
     
     update(fileNum: number, fileName: string) {
-      currentFile = fileNum
       processedFiles.push(fileName)
       
       if (process.stdout.isTTY) {
