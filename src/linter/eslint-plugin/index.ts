@@ -22,6 +22,7 @@ import recommended from './configs/recommended'
 import strict from './configs/strict'
 import react from './configs/react'
 import vue from './configs/vue'
+import * as flatConfigs from './configs/flat'
 import imageAlt from './rules/image-alt'
 import buttonLabel from './rules/button-label'
 import linkText from './rules/link-text'
@@ -99,7 +100,14 @@ const plugin: ESLint.Plugin = {
         sourceType: 'module'
       },
       rules: vue
-    }
+    },
+    // Flat config presets for ESLint v9+
+    'flat/recommended': flatConfigs.flatRecommended as any,
+    'flat/recommended-react': flatConfigs.flatRecommendedReact as any,
+    'flat/react': flatConfigs.flatReact as any,
+    'flat/vue': flatConfigs.flatVue as any,
+    'flat/minimal': flatConfigs.flatMinimal as any,
+    'flat/strict': flatConfigs.flatStrict as any
   }
 }
 

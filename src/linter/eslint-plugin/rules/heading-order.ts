@@ -5,6 +5,7 @@
  */
 
 import type { Rule } from 'eslint'
+import { getHeadingOrderOptions } from '../utils/rule-options'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -19,9 +20,24 @@ const rule: Rule.RuleModule = {
       skippedLevel: 'Heading level skipped from h{{previous}} to h{{current}}'
     },
     fixable: undefined,
-    schema: []
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          allowSameLevel: {
+            type: 'boolean'
+          },
+          maxSkip: {
+            type: 'number',
+            minimum: 0
+          }
+        },
+        additionalProperties: false
+      }
+    ]
   },
   create(context: Rule.RuleContext) {
+    const options = getHeadingOrderOptions(context.options)
     // Track heading levels in the current file
     const headingNodes: Array<{ node: Rule.Node; level: number }> = []
 
@@ -60,15 +76,34 @@ const rule: Rule.RuleModule = {
         let prevLevel = 0
         
         for (const { node, level } of headingNodes) {
-          if (prevLevel > 0 && level - prevLevel > 1) {
-            context.report({
-              node,
-              messageId: 'skippedLevel',
-              data: {
-                previous: String(prevLevel),
-                current: String(level)
-              },
-            })
+          if (prevLevel > 0) {
+            const skip = level - prevLevel
+            
+            // Check if same level is allowed
+            if (skip === 0 && !options.allowSameLevel) {
+              // Same level - only report if not allowed (rare case)
+              // Usually same level is fine, so we skip this
+              continue
+            }
+            
+            // Check skip amount
+            if (skip > 1) {
+              // Check maxSkip option
+              if (options.maxSkip !== undefined && skip <= options.maxSkip) {
+                // Skip is within allowed range
+                prevLevel = level
+                continue
+              }
+              
+              context.report({
+                node,
+                messageId: 'skippedLevel',
+                data: {
+                  previous: String(prevLevel),
+                  current: String(level)
+                },
+              })
+            }
           }
           prevLevel = level
         }

@@ -25,7 +25,7 @@ Common issues and solutions when using the `test-a11y-js` ESLint plugin.
 
 1. **Verify plugin installation:**
    ```bash
-   npm list test-a11y-js eslint
+   npm list eslint-plugin-test-a11y-js eslint
    ```
 
 2. **Check ESLint configuration:**

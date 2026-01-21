@@ -146,7 +146,7 @@ The plugin should export:
 
 If ESLint can't find the plugin:
 
-1. Verify installation: `npm list test-a11y-js`
+1. Verify installation: `npm list eslint-plugin-test-a11y-js`
 2. Check plugin name in ESLint config: `plugins: ['test-a11y-js']`
 3. Ensure the package is in `node_modules`
 

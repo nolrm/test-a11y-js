@@ -5,8 +5,42 @@
  */
 
 import type { Rule } from 'eslint'
-import { hasJSXAttribute, isJSXAttributeDynamic } from '../utils/jsx-ast-utils'
-import { hasVueAttribute, isVueAttributeDynamic } from '../utils/vue-ast-utils'
+import { hasJSXAttribute, isJSXAttributeDynamic, getJSXAttribute } from '../utils/jsx-ast-utils'
+import { hasVueAttribute, isVueAttributeDynamic, getVueAttribute } from '../utils/vue-ast-utils'
+import { isElementLike } from '../utils/component-mapping'
+import { getLinkTextOptions, matchesDenylist } from '../utils/rule-options'
+
+/**
+ * Get accessible name from JSX element (text, aria-label, aria-labelledby)
+ */
+function getJSXAccessibleName(node: any, _context: Rule.RuleContext): { text: string; source: 'text' | 'aria-label' | 'aria-labelledby' | null } {
+  // Check aria-label first
+  const ariaLabelAttr = getJSXAttribute(node, 'aria-label')
+  if (ariaLabelAttr && ariaLabelAttr.value?.type === 'Literal') {
+    return { text: ariaLabelAttr.value.value || '', source: 'aria-label' }
+  }
+  
+  // Check aria-labelledby (would need to resolve ID, but for now just note it exists)
+  if (hasJSXAttribute(node, 'aria-labelledby')) {
+    return { text: '', source: 'aria-labelledby' }
+  }
+  
+  // Check text content
+  const parent = node.parent
+  const jsxElement = parent
+  if (jsxElement?.children) {
+    const textContent = jsxElement.children
+      .filter((child: any) => child.type === 'JSXText')
+      .map((child: any) => child.value || '')
+      .join('')
+      .trim()
+    if (textContent) {
+      return { text: textContent, source: 'text' }
+    }
+  }
+  
+  return { text: '', source: null }
+}
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -23,9 +57,29 @@ const rule: Rule.RuleModule = {
       dynamicText: 'Link text is dynamic. Ensure it is descriptive at runtime.'
     },
     fixable: undefined,
-    schema: []
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          denylist: {
+            type: 'array',
+            items: { type: 'string' }
+          },
+          caseInsensitive: {
+            type: 'boolean'
+          },
+          allowlistPatterns: {
+            type: 'array',
+            items: { type: 'string' }
+          }
+        },
+        additionalProperties: false
+      }
+    ]
   },
   create(context: Rule.RuleContext) {
+    const options = getLinkTextOptions(context.options)
+    
     return {
       // Check JSX anchor elements
       JSXOpeningElement(node: Rule.Node) {
@@ -36,34 +90,36 @@ const rule: Rule.RuleModule = {
           return
         }
         
-        if (jsxNode.name.name === 'a') {
-          // Check if aria-label exists
-          const hasAriaLabel = hasJSXAttribute(jsxNode, 'aria-label')
+        // Check if it's an anchor element (native or mapped component)
+        if (jsxNode.name.name === 'a' || isElementLike(node, context, 'a')) {
+          // Get accessible name from multiple sources
+          const accessibleName = getJSXAccessibleName(jsxNode, context)
           
-          if (hasAriaLabel) {
-            const ariaLabelAttr = jsxNode.attributes?.find((attr: any) => 
-              attr.name?.name === 'aria-label'
-            )
-            if (ariaLabelAttr && isJSXAttributeDynamic(ariaLabelAttr)) {
-              context.report({
-                node,
-                messageId: 'dynamicText',
-              })
-            }
+          // Check if aria-label is dynamic
+          const ariaLabelAttr = getJSXAttribute(jsxNode, 'aria-label')
+          if (ariaLabelAttr && isJSXAttributeDynamic(ariaLabelAttr)) {
+            context.report({
+              node,
+              messageId: 'dynamicText',
+            })
+            return
           }
 
           // Check if link has no accessible name
-          if (!hasAriaLabel) {
-            const parent = node as any
-            const jsxElement = parent.parent
-            const hasChildren = jsxElement?.children && jsxElement.children.length > 0
-            
-            if (!hasChildren) {
-              context.report({
-                node,
-                messageId: 'missingText'
-              })
-            }
+          if (!accessibleName.text && accessibleName.source !== 'aria-labelledby') {
+            context.report({
+              node,
+              messageId: 'missingText'
+            })
+            return
+          }
+
+          // Check if text matches denylist
+          if (accessibleName.text && matchesDenylist(accessibleName.text, options)) {
+            context.report({
+              node,
+              messageId: 'nonDescriptive'
+            })
           }
         }
       },
@@ -73,30 +129,59 @@ const rule: Rule.RuleModule = {
       VElement(node: Rule.Node) {
         const vueNode = node as any
         if (vueNode.name === 'a') {
-          // Check if aria-label exists
-          const hasAriaLabel = hasVueAttribute(vueNode, 'aria-label')
+          // Get accessible name from multiple sources
+          let accessibleText = ''
+          let source: 'text' | 'aria-label' | 'aria-labelledby' | null = null
           
-          if (hasAriaLabel) {
-            const ariaLabelAttr = vueNode.startTag?.attributes?.find((attr: any) => 
-              attr.key?.name === 'aria-label' || attr.key?.argument === 'aria-label'
-            )
-            if (ariaLabelAttr && isVueAttributeDynamic(ariaLabelAttr)) {
+          // Check aria-label
+          const ariaLabelAttr = getVueAttribute(vueNode, 'aria-label')
+          if (ariaLabelAttr) {
+            if (isVueAttributeDynamic(ariaLabelAttr)) {
               context.report({
                 node,
                 messageId: 'dynamicText',
               })
+              return
+            }
+            if (ariaLabelAttr.value?.value) {
+              accessibleText = ariaLabelAttr.value.value
+              source = 'aria-label'
+            }
+          }
+          
+          // Check aria-labelledby
+          if (!source && hasVueAttribute(vueNode, 'aria-labelledby')) {
+            source = 'aria-labelledby'
+          }
+          
+          // Check text content
+          if (!source && vueNode.children) {
+            const textContent = vueNode.children
+              .filter((child: any) => child.type === 'VText')
+              .map((child: any) => child.value || '')
+              .join('')
+              .trim()
+            if (textContent) {
+              accessibleText = textContent
+              source = 'text'
             }
           }
 
           // Check if link has no accessible name
-          if (!hasAriaLabel) {
-            const hasChildren = vueNode.children && vueNode.children.length > 0
-            if (!hasChildren) {
-              context.report({
-                node,
-                messageId: 'missingText'
-              })
-            }
+          if (!accessibleText && source !== 'aria-labelledby') {
+            context.report({
+              node,
+              messageId: 'missingText'
+            })
+            return
+          }
+
+          // Check if text matches denylist
+          if (accessibleText && matchesDenylist(accessibleText, options)) {
+            context.report({
+              node,
+              messageId: 'nonDescriptive'
+            })
           }
         }
       }

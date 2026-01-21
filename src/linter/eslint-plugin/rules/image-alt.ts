@@ -7,6 +7,8 @@
 import type { Rule } from 'eslint'
 import { hasJSXAttribute, isJSXAttributeDynamic, getJSXAttribute } from '../utils/jsx-ast-utils'
 import { hasVueAttribute, isVueAttributeDynamic, getVueAttribute } from '../utils/vue-ast-utils'
+import { isElementLike } from '../utils/component-mapping'
+import { getImageAltOptions, isImageDecorative } from '../utils/rule-options'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -20,12 +22,37 @@ const rule: Rule.RuleModule = {
     messages: {
       missingAlt: 'Image must have an alt attribute',
       emptyAlt: 'Image alt attribute must not be empty',
+      emptyAltNotDecorative: 'Empty alt should only be used for decorative images. Add aria-hidden="true" or role="presentation" if decorative.',
       dynamicAlt: 'Image alt attribute is dynamic. Ensure it is not empty at runtime.'
     },
     fixable: undefined,
-    schema: []
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          allowMissingAltOnDecorative: {
+            type: 'boolean'
+          },
+          decorativeMatcher: {
+            type: 'object',
+            properties: {
+              requireAriaHidden: { type: 'boolean' },
+              requireRolePresentation: { type: 'boolean' },
+              markerAttributes: {
+                type: 'array',
+                items: { type: 'string' }
+              }
+            },
+            additionalProperties: false
+          }
+        },
+        additionalProperties: false
+      }
+    ]
   },
   create(context: Rule.RuleContext) {
+    const options = getImageAltOptions(context.options)
+    
     return {
       // Check JSX img elements
       JSXOpeningElement(node: Rule.Node) {
@@ -36,13 +63,24 @@ const rule: Rule.RuleModule = {
           return
         }
         
-        if (jsxNode.name.name === 'img') {
+        // Check if it's an img element (native or mapped component)
+        if (jsxNode.name.name === 'img' || isElementLike(node, context, 'img')) {
+          // Check if image is decorative (and options allow it)
+          const isDecorative = isImageDecorative(
+            jsxNode,
+            options,
+            hasJSXAttribute,
+            getJSXAttribute
+          )
+          
           // Check if alt attribute exists
           if (!hasJSXAttribute(jsxNode, 'alt')) {
-            context.report({
-              node,
-              messageId: 'missingAlt'
-            })
+            if (!isDecorative) {
+              context.report({
+                node,
+                messageId: 'missingAlt'
+              })
+            }
             return
           }
 
@@ -58,10 +96,18 @@ const rule: Rule.RuleModule = {
 
           // Check if alt is empty string
           if (altAttr && altAttr.value && altAttr.value.type === 'Literal' && altAttr.value.value === '') {
-            context.report({
-              node,
-              messageId: 'emptyAlt'
-            })
+            if (!isDecorative) {
+              context.report({
+                node,
+                messageId: 'emptyAltNotDecorative'
+              })
+            } else {
+              // Even if decorative, warn if empty alt without proper markers
+              context.report({
+                node,
+                messageId: 'emptyAlt'
+              })
+            }
           }
         }
       },
@@ -71,12 +117,23 @@ const rule: Rule.RuleModule = {
       VElement(node: Rule.Node) {
         const vueNode = node as any
         if (vueNode.name === 'img') {
+          // For Vue, check decorative status (simplified - no component mapping for v1)
+          const hasAriaHidden = hasVueAttribute(vueNode, 'aria-hidden')
+          const roleAttr = getVueAttribute(vueNode, 'role')
+          const hasRolePresentation = roleAttr?.value?.value === 'presentation'
+          const isDecorative = options.allowMissingAltOnDecorative && 
+            (hasAriaHidden || hasRolePresentation || 
+             (options.decorativeMatcher?.markerAttributes?.some(attr => 
+               hasVueAttribute(vueNode, attr)) ?? false))
+          
           // Check if alt attribute exists
           if (!hasVueAttribute(vueNode, 'alt')) {
-            context.report({
-              node,
-              messageId: 'missingAlt'
-            })
+            if (!isDecorative) {
+              context.report({
+                node,
+                messageId: 'missingAlt'
+              })
+            }
             return
           }
 
@@ -92,10 +149,17 @@ const rule: Rule.RuleModule = {
 
           // Check if alt is empty string
           if (altAttr && altAttr.value && altAttr.value.value === '') {
-            context.report({
-              node,
-              messageId: 'emptyAlt'
-            })
+            if (!isDecorative) {
+              context.report({
+                node,
+                messageId: 'emptyAltNotDecorative'
+              })
+            } else {
+              context.report({
+                node,
+                messageId: 'emptyAlt'
+              })
+            }
           }
         }
       }

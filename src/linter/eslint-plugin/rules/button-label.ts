@@ -7,6 +7,7 @@
 import type { Rule } from 'eslint'
 import { hasJSXAttribute, isJSXAttributeDynamic } from '../utils/jsx-ast-utils'
 import { hasVueAttribute, isVueAttributeDynamic } from '../utils/vue-ast-utils'
+import { isElementLike } from '../utils/component-mapping'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -35,7 +36,8 @@ const rule: Rule.RuleModule = {
           return
         }
         
-        if (jsxNode.name.name === 'button') {
+        // Check if it's a button element (native or mapped component)
+        if (jsxNode.name.name === 'button' || isElementLike(node, context, 'button')) {
           // Quick check: if no aria-label and no text content, report
           const hasAriaLabel = hasJSXAttribute(jsxNode, 'aria-label')
           const hasAriaLabelledBy = hasJSXAttribute(jsxNode, 'aria-labelledby')
