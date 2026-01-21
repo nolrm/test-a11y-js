@@ -8,6 +8,7 @@ import type { Rule } from 'eslint'
 import { hasJSXAttribute, isJSXAttributeDynamic } from '../utils/jsx-ast-utils'
 import { hasVueAttribute, isVueAttributeDynamic } from '../utils/vue-ast-utils'
 import { isElementLike } from '../utils/component-mapping'
+import { hasRuntimeCheckedComment } from '../utils/runtime-comment'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -49,10 +50,13 @@ const rule: Rule.RuleModule = {
               attr.name?.name === 'aria-label'
             )
             if (ariaLabelAttr && isJSXAttributeDynamic(ariaLabelAttr)) {
-              context.report({
-                node,
-                messageId: 'dynamicLabel'
-              })
+              const runtimeComment = hasRuntimeCheckedComment(context, node)
+              if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+                context.report({
+                  node,
+                  messageId: 'dynamicLabel'
+                })
+              }
               return
             }
           }
@@ -65,24 +69,27 @@ const rule: Rule.RuleModule = {
             const hasChildren = jsxElement?.children && jsxElement.children.length > 0
             
             if (!hasChildren) {
-              context.report({
-                node,
-                messageId: 'missingLabel',
-                suggest: [{
-                  desc: 'Add aria-label attribute for icon-only button',
-                  fix(fixer) {
-                    const lastAttribute = jsxNode.attributes && jsxNode.attributes.length > 0
-                      ? jsxNode.attributes[jsxNode.attributes.length - 1]
-                      : null
-                    
-                    if (lastAttribute) {
-                      return fixer.insertTextAfter(lastAttribute, ' aria-label=""')
-                    } else {
-                      return fixer.insertTextAfter(jsxNode.name, ' aria-label=""')
+              const runtimeComment = hasRuntimeCheckedComment(context, node)
+              if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+                context.report({
+                  node,
+                  messageId: 'missingLabel',
+                  suggest: [{
+                    desc: 'Add aria-label attribute for icon-only button',
+                    fix(fixer) {
+                      const lastAttribute = jsxNode.attributes && jsxNode.attributes.length > 0
+                        ? jsxNode.attributes[jsxNode.attributes.length - 1]
+                        : null
+                      
+                      if (lastAttribute) {
+                        return fixer.insertTextAfter(lastAttribute, ' aria-label=""')
+                      } else {
+                        return fixer.insertTextAfter(jsxNode.name, ' aria-label=""')
+                      }
                     }
-                  }
-                }]
-              })
+                  }]
+                })
+              }
             }
           }
         }
@@ -103,10 +110,13 @@ const rule: Rule.RuleModule = {
               attr.key?.name === 'aria-label' || attr.key?.argument === 'aria-label'
             )
             if (ariaLabelAttr && isVueAttributeDynamic(ariaLabelAttr)) {
-              context.report({
-                node,
-                messageId: 'dynamicLabel'
-              })
+              const runtimeComment = hasRuntimeCheckedComment(context, node)
+              if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+                context.report({
+                  node,
+                  messageId: 'dynamicLabel'
+                })
+              }
               return
             }
           }
@@ -116,26 +126,29 @@ const rule: Rule.RuleModule = {
             // Check if there are children (text content)
             const hasChildren = vueNode.children && vueNode.children.length > 0
             if (!hasChildren) {
-              context.report({
-                node,
-                messageId: 'missingLabel',
-                suggest: [{
-                  desc: 'Add aria-label attribute for icon-only button',
-                  fix(fixer) {
-                    const startTag = vueNode.startTag
-                    const lastAttribute = startTag.attributes && startTag.attributes.length > 0
-                      ? startTag.attributes[startTag.attributes.length - 1]
-                      : null
-                    
-                    if (lastAttribute) {
-                      return fixer.insertTextAfter(lastAttribute, ' aria-label=""')
-                    } else {
-                      const tagNameEnd = startTag.range[0] + vueNode.name.length
-                      return fixer.insertTextAfterRange([startTag.range[0], tagNameEnd], ' aria-label=""')
+              const runtimeComment = hasRuntimeCheckedComment(context, node)
+              if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+                context.report({
+                  node,
+                  messageId: 'missingLabel',
+                  suggest: [{
+                    desc: 'Add aria-label attribute for icon-only button',
+                    fix(fixer) {
+                      const startTag = vueNode.startTag
+                      const lastAttribute = startTag.attributes && startTag.attributes.length > 0
+                        ? startTag.attributes[startTag.attributes.length - 1]
+                        : null
+                      
+                      if (lastAttribute) {
+                        return fixer.insertTextAfter(lastAttribute, ' aria-label=""')
+                      } else {
+                        const tagNameEnd = startTag.range[0] + vueNode.name.length
+                        return fixer.insertTextAfterRange([startTag.range[0], tagNameEnd], ' aria-label=""')
+                      }
                     }
-                  }
-                }]
-              })
+                  }]
+                })
+              }
             }
           }
         }

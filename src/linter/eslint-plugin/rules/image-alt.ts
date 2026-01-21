@@ -9,6 +9,7 @@ import { hasJSXAttribute, isJSXAttributeDynamic, getJSXAttribute } from '../util
 import { hasVueAttribute, isVueAttributeDynamic, getVueAttribute } from '../utils/vue-ast-utils'
 import { isElementLike } from '../utils/component-mapping'
 import { getImageAltOptions, isImageDecorative } from '../utils/rule-options'
+import { hasRuntimeCheckedComment } from '../utils/runtime-comment'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -76,10 +77,14 @@ const rule: Rule.RuleModule = {
           // Check if alt attribute exists
           if (!hasJSXAttribute(jsxNode, 'alt')) {
             if (!isDecorative) {
-              context.report({
-                node,
-                messageId: 'missingAlt'
-              })
+              // Check for runtime comment - suppress if mode is 'suppress'
+              const runtimeComment = hasRuntimeCheckedComment(context, node)
+              if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+                context.report({
+                  node,
+                  messageId: 'missingAlt'
+                })
+              }
             }
             return
           }
@@ -87,26 +92,32 @@ const rule: Rule.RuleModule = {
           // Check if alt is dynamic
           const altAttr = getJSXAttribute(jsxNode, 'alt')
           if (altAttr && isJSXAttributeDynamic(altAttr)) {
+            const runtimeComment = hasRuntimeCheckedComment(context, node)
+            if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
               context.report({
                 node,
                 messageId: 'dynamicAlt'
               })
+            }
             return
           }
 
           // Check if alt is empty string
           if (altAttr && altAttr.value && altAttr.value.type === 'Literal' && altAttr.value.value === '') {
-            if (!isDecorative) {
-              context.report({
-                node,
-                messageId: 'emptyAltNotDecorative'
-              })
-            } else {
-              // Even if decorative, warn if empty alt without proper markers
-              context.report({
-                node,
-                messageId: 'emptyAlt'
-              })
+            const runtimeComment = hasRuntimeCheckedComment(context, node)
+            if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+              if (!isDecorative) {
+                context.report({
+                  node,
+                  messageId: 'emptyAltNotDecorative'
+                })
+              } else {
+                // Even if decorative, warn if empty alt without proper markers
+                context.report({
+                  node,
+                  messageId: 'emptyAlt'
+                })
+              }
             }
           }
         }
@@ -129,10 +140,13 @@ const rule: Rule.RuleModule = {
           // Check if alt attribute exists
           if (!hasVueAttribute(vueNode, 'alt')) {
             if (!isDecorative) {
-              context.report({
-                node,
-                messageId: 'missingAlt'
-              })
+              const runtimeComment = hasRuntimeCheckedComment(context, node)
+              if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+                context.report({
+                  node,
+                  messageId: 'missingAlt'
+                })
+              }
             }
             return
           }
@@ -140,25 +154,31 @@ const rule: Rule.RuleModule = {
           // Check if alt is dynamic
           const altAttr = getVueAttribute(vueNode, 'alt')
           if (altAttr && isVueAttributeDynamic(altAttr)) {
+            const runtimeComment = hasRuntimeCheckedComment(context, node)
+            if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
               context.report({
                 node,
                 messageId: 'dynamicAlt'
               })
+            }
             return
           }
 
           // Check if alt is empty string
           if (altAttr && altAttr.value && altAttr.value.value === '') {
-            if (!isDecorative) {
-              context.report({
-                node,
-                messageId: 'emptyAltNotDecorative'
-              })
-            } else {
-              context.report({
-                node,
-                messageId: 'emptyAlt'
-              })
+            const runtimeComment = hasRuntimeCheckedComment(context, node)
+            if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+              if (!isDecorative) {
+                context.report({
+                  node,
+                  messageId: 'emptyAltNotDecorative'
+                })
+              } else {
+                context.report({
+                  node,
+                  messageId: 'emptyAlt'
+                })
+              }
             }
           }
         }

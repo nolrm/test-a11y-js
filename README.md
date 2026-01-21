@@ -10,7 +10,8 @@
 
 - ✅ **Zero config** - Works out of the box with React, Vue, and JSX
 - ✅ **Real-time feedback** - Catch issues in your editor, not in production
-- ✅ **13 accessibility rules** - Covers images, forms, buttons, landmarks, and more
+- ✅ **16 accessibility rules** - Covers images, forms, buttons, landmarks, ARIA, and more
+- ✅ **Editor suggestions** - Get actionable fixes directly in your editor
 - ✅ **Dual API** - Use as ESLint plugin OR programmatic API
 - ✅ **Large project ready** - Minimal preset for incremental adoption
 - ✅ **Framework agnostic** - Works with React, Vue, Preact, Solid, and more
@@ -240,9 +241,22 @@ export default [
 
 See [Configuration Guide](./docs/CONFIGURATION.md) for more examples.
 
+## Editor Suggestions
+
+Many rules provide **suggestions** that appear in your editor, allowing you to quickly fix issues:
+
+- **iframe-title**: Suggests adding `title=""` placeholder
+- **button-label**: Suggests adding `aria-label=""` for icon-only buttons
+- **link-text**: Suggests replacing non-descriptive text
+- **heading-order**: Suggests correct heading level
+
+In VS Code and other editors with ESLint support, suggestions appear as Quick Fix options (Cmd/Ctrl + .).
+
+**Note**: Suggestions are **not** autofixes - they require manual review and approval.
+
 ## ESLint Rules
 
-The plugin provides **13 accessibility rules**:
+The plugin provides **16 accessibility rules**:
 
 - `test-a11y-js/image-alt` - Enforce images have alt attributes
 - `test-a11y-js/button-label` - Enforce buttons have labels
@@ -257,6 +271,9 @@ The plugin provides **13 accessibility rules**:
 - `test-a11y-js/audio-captions` - Enforce audio elements have tracks or transcripts
 - `test-a11y-js/landmark-roles` - Enforce proper use of landmark elements
 - `test-a11y-js/dialog-modal` - Enforce dialog elements have proper accessibility attributes
+- `test-a11y-js/aria-validation` - Validate ARIA roles, properties, and ID references (AST-first)
+- `test-a11y-js/semantic-html` - Enforce proper use of semantic HTML elements (AST-first)
+- `test-a11y-js/form-validation` - Validate form validation patterns (AST-first)
 
 ## Programmatic API
 

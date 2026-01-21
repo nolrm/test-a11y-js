@@ -9,6 +9,7 @@ import { hasJSXAttribute, isJSXAttributeDynamic, getJSXAttribute } from '../util
 import { hasVueAttribute, isVueAttributeDynamic, getVueAttribute } from '../utils/vue-ast-utils'
 import { isElementLike } from '../utils/component-mapping'
 import { getLinkTextOptions, matchesDenylist } from '../utils/rule-options'
+import { hasRuntimeCheckedComment } from '../utils/runtime-comment'
 
 /**
  * Get accessible name from JSX element (text, aria-label, aria-labelledby)
@@ -99,52 +100,61 @@ const rule: Rule.RuleModule = {
           // Check if aria-label is dynamic
           const ariaLabelAttr = getJSXAttribute(jsxNode, 'aria-label')
           if (ariaLabelAttr && isJSXAttributeDynamic(ariaLabelAttr)) {
-            context.report({
-              node,
-              messageId: 'dynamicText',
-            })
+            const runtimeComment = hasRuntimeCheckedComment(context, node)
+            if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+              context.report({
+                node,
+                messageId: 'dynamicText',
+              })
+            }
             return
           }
 
           // Check if link has no accessible name
           if (!accessibleName.text && accessibleName.source !== 'aria-labelledby') {
-            context.report({
-              node,
-              messageId: 'missingText'
-            })
+            const runtimeComment = hasRuntimeCheckedComment(context, node)
+            if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+              context.report({
+                node,
+                messageId: 'missingText'
+              })
+            }
             return
           }
 
           // Check if text matches denylist
           if (accessibleName.text && matchesDenylist(accessibleName.text, options)) {
-            context.report({
-              node,
-              messageId: 'nonDescriptive',
-              suggest: [{
-                desc: 'Replace with descriptive text placeholder',
-                fix(fixer) {
-                  // Find the text node to replace
-                  const parent = (node as any).parent
-                  if (parent && parent.children) {
-                    const textChild = parent.children.find((child: any) => 
-                      child.type === 'JSXText' && child.value.trim() === accessibleName.text
-                    )
-                    if (textChild) {
-                      return fixer.replaceText(textChild, 'TODO: describe link purpose')
+            const runtimeComment = hasRuntimeCheckedComment(context, node)
+            if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+              context.report({
+                node,
+                messageId: 'nonDescriptive',
+                suggest: [{
+                  desc: 'Replace with descriptive text placeholder',
+                  fix(fixer) {
+                    // Find the text node to replace
+                    const parent = (node as any).parent
+                    if (parent && parent.children) {
+                      const textChild = parent.children.find((child: any) => 
+                        child.type === 'JSXText' && child.value.trim() === accessibleName.text
+                      )
+                      if (textChild) {
+                        return fixer.replaceText(textChild, 'TODO: describe link purpose')
+                      }
+                    }
+                    // If we can't find the text node, suggest adding aria-label instead
+                    const lastAttribute = jsxNode.attributes && jsxNode.attributes.length > 0
+                      ? jsxNode.attributes[jsxNode.attributes.length - 1]
+                      : null
+                    if (lastAttribute) {
+                      return fixer.insertTextAfter(lastAttribute, ' aria-label="TODO: describe link purpose"')
+                    } else {
+                      return fixer.insertTextAfter(jsxNode.name, ' aria-label="TODO: describe link purpose"')
                     }
                   }
-                  // If we can't find the text node, suggest adding aria-label instead
-                  const lastAttribute = jsxNode.attributes && jsxNode.attributes.length > 0
-                    ? jsxNode.attributes[jsxNode.attributes.length - 1]
-                    : null
-                  if (lastAttribute) {
-                    return fixer.insertTextAfter(lastAttribute, ' aria-label="TODO: describe link purpose"')
-                  } else {
-                    return fixer.insertTextAfter(jsxNode.name, ' aria-label="TODO: describe link purpose"')
-                  }
-                }
-              }]
-            })
+                }]
+              })
+            }
           }
         }
       },
@@ -162,10 +172,13 @@ const rule: Rule.RuleModule = {
           const ariaLabelAttr = getVueAttribute(vueNode, 'aria-label')
           if (ariaLabelAttr) {
             if (isVueAttributeDynamic(ariaLabelAttr)) {
-              context.report({
-                node,
-                messageId: 'dynamicText',
-              })
+              const runtimeComment = hasRuntimeCheckedComment(context, node)
+              if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+                context.report({
+                  node,
+                  messageId: 'dynamicText',
+                })
+              }
               return
             }
             if (ariaLabelAttr.value?.value) {
@@ -194,35 +207,41 @@ const rule: Rule.RuleModule = {
 
           // Check if link has no accessible name
           if (!accessibleText && source !== 'aria-labelledby') {
-            context.report({
-              node,
-              messageId: 'missingText'
-            })
+            const runtimeComment = hasRuntimeCheckedComment(context, node)
+            if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+              context.report({
+                node,
+                messageId: 'missingText'
+              })
+            }
             return
           }
 
           // Check if text matches denylist
           if (accessibleText && matchesDenylist(accessibleText, options)) {
-            context.report({
-              node,
-              messageId: 'nonDescriptive',
-              suggest: [{
-                desc: 'Replace with descriptive text placeholder',
-                fix(fixer) {
-                  // For Vue, suggest adding aria-label since text replacement is complex
-                  const startTag = vueNode.startTag
-                  const lastAttribute = startTag.attributes && startTag.attributes.length > 0
-                    ? startTag.attributes[startTag.attributes.length - 1]
-                    : null
-                  if (lastAttribute) {
-                    return fixer.insertTextAfter(lastAttribute, ' aria-label="TODO: describe link purpose"')
-                  } else {
-                    const tagNameEnd = startTag.range[0] + vueNode.name.length
-                    return fixer.insertTextAfterRange([startTag.range[0], tagNameEnd], ' aria-label="TODO: describe link purpose"')
+            const runtimeComment = hasRuntimeCheckedComment(context, node)
+            if (!(runtimeComment.hasComment && runtimeComment.mode === 'suppress')) {
+              context.report({
+                node,
+                messageId: 'nonDescriptive',
+                suggest: [{
+                  desc: 'Replace with descriptive text placeholder',
+                  fix(fixer) {
+                    // For Vue, suggest adding aria-label since text replacement is complex
+                    const startTag = vueNode.startTag
+                    const lastAttribute = startTag.attributes && startTag.attributes.length > 0
+                      ? startTag.attributes[startTag.attributes.length - 1]
+                      : null
+                    if (lastAttribute) {
+                      return fixer.insertTextAfter(lastAttribute, ' aria-label="TODO: describe link purpose"')
+                    } else {
+                      const tagNameEnd = startTag.range[0] + vueNode.name.length
+                      return fixer.insertTextAfterRange([startTag.range[0], tagNameEnd], ' aria-label="TODO: describe link purpose"')
+                    }
                   }
-                }
-              }]
-            })
+                }]
+              })
+            }
           }
         }
       }

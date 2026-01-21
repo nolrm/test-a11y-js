@@ -396,6 +396,122 @@ In VS Code and other editors with ESLint support, suggestions appear as:
 
 **Note**: Suggestions are **not** autofixes - they require manual review and approval to ensure correctness.
 
+## Static + Runtime Workflow
+
+The `test-a11y-js` plugin uniquely supports both static linting (ESLint) and runtime testing (A11yChecker). This allows you to catch issues during development while also ensuring comprehensive test coverage.
+
+### Runtime Comment Convention
+
+For patterns that are difficult to validate statically (e.g., dynamic props, complex conditional rendering), you can mark them as "checked at runtime" using a special comment. This suppresses ESLint warnings while maintaining visibility.
+
+**Configuration:**
+
+```javascript
+// .eslintrc.js
+module.exports = {
+  plugins: ['test-a11y-js'],
+  extends: ['plugin:test-a11y-js/recommended'],
+  settings: {
+    'test-a11y-js': {
+      runtimeCheckedComment: 'a11y-checked-at-runtime', // Default
+      runtimeCheckedMode: 'suppress' // 'suppress' or 'downgrade' (default: 'downgrade')
+    }
+  }
+}
+```
+
+**Usage:**
+
+```jsx
+function DynamicImage({ src, alt }) {
+  return (
+    <div>
+      {/* a11y-checked-at-runtime */}
+      <img src={src} alt={alt} />
+    </div>
+  )
+}
+
+// In your test file:
+import { A11yChecker } from 'eslint-plugin-test-a11y-js/core'
+import { render } from '@testing-library/react'
+
+test('DynamicImage is accessible', async () => {
+  const { container } = render(<DynamicImage src="/photo.jpg" alt="Photo" />)
+  const results = await A11yChecker.check(container)
+  expect(results.violations).toHaveLength(0)
+})
+```
+
+**Comment Modes:**
+
+- **`suppress`**: Fully suppresses ESLint warnings for marked code
+- **`downgrade`** (default): Maintains visibility but acknowledges runtime coverage
+
+**Comment Placement:**
+
+Comments apply to the node and its descendants. Place the comment:
+- Before the element: `{/* comment */} <img />`
+- On the parent element to cover all children: `{/* comment */} <div><img /></div>`
+
+### Rule → A11yChecker API Mapping
+
+Each ESLint rule has a corresponding A11yChecker method for runtime testing:
+
+| ESLint Rule | A11yChecker Method |
+|------------|-------------------|
+| `test-a11y-js/image-alt` | `A11yChecker.checkImageAlt(element)` |
+| `test-a11y-js/button-label` | `A11yChecker.checkButtonLabel(element)` |
+| `test-a11y-js/link-text` | `A11yChecker.checkLinkText(element)` |
+| `test-a11y-js/form-label` | `A11yChecker.checkFormLabels(element)` |
+| `test-a11y-js/heading-order` | `A11yChecker.checkHeadingOrder(element)` |
+| `test-a11y-js/iframe-title` | `A11yChecker.checkIframeTitle(element)` |
+| `test-a11y-js/fieldset-legend` | `A11yChecker.checkFieldsetLegend(element)` |
+| `test-a11y-js/table-structure` | `A11yChecker.checkTableStructure(element)` |
+| `test-a11y-js/details-summary` | `A11yChecker.checkDetailsSummary(element)` |
+| `test-a11y-js/video-captions` | `A11yChecker.checkVideoCaptions(element)` |
+| `test-a11y-js/audio-captions` | `A11yChecker.checkAudioCaptions(element)` |
+| `test-a11y-js/landmark-roles` | `A11yChecker.checkLandmarks(element)` |
+| `test-a11y-js/dialog-modal` | `A11yChecker.checkDialogModal(element)` |
+| `test-a11y-js/aria-validation` | `A11yChecker.checkAriaRoles(element)` |
+| `test-a11y-js/semantic-html` | `A11yChecker.checkSemanticHTML(element)` |
+| `test-a11y-js/form-validation` | `A11yChecker.checkFormValidationMessages(element)` |
+
+**Example Workflow:**
+
+```jsx
+// Component with dynamic props
+function ProductCard({ product }) {
+  return (
+    <div>
+      {/* a11y-checked-at-runtime */}
+      <img src={product.image} alt={product.name} />
+      <button onClick={handleClick}>{product.actionText}</button>
+    </div>
+  )
+}
+
+// Test file
+import { A11yChecker } from 'eslint-plugin-test-a11y-js/core'
+import { render } from '@testing-library/react'
+
+test('ProductCard is accessible', async () => {
+  const product = { image: '/photo.jpg', name: 'Product', actionText: 'Buy' }
+  const { container } = render(<ProductCard product={product} />)
+  
+  // Runtime check covers what ESLint can't verify statically
+  const results = await A11yChecker.check(container)
+  expect(results.violations).toHaveLength(0)
+})
+```
+
+**Benefits:**
+
+- ✅ **Static linting** catches issues during development
+- ✅ **Runtime testing** validates dynamic content and complex patterns
+- ✅ **Reduced false positives** by marking runtime-checked code
+- ✅ **Comprehensive coverage** with both static and runtime validation
+
 ## Examples
 
 ### Complete React Component

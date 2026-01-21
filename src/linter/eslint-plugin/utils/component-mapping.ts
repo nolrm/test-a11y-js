@@ -13,6 +13,8 @@ export interface A11yPluginSettings {
   'test-a11y-js'?: {
     components?: Record<string, string> // e.g., { Link: 'a', Button: 'button' }
     polymorphicPropNames?: string[] // e.g., ['as', 'component']
+    runtimeCheckedComment?: string // e.g., 'a11y-checked-at-runtime'
+    runtimeCheckedMode?: 'downgrade' | 'suppress' // Default: 'downgrade'
   }
 }
 
