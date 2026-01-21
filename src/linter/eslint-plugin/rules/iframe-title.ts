@@ -41,7 +41,24 @@ const rule: Rule.RuleModule = {
           if (!hasJSXAttribute(jsxNode, 'title')) {
             context.report({
               node,
-              messageId: 'missingTitle'
+              messageId: 'missingTitle',
+              suggest: [{
+                desc: 'Add title attribute placeholder',
+                fix(fixer) {
+                  // Insert before the closing > of the opening tag
+                  const lastAttribute = jsxNode.attributes && jsxNode.attributes.length > 0
+                    ? jsxNode.attributes[jsxNode.attributes.length - 1]
+                    : null
+                  
+                  if (lastAttribute) {
+                    // Insert after the last attribute
+                    return fixer.insertTextAfter(lastAttribute, ' title=""')
+                  } else {
+                    // Insert after the tag name
+                    return fixer.insertTextAfter(jsxNode.name, ' title=""')
+                  }
+                }
+              }]
             })
             return
           }
@@ -74,7 +91,25 @@ const rule: Rule.RuleModule = {
           if (!hasVueAttribute(vueNode, 'title')) {
             context.report({
               node,
-              messageId: 'missingTitle'
+              messageId: 'missingTitle',
+              suggest: [{
+                desc: 'Add title attribute placeholder',
+                fix(fixer) {
+                  const startTag = vueNode.startTag
+                  const lastAttribute = startTag.attributes && startTag.attributes.length > 0
+                    ? startTag.attributes[startTag.attributes.length - 1]
+                    : null
+                  
+                  if (lastAttribute) {
+                    // Insert after the last attribute
+                    return fixer.insertTextAfter(lastAttribute, ' title=""')
+                  } else {
+                    // Insert after the tag name (before closing >)
+                    const tagNameEnd = startTag.range[0] + vueNode.name.length
+                    return fixer.insertTextAfterRange([startTag.range[0], tagNameEnd], ' title=""')
+                  }
+                }
+              }]
             })
             return
           }

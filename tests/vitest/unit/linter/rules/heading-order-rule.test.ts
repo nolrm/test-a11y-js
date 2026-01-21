@@ -112,6 +112,33 @@ describe('heading-order rule - HTML strings', () => {
   })
 })
 
+describe('heading-order rule - suggestions', () => {
+  it('should provide suggestion for skipped heading levels', () => {
+    ruleTester.run('heading-order', headingOrder, {
+      valid: [],
+      invalid: [
+        {
+          code: '<h1>Title</h1><h3>Section</h3>',
+          errors: [
+            {
+              messageId: 'skippedLevel',
+              data: {
+                previous: '1',
+                current: '3'
+              },
+              suggestions: [
+                {
+                  desc: 'Consider using h2 instead of h3 to maintain proper heading hierarchy'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    })
+  })
+})
+
 describe('heading-order rule - with options', () => {
   describe('allowSameLevel', () => {
     it('should allow same level by default', () => {

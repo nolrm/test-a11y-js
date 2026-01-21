@@ -66,7 +66,21 @@ const rule: Rule.RuleModule = {
             if (!hasChildren) {
               context.report({
                 node,
-                messageId: 'missingLabel'
+                messageId: 'missingLabel',
+                suggest: [{
+                  desc: 'Add aria-label attribute for icon-only button',
+                  fix(fixer) {
+                    const lastAttribute = jsxNode.attributes && jsxNode.attributes.length > 0
+                      ? jsxNode.attributes[jsxNode.attributes.length - 1]
+                      : null
+                    
+                    if (lastAttribute) {
+                      return fixer.insertTextAfter(lastAttribute, ' aria-label=""')
+                    } else {
+                      return fixer.insertTextAfter(jsxNode.name, ' aria-label=""')
+                    }
+                  }
+                }]
               })
             }
           }
@@ -103,7 +117,23 @@ const rule: Rule.RuleModule = {
             if (!hasChildren) {
               context.report({
                 node,
-                messageId: 'missingLabel'
+                messageId: 'missingLabel',
+                suggest: [{
+                  desc: 'Add aria-label attribute for icon-only button',
+                  fix(fixer) {
+                    const startTag = vueNode.startTag
+                    const lastAttribute = startTag.attributes && startTag.attributes.length > 0
+                      ? startTag.attributes[startTag.attributes.length - 1]
+                      : null
+                    
+                    if (lastAttribute) {
+                      return fixer.insertTextAfter(lastAttribute, ' aria-label=""')
+                    } else {
+                      const tagNameEnd = startTag.range[0] + vueNode.name.length
+                      return fixer.insertTextAfterRange([startTag.range[0], tagNameEnd], ' aria-label=""')
+                    }
+                  }
+                }]
               })
             }
           }

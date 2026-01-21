@@ -118,7 +118,31 @@ const rule: Rule.RuleModule = {
           if (accessibleName.text && matchesDenylist(accessibleName.text, options)) {
             context.report({
               node,
-              messageId: 'nonDescriptive'
+              messageId: 'nonDescriptive',
+              suggest: [{
+                desc: 'Replace with descriptive text placeholder',
+                fix(fixer) {
+                  // Find the text node to replace
+                  const parent = (node as any).parent
+                  if (parent && parent.children) {
+                    const textChild = parent.children.find((child: any) => 
+                      child.type === 'JSXText' && child.value.trim() === accessibleName.text
+                    )
+                    if (textChild) {
+                      return fixer.replaceText(textChild, 'TODO: describe link purpose')
+                    }
+                  }
+                  // If we can't find the text node, suggest adding aria-label instead
+                  const lastAttribute = jsxNode.attributes && jsxNode.attributes.length > 0
+                    ? jsxNode.attributes[jsxNode.attributes.length - 1]
+                    : null
+                  if (lastAttribute) {
+                    return fixer.insertTextAfter(lastAttribute, ' aria-label="TODO: describe link purpose"')
+                  } else {
+                    return fixer.insertTextAfter(jsxNode.name, ' aria-label="TODO: describe link purpose"')
+                  }
+                }
+              }]
             })
           }
         }
@@ -180,7 +204,23 @@ const rule: Rule.RuleModule = {
           if (accessibleText && matchesDenylist(accessibleText, options)) {
             context.report({
               node,
-              messageId: 'nonDescriptive'
+              messageId: 'nonDescriptive',
+              suggest: [{
+                desc: 'Replace with descriptive text placeholder',
+                fix(fixer) {
+                  // For Vue, suggest adding aria-label since text replacement is complex
+                  const startTag = vueNode.startTag
+                  const lastAttribute = startTag.attributes && startTag.attributes.length > 0
+                    ? startTag.attributes[startTag.attributes.length - 1]
+                    : null
+                  if (lastAttribute) {
+                    return fixer.insertTextAfter(lastAttribute, ' aria-label="TODO: describe link purpose"')
+                  } else {
+                    const tagNameEnd = startTag.range[0] + vueNode.name.length
+                    return fixer.insertTextAfterRange([startTag.range[0], tagNameEnd], ' aria-label="TODO: describe link purpose"')
+                  }
+                }
+              }]
             })
           }
         }

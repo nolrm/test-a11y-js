@@ -36,10 +36,9 @@ import videoCaptions from './rules/video-captions'
 import audioCaptions from './rules/audio-captions'
 import landmarkRoles from './rules/landmark-roles'
 import dialogModal from './rules/dialog-modal'
-// Temporarily disabled - these rules need refactoring to not use A11yChecker/JSDOM
-// import ariaValidation from './rules/aria-validation'
-// import semanticHTML from './rules/semantic-html'
-// import formValidation from './rules/form-validation'
+import ariaValidation from './rules/aria-validation'
+import semanticHTML from './rules/semantic-html'
+import formValidation from './rules/form-validation'
 
 /**
  * ESLint plugin for accessibility checking
@@ -62,11 +61,10 @@ const plugin: ESLint.Plugin = {
     'video-captions': videoCaptions,
     'audio-captions': audioCaptions,
     'landmark-roles': landmarkRoles,
-    'dialog-modal': dialogModal
-    // Temporarily disabled - these rules need refactoring to not use A11yChecker/JSDOM
-    // 'aria-validation': ariaValidation,
-    // 'semantic-html': semanticHTML,
-    // 'form-validation': formValidation
+    'dialog-modal': dialogModal,
+    'aria-validation': ariaValidation,
+    'semantic-html': semanticHTML,
+    'form-validation': formValidation
   },
   configs: {
     minimal: {

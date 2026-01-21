@@ -24,6 +24,8 @@ The `test-a11y-js` ESLint plugin provides real-time accessibility linting for yo
 - ✅ **Configurable** - Multiple presets and customizable rules
 - ✅ **CI/CD ready** - Integrates seamlessly with existing ESLint workflows
 - ✅ **Framework-agnostic core** - Same accessibility logic across all frameworks
+- ✅ **Editor suggestions** - Get actionable fixes directly in your editor
+- ✅ **AST-first validation** - Fast, memory-efficient linting without runtime dependencies
 
 ## Installation
 
@@ -219,6 +221,82 @@ Enforces proper heading hierarchy (no skipped levels).
 <h3>Section</h3>
 ```
 
+### test-a11y-js/aria-validation
+
+Validates ARIA roles, properties, and ID references (AST-first, no JSDOM).
+
+**Severity:** `error` (strict preset, opt-in for recommended)
+
+**Messages:**
+- `ariaViolation` - ARIA validation error (invalid role, property, or reference)
+
+**Examples:**
+
+```jsx
+// ❌ Invalid role
+<div role="invalid-role">Content</div>
+
+// ⚠️ Redundant role
+<button role="button">Click</button>
+
+// ❌ Invalid ID reference
+<input aria-labelledby="missing-id" />
+
+// ✅ Valid
+<div role="dialog" aria-label="Modal">Content</div>
+<label id="email-label">Email</label>
+<input aria-labelledby="email-label" />
+```
+
+**Note**: This rule is AST-first and validates within the same file only. Cross-file ID references are not validated.
+
+### test-a11y-js/semantic-html
+
+Enforces proper use of semantic HTML elements over generic elements with roles.
+
+**Severity:** `error` (strict preset, opt-in for recommended)
+
+**Messages:**
+- `semanticViolation` - Semantic HTML violation
+
+**Examples:**
+
+```jsx
+// ⚠️ Redundant role
+<button role="button">Click</button>
+
+// ⚠️ Prefer semantic element
+<div role="button">Click</div> // Should use <button>
+
+// ✅ Valid
+<button>Click</button>
+<nav>Navigation</nav>
+```
+
+### test-a11y-js/form-validation
+
+Validates form validation patterns and ID references.
+
+**Severity:** `error` (strict preset, opt-in for recommended)
+
+**Messages:**
+- `formValidationViolation` - Form validation error
+
+**Examples:**
+
+```jsx
+// ❌ Required input without label
+<input type="text" required />
+
+// ❌ Invalid ID reference
+<input aria-describedby="missing-id" />
+
+// ✅ Valid
+<input type="text" required aria-label="Name" />
+<label id="email-label">Email</label>
+<input type="email" required aria-labelledby="email-label" />
+```
+
 ## Configuration
 
 See [Configuration Guide](./CONFIGURATION.md) for detailed configuration options.
@@ -290,6 +368,33 @@ Support for HTML in template literals:
 ```javascript
 const html = `<img src="photo.jpg" alt="Photo" />`
 ```
+
+## Suggestions & Editor UX
+
+Many rules provide **suggestions** that appear in your editor, allowing you to quickly fix issues with a single click.
+
+### Available Suggestions
+
+#### iframe-title
+- **Suggestion**: Add `title=""` attribute placeholder when missing
+
+#### button-label
+- **Suggestion**: Add `aria-label=""` for icon-only buttons
+
+#### link-text
+- **Suggestion**: Replace non-descriptive text (e.g., "click here") with descriptive placeholder
+
+#### heading-order
+- **Suggestion**: Consider using the correct heading level (e.g., `h2` instead of `h3`)
+
+### Using Suggestions
+
+In VS Code and other editors with ESLint support, suggestions appear as:
+- **Quick Fix** options (Cmd/Ctrl + .)
+- **Lightbulb** icons next to errors
+- **Hover tooltips** with fix descriptions
+
+**Note**: Suggestions are **not** autofixes - they require manual review and approval to ensure correctness.
 
 ## Examples
 

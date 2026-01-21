@@ -154,7 +154,35 @@ describe('iframe-title rule - Vue', () => {
           code: '<template><iframe src="test.html" /></template>',
           errors: [
             {
-              messageId: 'missingTitle'
+              messageId: 'missingTitle',
+              suggestions: [
+                {
+                  desc: 'Add title attribute placeholder'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    })
+  })
+})
+
+describe('iframe-title rule - suggestions', () => {
+  it('should provide suggestion to add title attribute', () => {
+    ruleTester.run('iframe-title', iframeTitle, {
+      valid: [],
+      invalid: [
+        {
+          code: '<iframe src="/page.html" />',
+          errors: [
+            {
+              messageId: 'missingTitle',
+              suggestions: [
+                {
+                  desc: 'Add title attribute placeholder'
+                }
+              ]
             }
           ]
         }

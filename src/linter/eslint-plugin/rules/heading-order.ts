@@ -102,6 +102,14 @@ const rule: Rule.RuleModule = {
                   previous: String(prevLevel),
                   current: String(level)
                 },
+                suggest: [{
+                  desc: `Consider using h${prevLevel + 1} instead of h${level} to maintain proper heading hierarchy`,
+                  fix(_fixer) {
+                    // No autofix - changing heading levels can break styling or intentional semantics
+                    // Return null to indicate no fix available
+                    return null
+                  }
+                }]
               })
             }
           }

@@ -1,13 +1,10 @@
 /**
- * ESLint rule for semantic HTML validation
+ * ESLint rule for semantic HTML validation (AST-first, no JSDOM)
  * Validates proper use of semantic HTML elements and detects misuse
  */
 
 import { Rule } from 'eslint'
-import { A11yChecker } from '../../../core/a11y-checker'
-import { jsxToElement } from '../utils/jsx-ast-utils'
-import { vueElementToDOM } from '../utils/vue-ast-utils'
-import { parseHTMLString } from '../utils/html-ast-utils'
+import { validateJSXSemanticHTML, validateVueSemanticHTML } from '../utils/semantic-html-ast-validation'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -15,7 +12,7 @@ const rule: Rule.RuleModule = {
     docs: {
       description: 'Enforce proper use of semantic HTML elements',
       category: 'Accessibility',
-      recommended: true
+      recommended: false // Start as opt-in, graduate to recommended once stable
     },
     messages: {
       semanticViolation: '{{message}}'
@@ -25,74 +22,27 @@ const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       JSXOpeningElement(node: any) {
-        const element = jsxToElement(node, context)
-        if (!element) return
-
-        const violations = A11yChecker.checkSemanticHTML(element)
-
-        for (const violation of violations) {
+        const issues = validateJSXSemanticHTML(node)
+        for (const issue of issues) {
           context.report({
             node,
             messageId: 'semanticViolation',
             data: {
-              message: violation.description
+              message: issue.message
             }
           })
         }
       },
       VElement(node: any) {
-        const element = vueElementToDOM(node, context)
-        if (!element) return
-
-        const violations = A11yChecker.checkSemanticHTML(element)
-
-        for (const violation of violations) {
+        const issues = validateVueSemanticHTML(node)
+        for (const issue of issues) {
           context.report({
             node,
             messageId: 'semanticViolation',
             data: {
-              message: violation.description
+              message: issue.message
             }
           })
-        }
-      },
-      Literal(node: any) {
-        if (typeof node.value !== 'string') return
-        const element = parseHTMLString(node.value)
-        if (!element) return
-
-        const violations = A11yChecker.checkSemanticHTML(element)
-
-        for (const violation of violations) {
-          context.report({
-            node,
-            messageId: 'semanticViolation',
-            data: {
-              message: violation.description
-            }
-          })
-        }
-      },
-      TemplateLiteral(node: any) {
-        if (node.quasis && node.quasis.length > 0) {
-          for (const quasi of node.quasis) {
-            if (quasi.value && typeof quasi.value.raw === 'string') {
-              const element = parseHTMLString(quasi.value.raw)
-              if (!element) continue
-
-              const violations = A11yChecker.checkSemanticHTML(element)
-
-              for (const violation of violations) {
-                context.report({
-                  node: quasi,
-                  messageId: 'semanticViolation',
-                  data: {
-                    message: violation.description
-                  }
-                })
-              }
-            }
-          }
         }
       }
     }
@@ -100,4 +50,3 @@ const rule: Rule.RuleModule = {
 }
 
 export default rule
-

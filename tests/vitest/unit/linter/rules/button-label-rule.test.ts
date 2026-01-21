@@ -107,3 +107,25 @@ describe('button-label rule - HTML strings', () => {
   })
 })
 
+describe('button-label rule - suggestions', () => {
+  it('should provide suggestion to add aria-label for icon-only button', () => {
+    ruleTester.run('button-label', buttonLabel, {
+      valid: [],
+      invalid: [
+        {
+          code: '<button></button>',
+          errors: [
+            {
+              messageId: 'missingLabel',
+              suggestions: [
+                {
+                  desc: 'Add aria-label attribute for icon-only button'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    })
+  })
+})

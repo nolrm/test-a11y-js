@@ -1,13 +1,10 @@
 /**
- * ESLint rule for ARIA validation
- * Validates ARIA roles, properties, relationships, accessible names, and composite patterns
+ * ESLint rule for ARIA validation (AST-first, no JSDOM)
+ * Validates ARIA roles, properties, and ID references using pure AST analysis
  */
 
 import { Rule } from 'eslint'
-import { A11yChecker } from '../../../core/a11y-checker'
-import { jsxToElement } from '../utils/jsx-ast-utils'
-import { vueElementToDOM } from '../utils/vue-ast-utils'
-import { parseHTMLString } from '../utils/html-ast-utils'
+import { validateJSXAria, validateVueAria } from '../utils/aria-ast-validation'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -15,7 +12,7 @@ const rule: Rule.RuleModule = {
     docs: {
       description: 'Enforce valid ARIA attributes, roles, and properties',
       category: 'Accessibility',
-      recommended: true
+      recommended: false // Start as opt-in, graduate to recommended once stable
     },
     messages: {
       ariaViolation: '{{message}}'
@@ -23,100 +20,73 @@ const rule: Rule.RuleModule = {
     schema: []
   },
   create(context: Rule.RuleContext) {
+    // Track all IDs in the file for reference validation
+    const allIds = new Set<string>()
+    const jsxNodes: any[] = []
+    const vueNodes: any[] = []
+    
     return {
+      // Collect IDs and store JSX nodes for validation
       JSXOpeningElement(node: any) {
-        const element = jsxToElement(node, context)
-        if (!element) return
-
-        const violations = [
-          ...A11yChecker.checkAriaRoles(element),
-          ...A11yChecker.checkAriaProperties(element),
-          ...A11yChecker.checkAriaRelationships(element),
-          ...A11yChecker.checkAccessibleName(element),
-          ...A11yChecker.checkCompositePatterns(element)
-        ]
-
-        for (const violation of violations) {
-          context.report({
-            node,
-            messageId: 'ariaViolation',
-            data: {
-              message: violation.description
-            }
-          })
-        }
-      },
-      VElement(node: any) {
-        const element = vueElementToDOM(node, context)
-        if (!element) return
-
-        const violations = [
-          ...A11yChecker.checkAriaRoles(element),
-          ...A11yChecker.checkAriaProperties(element),
-          ...A11yChecker.checkAriaRelationships(element),
-          ...A11yChecker.checkAccessibleName(element),
-          ...A11yChecker.checkCompositePatterns(element)
-        ]
-
-        for (const violation of violations) {
-          context.report({
-            node,
-            messageId: 'ariaViolation',
-            data: {
-              message: violation.description
-            }
-          })
-        }
-      },
-      Literal(node: any) {
-        if (typeof node.value !== 'string') return
-        const element = parseHTMLString(node.value)
-        if (!element) return
-
-        const violations = [
-          ...A11yChecker.checkAriaRoles(element),
-          ...A11yChecker.checkAriaProperties(element),
-          ...A11yChecker.checkAriaRelationships(element),
-          ...A11yChecker.checkAccessibleName(element),
-          ...A11yChecker.checkCompositePatterns(element)
-        ]
-
-        for (const violation of violations) {
-          context.report({
-            node,
-            messageId: 'ariaViolation',
-            data: {
-              message: violation.description
-            }
-          })
-        }
-      },
-      TemplateLiteral(node: any) {
-        // Check template literals that might contain HTML
-        if (node.quasis && node.quasis.length > 0) {
-          for (const quasi of node.quasis) {
-            if (quasi.value && typeof quasi.value.raw === 'string') {
-              const element = parseHTMLString(quasi.value.raw)
-              if (!element) continue
-
-              const violations = [
-                ...A11yChecker.checkAriaRoles(element),
-                ...A11yChecker.checkAriaProperties(element),
-                ...A11yChecker.checkAriaRelationships(element),
-                ...A11yChecker.checkAccessibleName(element),
-                ...A11yChecker.checkCompositePatterns(element)
-              ]
-
-              for (const violation of violations) {
-                context.report({
-                  node: quasi,
-                  messageId: 'ariaViolation',
-                  data: {
-                    message: violation.description
-                  }
-                })
+        // Collect ID
+        if (node.attributes) {
+          for (const attr of node.attributes) {
+            if (attr.name?.name === 'id' && attr.value?.type === 'Literal') {
+              const idValue = attr.value.value
+              if (typeof idValue === 'string') {
+                allIds.add(idValue)
               }
             }
+          }
+        }
+        
+        // Store for validation at Program:exit
+        jsxNodes.push(node)
+      },
+      
+      // Collect IDs and store Vue nodes for validation
+      VElement(node: any) {
+        // Collect ID
+        if (node.startTag?.attributes) {
+          for (const attr of node.startTag.attributes) {
+            const attrName = attr.key?.name || attr.key?.argument
+            if (attrName === 'id' && attr.value?.value && typeof attr.value.value === 'string') {
+              allIds.add(attr.value.value)
+            }
+          }
+        }
+        
+        // Store for validation at Program:exit
+        vueNodes.push(node)
+      },
+      
+      // Validate all elements after collecting all IDs
+      'Program:exit'() {
+        // Validate JSX elements
+        for (const node of jsxNodes) {
+          const issues = validateJSXAria(node, allIds)
+          for (const issue of issues) {
+            context.report({
+              node,
+              messageId: 'ariaViolation',
+              data: {
+                message: issue.message
+              }
+            })
+          }
+        }
+        
+        // Validate Vue elements
+        for (const node of vueNodes) {
+          const issues = validateVueAria(node, allIds)
+          for (const issue of issues) {
+            context.report({
+              node,
+              messageId: 'ariaViolation',
+              data: {
+                message: issue.message
+              }
+            })
           }
         }
       }

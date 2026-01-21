@@ -211,3 +211,26 @@ describe('link-text rule - with options', () => {
     })
   })
 })
+
+describe('link-text rule - suggestions', () => {
+  it('should provide suggestion to replace denylist text', () => {
+    ruleTester.run('link-text', linkText, {
+      valid: [],
+      invalid: [
+        {
+          code: '<a href="/about">Click here</a>',
+          errors: [
+            {
+              messageId: 'nonDescriptive',
+              suggestions: [
+                {
+                  desc: 'Replace with descriptive text placeholder'
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    })
+  })
+})

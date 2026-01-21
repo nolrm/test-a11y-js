@@ -1,13 +1,10 @@
 /**
- * ESLint rule for form validation messages
- * Validates form validation and error handling
+ * ESLint rule for form validation (AST-first, no JSDOM)
+ * Validates form validation patterns and error handling
  */
 
 import { Rule } from 'eslint'
-import { A11yChecker } from '../../../core/a11y-checker'
-import { jsxToElement } from '../utils/jsx-ast-utils'
-import { vueElementToDOM } from '../utils/vue-ast-utils'
-import { parseHTMLString } from '../utils/html-ast-utils'
+import { validateJSXFormValidation, validateVueFormValidation } from '../utils/form-validation-ast'
 
 const rule: Rule.RuleModule = {
   meta: {
@@ -15,7 +12,7 @@ const rule: Rule.RuleModule = {
     docs: {
       description: 'Enforce proper form validation messages and error handling',
       category: 'Accessibility',
-      recommended: true
+      recommended: false // Start as opt-in, graduate to recommended once stable
     },
     messages: {
       formValidationViolation: '{{message}}'
@@ -23,75 +20,73 @@ const rule: Rule.RuleModule = {
     schema: []
   },
   create(context: Rule.RuleContext) {
+    // Track all IDs in the file for reference validation
+    const allIds = new Set<string>()
+    const jsxNodes: any[] = []
+    const vueNodes: any[] = []
+    
     return {
+      // Collect IDs and store JSX nodes
       JSXOpeningElement(node: any) {
-        const element = jsxToElement(node, context)
-        if (!element) return
-
-        const violations = A11yChecker.checkFormValidationMessages(element)
-
-        for (const violation of violations) {
-          context.report({
-            node,
-            messageId: 'formValidationViolation',
-            data: {
-              message: violation.description
-            }
-          })
-        }
-      },
-      VElement(node: any) {
-        const element = vueElementToDOM(node, context)
-        if (!element) return
-
-        const violations = A11yChecker.checkFormValidationMessages(element)
-
-        for (const violation of violations) {
-          context.report({
-            node,
-            messageId: 'formValidationViolation',
-            data: {
-              message: violation.description
-            }
-          })
-        }
-      },
-      Literal(node: any) {
-        if (typeof node.value !== 'string') return
-        const element = parseHTMLString(node.value)
-        if (!element) return
-
-        const violations = A11yChecker.checkFormValidationMessages(element)
-
-        for (const violation of violations) {
-          context.report({
-            node,
-            messageId: 'formValidationViolation',
-            data: {
-              message: violation.description
-            }
-          })
-        }
-      },
-      TemplateLiteral(node: any) {
-        if (node.quasis && node.quasis.length > 0) {
-          for (const quasi of node.quasis) {
-            if (quasi.value && typeof quasi.value.raw === 'string') {
-              const element = parseHTMLString(quasi.value.raw)
-              if (!element) continue
-
-              const violations = A11yChecker.checkFormValidationMessages(element)
-
-              for (const violation of violations) {
-                context.report({
-                  node: quasi,
-                  messageId: 'formValidationViolation',
-                  data: {
-                    message: violation.description
-                  }
-                })
+        // Collect ID
+        if (node.attributes) {
+          for (const attr of node.attributes) {
+            if (attr.name?.name === 'id' && attr.value?.type === 'Literal') {
+              const idValue = attr.value.value
+              if (typeof idValue === 'string') {
+                allIds.add(idValue)
               }
             }
+          }
+        }
+        
+        // Store for validation at Program:exit
+        jsxNodes.push(node)
+      },
+      
+      // Collect IDs and store Vue nodes
+      VElement(node: any) {
+        // Collect ID
+        if (node.startTag?.attributes) {
+          for (const attr of node.startTag.attributes) {
+            const attrName = attr.key?.name || attr.key?.argument
+            if (attrName === 'id' && attr.value?.value && typeof attr.value.value === 'string') {
+              allIds.add(attr.value.value)
+            }
+          }
+        }
+        
+        // Store for validation at Program:exit
+        vueNodes.push(node)
+      },
+      
+      // Validate all elements after collecting all IDs
+      'Program:exit'() {
+        // Validate JSX elements
+        for (const node of jsxNodes) {
+          const issues = validateJSXFormValidation(node, allIds)
+          for (const issue of issues) {
+            context.report({
+              node,
+              messageId: 'formValidationViolation',
+              data: {
+                message: issue.message
+              }
+            })
+          }
+        }
+        
+        // Validate Vue elements
+        for (const node of vueNodes) {
+          const issues = validateVueFormValidation(node, allIds)
+          for (const issue of issues) {
+            context.report({
+              node,
+              messageId: 'formValidationViolation',
+              data: {
+                message: issue.message
+              }
+            })
           }
         }
       }
@@ -100,4 +95,3 @@ const rule: Rule.RuleModule = {
 }
 
 export default rule
-
