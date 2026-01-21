@@ -23,15 +23,18 @@ describe('Real-world Examples', () => {
       plugins: {
         'test-a11y-js': plugin
       },
-      parser: require.resolve('@typescript-eslint/parser'),
-      parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: 'module',
-        ecmaFeatures: {
-          jsx: true
-        }
-      },
-      extends: ['plugin:test-a11y-js/recommended']
+      baseConfig: {
+        plugins: ['test-a11y-js'],
+        parser: require.resolve('@typescript-eslint/parser'),
+        parserOptions: {
+          ecmaVersion: 2020,
+          sourceType: 'module',
+          ecmaFeatures: {
+            jsx: true
+          }
+        },
+        extends: ['plugin:test-a11y-js/recommended']
+      }
     })
   })
 
@@ -77,7 +80,7 @@ describe('Real-world Examples', () => {
           <div>
             <img src="photo.jpg" alt="A beautiful landscape" />
             <button aria-label="Close menu">×</button>
-            <a href="/about">Learn more about us</a>
+            <a href="/about">About our company</a>
             <label htmlFor="email">Email</label>
             <input id="email" type="email" />
             <h1>Title</h1>

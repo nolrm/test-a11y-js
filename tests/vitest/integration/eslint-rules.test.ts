@@ -23,27 +23,31 @@ describe('ESLint Rules Integration', () => {
       plugins: {
         'test-a11y-js': plugin
       },
-      parser: require.resolve('@typescript-eslint/parser'),
-      parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: 'module',
-        ecmaFeatures: {
-          jsx: true
+      baseConfig: {
+        plugins: ['test-a11y-js'],
+        parser: require.resolve('@typescript-eslint/parser'),
+        parserOptions: {
+          ecmaVersion: 2020,
+          sourceType: 'module',
+          ecmaFeatures: {
+            jsx: true
+          }
+        },
+        rules: {
+          'test-a11y-js/image-alt': 'error',
+          'test-a11y-js/button-label': 'error',
+          'test-a11y-js/link-text': 'warn',
+          'test-a11y-js/form-label': 'error',
+          'test-a11y-js/heading-order': 'warn'
         }
-      },
-      rules: {
-        'test-a11y-js/image-alt': 'error',
-        'test-a11y-js/button-label': 'error',
-        'test-a11y-js/link-text': 'warn',
-        'test-a11y-js/form-label': 'error',
-        'test-a11y-js/heading-order': 'warn'
       }
     })
   })
 
   describe('image-alt rule', () => {
     it('should detect missing alt attribute', async () => {
-      const results = await eslint.lintText('<img src="test.jpg" />', {
+      const code = 'function Test() { return <img src="test.jpg" /> }'
+      const results = await eslint.lintText(code, {
         filePath: 'test.jsx'
       })
 
@@ -54,7 +58,8 @@ describe('ESLint Rules Integration', () => {
     })
 
     it('should pass for image with alt', async () => {
-      const results = await eslint.lintText('<img src="test.jpg" alt="Test" />', {
+      const code = 'function Test() { return <img src="test.jpg" alt="Test" /> }'
+      const results = await eslint.lintText(code, {
         filePath: 'test.jsx'
       })
 
@@ -67,7 +72,8 @@ describe('ESLint Rules Integration', () => {
 
   describe('button-label rule', () => {
     it('should detect button without label', async () => {
-      const results = await eslint.lintText('<button></button>', {
+      const code = 'function Test() { return <button></button> }'
+      const results = await eslint.lintText(code, {
         filePath: 'test.jsx'
       })
 
@@ -78,7 +84,8 @@ describe('ESLint Rules Integration', () => {
     })
 
     it('should pass for button with text', async () => {
-      const results = await eslint.lintText('<button>Click me</button>', {
+      const code = 'function Test() { return <button>Click me</button> }'
+      const results = await eslint.lintText(code, {
         filePath: 'test.jsx'
       })
 
@@ -91,7 +98,8 @@ describe('ESLint Rules Integration', () => {
 
   describe('link-text rule', () => {
     it('should detect non-descriptive link text', async () => {
-      const results = await eslint.lintText('<a href="/about">Click here</a>', {
+      const code = 'function Test() { return <a href="/about">Click here</a> }'
+      const results = await eslint.lintText(code, {
         filePath: 'test.jsx'
       })
 
@@ -101,7 +109,8 @@ describe('ESLint Rules Integration', () => {
     })
 
     it('should pass for descriptive link text', async () => {
-      const results = await eslint.lintText('<a href="/about">About Us</a>', {
+      const code = 'function Test() { return <a href="/about">About Us</a> }'
+      const results = await eslint.lintText(code, {
         filePath: 'test.jsx'
       })
 
@@ -114,7 +123,8 @@ describe('ESLint Rules Integration', () => {
 
   describe('form-label rule', () => {
     it('should detect input without label', async () => {
-      const results = await eslint.lintText('<input type="text" />', {
+      const code = 'function Test() { return <input type="text" /> }'
+      const results = await eslint.lintText(code, {
         filePath: 'test.jsx'
       })
 
@@ -124,7 +134,8 @@ describe('ESLint Rules Integration', () => {
     })
 
     it('should pass for input with aria-label', async () => {
-      const results = await eslint.lintText('<input type="text" aria-label="Name" />', {
+      const code = 'function Test() { return <input type="text" aria-label="Name" /> }'
+      const results = await eslint.lintText(code, {
         filePath: 'test.jsx'
       })
 
@@ -137,7 +148,8 @@ describe('ESLint Rules Integration', () => {
 
   describe('heading-order rule', () => {
     it('should detect skipped heading levels', async () => {
-      const results = await eslint.lintText('<h1>Title</h1><h3>Section</h3>', {
+      const code = 'function Test() { return (<><h1>Title</h1><h3>Section</h3></>) }'
+      const results = await eslint.lintText(code, {
         filePath: 'test.jsx'
       })
 
@@ -147,7 +159,8 @@ describe('ESLint Rules Integration', () => {
     })
 
     it('should pass for proper heading hierarchy', async () => {
-      const results = await eslint.lintText('<h1>Title</h1><h2>Subtitle</h2>', {
+      const code = 'function Test() { return (<><h1>Title</h1><h2>Subtitle</h2></>) }'
+      const results = await eslint.lintText(code, {
         filePath: 'test.jsx'
       })
 

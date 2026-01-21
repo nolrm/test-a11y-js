@@ -56,6 +56,7 @@ const rule: Rule.RuleModule = {
       nonDescriptive: 'Link text should be more descriptive (avoid "click here", "read more", etc.)',
       dynamicText: 'Link text is dynamic. Ensure it is descriptive at runtime.'
     },
+    hasSuggestions: true,
     fixable: undefined,
     schema: [
       {

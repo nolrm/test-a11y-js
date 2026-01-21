@@ -4,10 +4,13 @@
  * This helper loads rules from the plugin to avoid module resolution issues
  */
 
-// @ts-ignore - Module resolution issue in test environment
-// Note: This import may fail in vitest due to TypeScript module resolution.
-// Tests that use RuleTester may need to be run differently or use structure tests instead.
-import eslintPlugin from '../../../../src/linter/eslint-plugin/index'
+// Import from dist to avoid module resolution issues in test environment
+import { join } from 'path'
+import { createRequire } from 'module'
+
+const require = createRequire(import.meta.url)
+const pluginPath = join(process.cwd(), 'dist/linter/eslint-plugin/index.js')
+const eslintPlugin = require(pluginPath).default
 
 export function getRule(ruleName: string) {
   return eslintPlugin.rules[ruleName]

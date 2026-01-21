@@ -22,6 +22,7 @@ const rule: Rule.RuleModule = {
       missingLabel: 'Button must have a label or aria-label',
       dynamicLabel: 'Button label is dynamic. Ensure it is not empty at runtime.'
     },
+    hasSuggestions: true,
     fixable: undefined,
     schema: []
   },

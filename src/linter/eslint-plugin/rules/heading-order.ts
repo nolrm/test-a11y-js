@@ -19,6 +19,7 @@ const rule: Rule.RuleModule = {
     messages: {
       skippedLevel: 'Heading level skipped from h{{previous}} to h{{current}}'
     },
+    hasSuggestions: true,
     fixable: undefined,
     schema: [
       {

@@ -22,6 +22,7 @@ const rule: Rule.RuleModule = {
       emptyTitle: 'iframe title attribute must not be empty',
       dynamicTitle: 'iframe title attribute is dynamic. Ensure it is not empty at runtime.'
     },
+    hasSuggestions: true,
     fixable: undefined,
     schema: []
   },
