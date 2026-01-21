@@ -45,7 +45,14 @@ This document outlines the planned features and improvements for `test-a11y-js`.
 
 ## Current Status
 
-**Version:** 0.8.1
+**Version:** 0.12.0
+
+**Improvement Plan Status:** ✅ All phases completed
+- ✅ Phase 1: Production-Fit Config & Ecosystem Alignment (v0.11.x)
+- ✅ Phase 2: Developer Experience & Rule Surface Expansion (v0.12.x, v0.13.x)
+- ✅ Phase 3: Static + Runtime Workflow Integration (v0.14.x)
+
+See [Improvement Plan](./IMPROVEMENT_PLAN.md) for details.
 
 **Supported Rules:** 16
 - `image-alt` - Image alt attribute validation
@@ -493,6 +500,6 @@ If you'd like to contribute by implementing one of these features:
 
 ---
 
-**Last Updated:** 2024-12-22  
-**Current Version:** 0.8.1
+**Last Updated:** 2025-01-XX  
+**Current Version:** 0.12.0
 

@@ -18,10 +18,10 @@ This guide helps you migrate from `eslint-plugin-jsx-a11y` to `eslint-plugin-tes
 | `jsx-a11y/alt-text` | `test-a11y-js/image-alt` | Enhanced with decorative image options |
 | `jsx-a11y/anchor-is-valid` | `test-a11y-js/link-text` | Enhanced with denylist options |
 | `jsx-a11y/aria-activedescendant-has-tabindex` | ❌ Not available | Use A11yChecker runtime API |
-| `jsx-a11y/aria-props` | ⚠️ Coming in v0.13 | Will be AST-based |
-| `jsx-a11y/aria-proptypes` | ⚠️ Coming in v0.13 | Will be AST-based |
-| `jsx-a11y/aria-role` | ⚠️ Coming in v0.13 | Will be AST-based |
-| `jsx-a11y/aria-unsupported-elements` | ⚠️ Coming in v0.13 | Will be AST-based |
+| `jsx-a11y/aria-props` | `test-a11y-js/aria-validation` | ✅ Available (AST-based) |
+| `jsx-a11y/aria-proptypes` | `test-a11y-js/aria-validation` | ✅ Available (AST-based) |
+| `jsx-a11y/aria-role` | `test-a11y-js/aria-validation` | ✅ Available (AST-based) |
+| `jsx-a11y/aria-unsupported-elements` | `test-a11y-js/aria-validation` | ✅ Available (AST-based) |
 | `jsx-a11y/click-events-have-key-events` | ❌ Not available | Runtime-only concern |
 | `jsx-a11y/heading-has-content` | `test-a11y-js/heading-order` | Different approach (hierarchy) |
 | `jsx-a11y/html-has-lang` | ❌ Not available | Use A11yChecker runtime API |
@@ -34,20 +34,19 @@ This guide helps you migrate from `eslint-plugin-jsx-a11y` to `eslint-plugin-tes
 | `jsx-a11y/no-access-key` | ❌ Not available | Use A11yChecker runtime API |
 | `jsx-a11y/no-autofocus` | ❌ Not available | Use A11yChecker runtime API |
 | `jsx-a11y/no-distracting-elements` | ❌ Not available | Use A11yChecker runtime API |
-| `jsx-a11y/no-interactive-element-to-noninteractive-role` | ⚠️ Coming in v0.13 | Will be AST-based |
+| `jsx-a11y/no-interactive-element-to-noninteractive-role` | `test-a11y-js/semantic-html` | ✅ Available (AST-based) |
 | `jsx-a11y/no-noninteractive-element-interactions` | ❌ Not available | Runtime-only concern |
-| `jsx-a11y/no-noninteractive-element-to-interactive-role` | ⚠️ Coming in v0.13 | Will be AST-based |
+| `jsx-a11y/no-noninteractive-element-to-interactive-role` | `test-a11y-js/semantic-html` | ✅ Available (AST-based) |
 | `jsx-a11y/no-noninteractive-tabindex` | ❌ Not available | Runtime-only concern |
-| `jsx-a11y/no-redundant-roles` | ⚠️ Coming in v0.13 | Will be AST-based |
+| `jsx-a11y/no-redundant-roles` | `test-a11y-js/semantic-html` | ✅ Available (AST-based) |
 | `jsx-a11y/no-static-element-interactions` | ❌ Not available | Runtime-only concern |
-| `jsx-a11y/role-has-required-aria-props` | ⚠️ Coming in v0.13 | Will be AST-based |
-| `jsx-a11y/role-supports-aria-props` | ⚠️ Coming in v0.13 | Will be AST-based |
+| `jsx-a11y/role-has-required-aria-props` | `test-a11y-js/aria-validation` | ✅ Available (AST-based) |
+| `jsx-a11y/role-supports-aria-props` | `test-a11y-js/aria-validation` | ✅ Available (AST-based) |
 | `jsx-a11y/scope` | `test-a11y-js/table-structure` | ✅ Available |
 | `jsx-a11y/tabindex-no-positive` | ❌ Not available | Runtime-only concern |
 
 **Legend:**
 - ✅ Available now
-- ⚠️ Coming in v0.13 (ARIA/semantic rules)
 - ❌ Not available (runtime-only concerns, use A11yChecker API)
 
 ## Step-by-Step Migration
@@ -155,9 +154,10 @@ For rules not available in test-a11y-js:
    - Use `A11yChecker` programmatic API in tests
    - See [Integration Guide](./INTEGRATION.md)
 
-2. **ARIA rules** (coming in v0.13):
-   - Temporarily disable or use jsx-a11y alongside test-a11y-js
-   - Wait for v0.13 release
+2. **ARIA rules**:
+   - ✅ Available in `test-a11y-js/aria-validation` (v0.12.0+)
+   - ✅ Semantic HTML rules available in `test-a11y-js/semantic-html` (v0.12.0+)
+   - ✅ Form validation available in `test-a11y-js/form-validation` (v0.12.0+)
 
 3. **Other missing rules**:
    - Check if A11yChecker API covers it
@@ -240,9 +240,10 @@ module.exports = {
 ## Next Steps
 
 1. ✅ Complete migration to test-a11y-js
-2. ⏳ Wait for v0.13 for ARIA rules (or use compatibility bridge)
+2. ✅ Enable ARIA rules: `test-a11y-js/aria-validation`, `test-a11y-js/semantic-html`, `test-a11y-js/form-validation`
 3. 📚 Read [Configuration Guide](./CONFIGURATION.md) for advanced options
 4. 🧪 Set up A11yChecker for runtime testing (see [Integration Guide](./INTEGRATION.md))
+5. 🔗 Use runtime comment convention for static + runtime workflow (see [ESLint Plugin Guide](./ESLINT_PLUGIN.md#static--runtime-workflow))
 
 ## Need Help?
 

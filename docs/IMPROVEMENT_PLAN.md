@@ -1,5 +1,17 @@
 ## test-a11y-js – ESLint Plugin Improvement Plan
 
+> **Status: ✅ All Phases Completed (v0.12.0)**
+> 
+> This document served as the implementation plan for v0.11.x through v0.12.0.
+> All planned phases have been completed:
+> - ✅ Phase 1: Production-Fit Config & Ecosystem Alignment (v0.11.x)
+> - ✅ Phase 2: Developer Experience & Rule Surface Expansion (v0.12.x, v0.13.x)
+> - ✅ Phase 3: Static + Runtime Workflow Integration (v0.14.x)
+> 
+> This document is kept for historical reference. For current features, see [ESLint Plugin Guide](./ESLINT_PLUGIN.md).
+
+---
+
 This document captures a multi‑phase plan to evolve `eslint-plugin-test-a11y-js` into a production‑grade, design‑system‑aware, flat‑config‑first accessibility linting solution that pairs tightly with the `A11yChecker` runtime API.
 
 ---
