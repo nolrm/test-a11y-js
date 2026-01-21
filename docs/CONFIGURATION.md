@@ -132,10 +132,284 @@ module.exports = {
     // Disable a rule
     'test-a11y-js/heading-order': 'off',
     
-    // Use rule with options (if supported in future)
-    'test-a11y-js/image-alt': ['error', { allowEmpty: false }]
+    // Use rule with options
+    'test-a11y-js/image-alt': ['error', {
+      allowMissingAltOnDecorative: true,
+      decorativeMatcher: {
+        markerAttributes: ['data-decorative']
+      }
+    }],
+    'test-a11y-js/link-text': ['warn', {
+      denylist: ['click here', 'read more'],
+      caseInsensitive: true
+    }],
+    'test-a11y-js/heading-order': ['warn', {
+      allowSameLevel: true,
+      maxSkip: 2
+    }]
   }
 }
+```
+
+## Rule Options
+
+### image-alt Options
+
+Configure how decorative images are handled:
+
+```javascript
+{
+  'test-a11y-js/image-alt': ['error', {
+    allowMissingAltOnDecorative: false, // default: false (strict by default)
+    decorativeMatcher: {
+      requireAriaHidden: false,        // Require aria-hidden="true"
+      requireRolePresentation: false,  // Require role="presentation"
+      markerAttributes: []             // Custom attributes like ['data-decorative']
+    }
+  }]
+}
+```
+
+**Examples:**
+
+```jsx
+// Default behavior (strict) - requires alt
+<img src="photo.jpg" /> // ❌ Error: missing alt
+
+// With allowMissingAltOnDecorative: true
+<img src="decorative.jpg" aria-hidden="true" /> // ✅ Allowed
+<img src="decorative.jpg" role="presentation" /> // ✅ Allowed
+<img src="decorative.jpg" data-decorative="true" /> // ✅ Allowed (with markerAttributes)
+
+// Empty alt without decorative markers
+<img src="photo.jpg" alt="" /> // ❌ Error: emptyAltNotDecorative
+```
+
+### link-text Options
+
+Configure denylist and matching behavior:
+
+```javascript
+{
+  'test-a11y-js/link-text': ['warn', {
+    denylist: ['click here', 'read more', 'more'], // default
+    caseInsensitive: true,                          // default: true
+    allowlistPatterns: []                           // Regex patterns to allow
+  }]
+}
+```
+
+**Examples:**
+
+```jsx
+// Default denylist
+<a href="/about">Click here</a> // ⚠️ Warning: nonDescriptive
+
+// Custom denylist
+{
+  'test-a11y-js/link-text': ['warn', {
+    denylist: ['learn more', 'discover']
+  }]
+}
+
+// Case sensitive matching
+{
+  'test-a11y-js/link-text': ['warn', {
+    caseInsensitive: false
+  }]
+}
+// <a href="/about">CLICK HERE</a> // ✅ Passes (case sensitive)
+// <a href="/about">click here</a> // ⚠️ Warning
+
+// Checks multiple accessible name sources
+<a href="/about" aria-label="About our company">Click here</a> // ✅ Passes (aria-label checked)
+<a href="/about" aria-labelledby="link-label">Click here</a> // ✅ Passes (aria-labelledby checked)
+```
+
+### heading-order Options
+
+Configure heading hierarchy tolerance:
+
+```javascript
+{
+  'test-a11y-js/heading-order': ['warn', {
+    allowSameLevel: true,  // default: true
+    maxSkip: undefined     // Allow skips up to this level (e.g., 2 allows h1→h3)
+  }]
+}
+```
+
+**Examples:**
+
+```jsx
+// Default: allows same level
+<h2>First</h2><h2>Second</h2> // ✅ Passes
+
+// Allow larger skips
+{
+  'test-a11y-js/heading-order': ['warn', {
+    maxSkip: 2  // Allows skipping up to 2 levels
+  }]
+}
+// <h1>Title</h1><h3>Section</h3> // ✅ Passes (skip of 2)
+// <h1>Title</h1><h4>Subsection</h4> // ⚠️ Warning (skip of 3 > maxSkip)
+```
+
+## Component Mapping & Polymorphic Support
+
+Map your design-system components to native HTML elements so rules apply correctly.
+
+### Basic Component Mapping
+
+```javascript
+// .eslintrc.js
+module.exports = {
+  plugins: ['test-a11y-js'],
+  extends: ['plugin:test-a11y-js/recommended'],
+  settings: {
+    'test-a11y-js': {
+      components: {
+        Link: 'a',        // Treat <Link> as <a>
+        Button: 'button', // Treat <Button> as <button>
+        Image: 'img'      // Treat <Image> as <img>
+      }
+    }
+  }
+}
+```
+
+**Example:**
+
+```jsx
+// Without mapping - rules don't apply
+<Link href="/about">Click here</Link> // No warning
+
+// With mapping - rules apply
+// .eslintrc.js settings: { 'test-a11y-js': { components: { Link: 'a' } } }
+<Link href="/about">Click here</Link> // ⚠️ Warning: nonDescriptive
+```
+
+### Polymorphic Components
+
+Support components that accept an `as` or `component` prop:
+
+```javascript
+// .eslintrc.js
+module.exports = {
+  plugins: ['test-a11y-js'],
+  extends: ['plugin:test-a11y-js/recommended'],
+  settings: {
+    'test-a11y-js': {
+      polymorphicPropNames: ['as', 'component'] // Default: ['as', 'component']
+    }
+  }
+}
+```
+
+**Example:**
+
+```jsx
+// Polymorphic component
+<Link as="a" href="/about">About Us</Link>     // ✅ Treated as <a>
+<Link as="button" onClick={handleClick}>Click</Link> // ✅ Treated as <button>
+
+// Dynamic polymorphic (not checked statically)
+<Link as={component} href="/about">About</Link> // ✅ No error (dynamic)
+```
+
+### Resolution Precedence
+
+Component resolution follows this order (highest to lowest priority):
+
+1. **Native HTML tag** - `<a>`, `<button>`, `<img>` always win
+2. **Polymorphic prop** - `as="a"` or `component="button"` (when static literal)
+3. **Settings mapping** - `components: { Link: 'a' }`
+4. **Unknown** - Component not recognized
+
+## Flat Config (ESLint v9+)
+
+For ESLint v9+, use flat config format with our presets:
+
+### Basic Setup
+
+```javascript
+// eslint.config.js
+import testA11yJs from 'eslint-plugin-test-a11y-js'
+
+export default [
+  {
+    plugins: {
+      'test-a11y-js': testA11yJs
+    },
+    ...testA11yJs.configs['flat/recommended']
+  }
+]
+```
+
+### React Setup
+
+```javascript
+// eslint.config.js
+import testA11yJs from 'eslint-plugin-test-a11y-js'
+
+export default [
+  {
+    plugins: {
+      'test-a11y-js': testA11yJs
+    },
+    ...testA11yJs.configs['flat/react']
+  }
+]
+```
+
+### Vue Setup
+
+```javascript
+// eslint.config.js
+import testA11yJs from 'eslint-plugin-test-a11y-js'
+
+export default [
+  {
+    plugins: {
+      'test-a11y-js': testA11yJs
+    },
+    ...testA11yJs.configs['flat/vue']
+  }
+]
+```
+
+### Available Flat Config Presets
+
+- `flat/recommended` - Rules only (minimal assumptions, add your own parser)
+- `flat/recommended-react` - Rules + React parser options (convenience)
+- `flat/react` - Full React setup
+- `flat/vue` - Full Vue setup
+- `flat/minimal` - Minimal rules only
+- `flat/strict` - All rules as errors
+
+### With Component Mapping
+
+```javascript
+// eslint.config.js
+import testA11yJs from 'eslint-plugin-test-a11y-js'
+
+export default [
+  {
+    plugins: {
+      'test-a11y-js': testA11yJs
+    },
+    ...testA11yJs.configs['flat/recommended'],
+    settings: {
+      'test-a11y-js': {
+        components: {
+          Link: 'a',
+          Button: 'button'
+        },
+        polymorphicPropNames: ['as']
+      }
+    }
+  }
+]
 ```
 
 ## Rule Severity Levels

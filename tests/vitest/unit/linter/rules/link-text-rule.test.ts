@@ -117,3 +117,97 @@ describe('link-text rule - HTML strings', () => {
   })
 })
 
+describe('link-text rule - with options', () => {
+  describe('custom denylist', () => {
+    it('should use custom denylist', () => {
+      ruleTester.run('link-text', linkText, {
+        valid: [
+          {
+            code: '<a href="/about">Click here</a>',
+            options: [{
+              denylist: ['learn more']
+            }]
+          }
+        ],
+        invalid: [
+          {
+            code: '<a href="/about">Learn more</a>',
+            options: [{
+              denylist: ['learn more']
+            }],
+            errors: [{ messageId: 'nonDescriptive' }]
+          }
+        ]
+      })
+    })
+  })
+
+  describe('case insensitive', () => {
+    it('should match denylist case-insensitively by default', () => {
+      ruleTester.run('link-text', linkText, {
+        valid: [],
+        invalid: [
+          {
+            code: '<a href="/about">CLICK HERE</a>',
+            errors: [{ messageId: 'nonDescriptive' }]
+          },
+          {
+            code: '<a href="/about">Click Here</a>',
+            errors: [{ messageId: 'nonDescriptive' }]
+          }
+        ]
+      })
+    })
+
+    it('should respect caseInsensitive: false option', () => {
+      ruleTester.run('link-text', linkText, {
+        valid: [
+          {
+            code: '<a href="/about">CLICK HERE</a>',
+            options: [{
+              caseInsensitive: false
+            }]
+          }
+        ],
+        invalid: [
+          {
+            code: '<a href="/about">click here</a>',
+            options: [{
+              caseInsensitive: false
+            }],
+            errors: [{ messageId: 'nonDescriptive' }]
+          }
+        ]
+      })
+    })
+  })
+
+  describe('accessible name sources', () => {
+    it('should check aria-label', () => {
+      ruleTester.run('link-text', linkText, {
+        valid: [
+          {
+            code: '<a href="/about" aria-label="About our company">Click here</a>'
+          }
+        ],
+        invalid: [
+          {
+            code: '<a href="/about" aria-label="Click here">Link</a>',
+            errors: [{ messageId: 'nonDescriptive' }]
+          }
+        ]
+      })
+    })
+
+    it('should check aria-labelledby', () => {
+      ruleTester.run('link-text', linkText, {
+        valid: [
+          {
+            code: '<span id="link-label">About Us</span><a href="/about" aria-labelledby="link-label">Click here</a>'
+          }
+        ],
+        invalid: []
+      })
+    })
+  })
+})

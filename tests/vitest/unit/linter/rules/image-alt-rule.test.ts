@@ -86,6 +86,107 @@ describe('image-alt rule - JSX', () => {
       ]
     })
   })
+
+  describe('with options - decorative images', () => {
+    it('should allow missing alt when decorative and option enabled', () => {
+      ruleTester.run('image-alt', imageAlt, {
+        valid: [
+          {
+            code: '<img src="decorative.jpg" aria-hidden="true" />',
+            options: [{
+              allowMissingAltOnDecorative: true,
+              decorativeMatcher: {}
+            }]
+          },
+          {
+            code: '<img src="decorative.jpg" role="presentation" />',
+            options: [{
+              allowMissingAltOnDecorative: true,
+              decorativeMatcher: {}
+            }]
+          }
+        ],
+        invalid: []
+      })
+    })
+
+    it('should not allow missing alt when decorative option disabled (default)', () => {
+      ruleTester.run('image-alt', imageAlt, {
+        valid: [],
+        invalid: [
+          {
+            code: '<img src="decorative.jpg" aria-hidden="true" />',
+            errors: [{ messageId: 'missingAlt' }]
+          }
+        ]
+      })
+    })
+
+    it('should require aria-hidden when requireAriaHidden is true', () => {
+      ruleTester.run('image-alt', imageAlt, {
+        valid: [
+          {
+            code: '<img src="decorative.jpg" aria-hidden="true" />',
+            options: [{
+              allowMissingAltOnDecorative: true,
+              decorativeMatcher: {
+                requireAriaHidden: true
+              }
+            }]
+          }
+        ],
+        invalid: [
+          {
+            code: '<img src="decorative.jpg" role="presentation" />',
+            options: [{
+              allowMissingAltOnDecorative: true,
+              decorativeMatcher: {
+                requireAriaHidden: true
+              }
+            }],
+            errors: [{ messageId: 'missingAlt' }]
+          }
+        ]
+      })
+    })
+
+    it('should allow custom marker attributes', () => {
+      ruleTester.run('image-alt', imageAlt, {
+        valid: [
+          {
+            code: '<img src="decorative.jpg" data-decorative="true" />',
+            options: [{
+              allowMissingAltOnDecorative: true,
+              decorativeMatcher: {
+                markerAttributes: ['data-decorative']
+              }
+            }]
+          }
+        ],
+        invalid: []
+      })
+    })
+
+    it('should warn on empty alt without decorative markers', () => {
+      ruleTester.run('image-alt', imageAlt, {
+        valid: [],
+        invalid: [
+          {
+            code: '<img src="test.jpg" alt="" />',
+            errors: [{ messageId: 'emptyAltNotDecorative' }]
+          },
+          {
+            code: '<img src="test.jpg" alt="" aria-hidden="true" />',
+            options: [{
+              allowMissingAltOnDecorative: true,
+              decorativeMatcher: {}
+            }],
+            errors: [{ messageId: 'emptyAlt' }]
+          }
+        ]
+      })
+    })
+  })
 })
 
 describe('image-alt rule - HTML strings', () => {

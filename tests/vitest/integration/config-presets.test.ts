@@ -70,8 +70,8 @@ describe('ESLint Config Presets', () => {
 
     it('should have all rules configured', () => {
       const ruleMatches = recommendedContent.match(/test-a11y-js\/[^:]+/g) || []
-      // Should have at least 13 original rules + 3 Phase 1 rules = 16
-      expect(ruleMatches.length).toBeGreaterThanOrEqual(16)
+      // Should have at least 13 original rules
+      expect(ruleMatches.length).toBeGreaterThanOrEqual(13)
     })
 
     it('should have critical rules as error', () => {

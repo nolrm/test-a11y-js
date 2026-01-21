@@ -90,11 +90,20 @@ const buttonViolations = A11yChecker.checkButtonLabel(element)
 
 ### Available Presets
 
+**Classic Config (.eslintrc.js):**
 - `plugin:test-a11y-js/minimal` - Only 3 critical rules (best for large projects)
 - `plugin:test-a11y-js/recommended` - Balanced approach (default)
 - `plugin:test-a11y-js/strict` - All rules as errors
 - `plugin:test-a11y-js/react` - Optimized for React/JSX
 - `plugin:test-a11y-js/vue` - Optimized for Vue SFC
+
+**Flat Config (eslint.config.js) - ESLint v9+:**
+- `flat/recommended` - Rules only (minimal assumptions)
+- `flat/recommended-react` - Rules + React parser
+- `flat/react` - Full React setup
+- `flat/vue` - Full Vue setup
+- `flat/minimal` - Minimal rules only
+- `flat/strict` - All rules as errors
 
 ### Framework-Specific Setup
 
@@ -147,6 +156,89 @@ module.exports = {
   ]
 }
 ```
+
+### Rule Options
+
+Many rules support configuration options for fine-tuned control:
+
+**image-alt - Decorative images:**
+```javascript
+{
+  'test-a11y-js/image-alt': ['error', {
+    allowMissingAltOnDecorative: true,
+    decorativeMatcher: {
+      markerAttributes: ['data-decorative']
+    }
+  }]
+}
+```
+
+**link-text - Custom denylist:**
+```javascript
+{
+  'test-a11y-js/link-text': ['warn', {
+    denylist: ['click here', 'read more'],
+    caseInsensitive: true
+  }]
+}
+```
+
+**heading-order - Skip tolerance:**
+```javascript
+{
+  'test-a11y-js/heading-order': ['warn', {
+    allowSameLevel: true,
+    maxSkip: 2
+  }]
+}
+```
+
+See [Configuration Guide](./docs/CONFIGURATION.md) for all options.
+
+### Component Mapping
+
+Map your design-system components to native HTML elements:
+
+```javascript
+module.exports = {
+  plugins: ['test-a11y-js'],
+  extends: ['plugin:test-a11y-js/recommended'],
+  settings: {
+    'test-a11y-js': {
+      components: {
+        Link: 'a',        // Treat <Link> as <a>
+        Button: 'button', // Treat <Button> as <button>
+        Image: 'img'      // Treat <Image> as <img>
+      },
+      polymorphicPropNames: ['as', 'component'] // Support <Link as="a">
+    }
+  }
+}
+```
+
+Now rules apply to your components:
+```jsx
+<Link href="/about">Click here</Link> // ⚠️ Warning: nonDescriptive
+<Button></Button> // ❌ Error: missingLabel
+```
+
+### Flat Config (ESLint v9+)
+
+```javascript
+// eslint.config.js
+import testA11yJs from 'eslint-plugin-test-a11y-js'
+
+export default [
+  {
+    plugins: {
+      'test-a11y-js': testA11yJs
+    },
+    ...testA11yJs.configs['flat/recommended']
+  }
+]
+```
+
+See [Configuration Guide](./docs/CONFIGURATION.md) for more examples.
 
 ## ESLint Rules
 
@@ -353,7 +445,8 @@ See [Performance Guide](./docs/PERFORMANCE.md) for optimization tips.
 
 ## Documentation
 
-- [Configuration Guide](./docs/CONFIGURATION.md) - ESLint plugin configuration options
+- [Configuration Guide](./docs/CONFIGURATION.md) - ESLint plugin configuration options, rule options, component mapping
+- [Migration Guide](./docs/MIGRATION_FROM_JSX_A11Y.md) - Migrate from eslint-plugin-jsx-a11y
 - [Large Project Setup Guide](./docs/LARGE_PROJECTS.md) - Incremental adoption strategies
 - [Performance Guide](./docs/PERFORMANCE.md) - Performance optimization tips
 - [ESLint Plugin Guide](./docs/ESLINT_PLUGIN.md) - Complete ESLint plugin documentation
