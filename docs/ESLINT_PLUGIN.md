@@ -46,9 +46,56 @@ npm install --save-dev vue-eslint-parser
 
 ## Quick Start
 
-### Basic Setup
+### ESLint v9+ flat config (recommended)
 
-Add the plugin to your ESLint configuration:
+```js
+// eslint.config.js
+import js from '@eslint/js'
+import tseslint from 'typescript-eslint'
+import react from 'eslint-plugin-react'
+import testA11y from 'eslint-plugin-test-a11y-js'
+
+export default [
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+
+  {
+    plugins: {
+      react,
+      'test-a11y-js': testA11y
+    },
+    languageOptions: {
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+        ecmaFeatures: { jsx: true }
+      }
+    },
+    ...testA11y.configs['flat/recommended-react']
+  },
+
+  // Optional: Vue-specific rules only on .vue files
+  {
+    files: ['**/*.vue'],
+    languageOptions: {
+      parser: 'vue-eslint-parser',
+      parserOptions: {
+        parser: '@typescript-eslint/parser',
+        ecmaVersion: 2022,
+        sourceType: 'module'
+      }
+    },
+    plugins: {
+      'test-a11y-js': testA11y
+    },
+    ...testA11y.configs['flat/vue']
+  }
+]
+```
+
+This is the recommended configuration style for new projects using ESLint v9+.
+
+### Legacy configuration (.eslintrc*, ESLint v8)
 
 ```javascript
 // .eslintrc.js
@@ -58,7 +105,7 @@ module.exports = {
 }
 ```
 
-### React/JSX Setup
+#### React/JSX Setup (legacy)
 
 ```javascript
 // .eslintrc.js
@@ -72,7 +119,7 @@ module.exports = {
 }
 ```
 
-### Vue Setup
+#### Vue Setup (legacy)
 
 ```javascript
 // .eslintrc.js
@@ -87,6 +134,31 @@ module.exports = {
 ```
 
 ## Rules Reference
+
+### Summary table
+
+This table provides a high-level overview of the accessibility rules exposed by the ESLint plugin.
+
+| Rule | What it checks | Default level | Included in presets (classic + flat) | Closest `eslint-plugin-jsx-a11y` rule |
+|------|----------------|---------------|--------------------------------------|---------------------------------------|
+| `test-a11y-js/image-alt` | `img` alt text, decorative images | `error` | `plugin:test-a11y-js/minimal`, `plugin:test-a11y-js/recommended`, `plugin:test-a11y-js/react`, `plugin:test-a11y-js/vue`, `plugin:test-a11y-js/strict`, `flat/minimal`, `flat/recommended`, `flat/recommended-react`, `flat/react`, `flat/vue`, `flat/strict` | `alt-text` |
+| `test-a11y-js/button-label` | Buttons have accessible labels | `error` | `plugin:test-a11y-js/minimal`, `plugin:test-a11y-js/recommended`, `plugin:test-a11y-js/react`, `plugin:test-a11y-js/vue`, `plugin:test-a11y-js/strict`, `flat/minimal`, `flat/recommended`, `flat/recommended-react`, `flat/react`, `flat/vue`, `flat/strict` | Covers parts of: `button-has-type`, `click-events-have-key-events` |
+| `test-a11y-js/link-text` | Descriptive link text, denylist phrases | `warn` | `plugin:test-a11y-js/recommended`, `plugin:test-a11y-js/react`, `plugin:test-a11y-js/vue`, `plugin:test-a11y-js/strict`, `flat/recommended`, `flat/recommended-react`, `flat/react`, `flat/vue`, `flat/strict` | Covers parts of: `anchor-is-valid`, `no-redundant-roles` |
+| `test-a11y-js/form-label` | Form controls have labels | `error` | `plugin:test-a11y-js/minimal`, `plugin:test-a11y-js/recommended`, `plugin:test-a11y-js/react`, `plugin:test-a11y-js/vue`, `plugin:test-a11y-js/strict`, `flat/minimal`, `flat/recommended`, `flat/recommended-react`, `flat/react`, `flat/vue`, `flat/strict` | `label-has-associated-control` |
+| `test-a11y-js/heading-order` | Heading hierarchy, skip tolerance | `warn` | `plugin:test-a11y-js/recommended`, `plugin:test-a11y-js/react`, `plugin:test-a11y-js/vue`, `plugin:test-a11y-js/strict`, `flat/recommended`, `flat/recommended-react`, `flat/react`, `flat/vue`, `flat/strict` | No direct equivalent (related to `heading-has-content`) |
+| `test-a11y-js/iframe-title` | `iframe` elements have titles | `error` | `plugin:test-a11y-js/recommended`, `plugin:test-a11y-js/react`, `plugin:test-a11y-js/vue`, `plugin:test-a11y-js/strict`, `flat/recommended`, `flat/recommended-react`, `flat/react`, `flat/vue`, `flat/strict` | `iframe-has-title` |
+| `test-a11y-js/fieldset-legend` | `fieldset` elements have legends | `error` | `plugin:test-a11y-js/recommended`, `plugin:test-a11y-js/react`, `plugin:test-a11y-js/vue`, `plugin:test-a11y-js/strict`, `flat/recommended`, `flat/recommended-react`, `flat/react`, `flat/vue`, `flat/strict` | `fieldset-has-label` |
+| `test-a11y-js/table-structure` | Table headers, scopes, structure | `error` | `plugin:test-a11y-js/recommended`, `plugin:test-a11y-js/react`, `plugin:test-a11y-js/vue`, `plugin:test-a11y-js/strict`, `flat/recommended`, `flat/recommended-react`, `flat/react`, `flat/vue`, `flat/strict` | Covers parts of: `scope`, `no-noninteractive-element-to-interactive-role` |
+| `test-a11y-js/details-summary` | `details` have visible `summary` | `error` | `plugin:test-a11y-js/recommended`, `plugin:test-a11y-js/react`, `plugin:test-a11y-js/vue`, `plugin:test-a11y-js/strict`, `flat/recommended`, `flat/recommended-react`, `flat/react`, `flat/vue`, `flat/strict` | No direct equivalent (pattern-specific) |
+| `test-a11y-js/video-captions` | `<video>` tracks / captions | `error` | `plugin:test-a11y-js/recommended`, `plugin:test-a11y-js/react`, `plugin:test-a11y-js/vue`, `plugin:test-a11y-js/strict`, `flat/recommended`, `flat/recommended-react`, `flat/react`, `flat/vue`, `flat/strict` | `media-has-caption` |
+| `test-a11y-js/audio-captions` | `<audio>` captions / transcripts | `error` | `plugin:test-a11y-js/recommended`, `plugin:test-a11y-js/react`, `plugin:test-a11y-js/vue`, `plugin:test-a11y-js/strict`, `flat/recommended`, `flat/recommended-react`, `flat/react`, `flat/vue`, `flat/strict` | No direct equivalent (pattern-specific) |
+| `test-a11y-js/landmark-roles` | Landmarks and regions | `warn` | `plugin:test-a11y-js/recommended`, `plugin:test-a11y-js/react`, `plugin:test-a11y-js/vue`, `plugin:test-a11y-js/strict`, `flat/recommended`, `flat/recommended-react`, `flat/react`, `flat/vue`, `flat/strict` | Covers parts of: `landmark-no-duplicate-main`, `aria-roles` |
+| `test-a11y-js/dialog-modal` | Accessible dialogs and modals | `error` | `plugin:test-a11y-js/recommended`, `plugin:test-a11y-js/react`, `plugin:test-a11y-js/vue`, `plugin:test-a11y-js/strict`, `flat/recommended`, `flat/recommended-react`, `flat/react`, `flat/vue`, `flat/strict` | Covers parts of: `aria-roles`, `aria-props` |
+| `test-a11y-js/aria-validation` | ARIA roles, properties, ID refs (AST-first) | `error` | `plugin:test-a11y-js/strict`, `flat/strict` (opt-in for `plugin:test-a11y-js/recommended`, `flat/recommended`) | `aria-roles`, `aria-props`, `aria-unsupported-elements` |
+| `test-a11y-js/semantic-html` | Prefer semantic elements over generic+role | `error` | `plugin:test-a11y-js/strict`, `flat/strict` (opt-in for `plugin:test-a11y-js/recommended`, `flat/recommended`) | Covers parts of: `no-redundant-roles`, `prefer-tag-over-role` |
+| `test-a11y-js/form-validation` | Required fields, ID refs, validation patterns | `error` | `plugin:test-a11y-js/strict`, `flat/strict` (opt-in for `plugin:test-a11y-js/recommended`, `flat/recommended`) | Covers parts of: `label-has-associated-control`, `aria-props` |
+
+For migration guidance from `eslint-plugin-jsx-a11y`, see the [Migration Guide](./MIGRATION_FROM_JSX_A11Y.md).
 
 ### test-a11y-js/image-alt
 
@@ -301,14 +373,42 @@ Validates form validation patterns and ID references.
 
 See [Configuration Guide](./CONFIGURATION.md) for detailed configuration options.
 
-### Available Presets
+### Flat Config Presets (ESLint v9+)
 
-- `plugin:test-a11y-js/recommended` - Balanced approach (default)
-- `plugin:test-a11y-js/strict` - All rules as errors
-- `plugin:test-a11y-js/react` - Optimized for React/JSX
-- `plugin:test-a11y-js/vue` - Optimized for Vue SFC
+These presets are designed to be spread into your `eslint.config.js`:
 
-### Custom Configuration
+- **`flat/minimal`** – Only 3 critical rules (`image-alt`, `button-label`, `form-label`)
+- **`flat/recommended`** – Balanced rules, framework-agnostic
+- **`flat/recommended-react`** – Recommended rules + JSX parser options
+- **`flat/react`** – React-focused rules + JSX parser options
+- **`flat/vue`** – Vue SFC rules + `vue-eslint-parser` setup
+- **`flat/strict`** – All rules set to `error`
+
+Example:
+
+```js
+// eslint.config.js
+import testA11y from 'eslint-plugin-test-a11y-js'
+
+export default [
+  {
+    plugins: {
+      'test-a11y-js': testA11y
+    },
+    ...testA11y.configs['flat/minimal']
+  }
+]
+```
+
+### Legacy Presets (.eslintrc*, ESLint v8)
+
+- `plugin:test-a11y-js/minimal` – 3 critical rules only
+- `plugin:test-a11y-js/recommended` – Balanced approach (default)
+- `plugin:test-a11y-js/strict` – All rules as errors
+- `plugin:test-a11y-js/react` – Optimized for React/JSX
+- `plugin:test-a11y-js/vue` – Optimized for Vue SFC
+
+Custom configuration (legacy):
 
 ```javascript
 // .eslintrc.js
@@ -396,9 +496,15 @@ In VS Code and other editors with ESLint support, suggestions appear as:
 
 **Note**: Suggestions are **not** autofixes - they require manual review and approval to ensure correctness.
 
-## Static + Runtime Workflow
+## Static lint + runtime checks (why this exists)
 
 The `test-a11y-js` plugin uniquely supports both static linting (ESLint) and runtime testing (A11yChecker). This allows you to catch issues during development while also ensuring comprehensive test coverage.
+
+At a high level:
+
+- **Static ESLint rules** catch structural issues (missing `alt`, unlabeled buttons, bad headings, etc.) directly in your editor and CI.
+- **Runtime A11yChecker** covers **dynamic props and conditional rendering** that static analysis cannot reliably validate.
+- A special **runtime comment convention** (`runtimeCheckedComment`) tells the linter, “this code is covered by runtime checks,” preventing noisy false positives while keeping intent explicit.
 
 ### Runtime Comment Convention
 

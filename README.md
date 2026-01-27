@@ -223,23 +223,56 @@ Now rules apply to your components:
 <Button></Button> // ❌ Error: missingLabel
 ```
 
-### Flat Config (ESLint v9+)
+### Quick start with ESLint flat config (v9+)
 
-```javascript
+```js
 // eslint.config.js
-import testA11yJs from 'eslint-plugin-test-a11y-js'
+import js from '@eslint/js'
+import tseslint from 'typescript-eslint'
+import react from 'eslint-plugin-react'
+import testA11y from 'eslint-plugin-test-a11y-js'
 
 export default [
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+
   {
     plugins: {
-      'test-a11y-js': testA11yJs
+      react,
+      'test-a11y-js': testA11y
     },
-    ...testA11yJs.configs['flat/recommended']
+    languageOptions: {
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+        ecmaFeatures: { jsx: true }
+      }
+    },
+    ...testA11y.configs['flat/recommended-react']
+  },
+
+  // Optional: Vue-specific rules only on .vue files
+  {
+    files: ['**/*.vue'],
+    languageOptions: {
+      parser: 'vue-eslint-parser',
+      parserOptions: {
+        parser: '@typescript-eslint/parser',
+        ecmaVersion: 2022,
+        sourceType: 'module'
+      }
+    },
+    plugins: {
+      'test-a11y-js': testA11y
+    },
+    ...testA11y.configs['flat/vue']
   }
 ]
 ```
 
-See [Configuration Guide](./docs/CONFIGURATION.md) for more examples.
+These presets mirror the classic `.eslintrc` presets and are the easiest way to drop `eslint-plugin-test-a11y-js` into a modern ESLint v9+ setup, alongside `@eslint/js`, `typescript-eslint`, and `eslint-plugin-react`.
+
+See [Configuration Guide](./docs/CONFIGURATION.md) for more flat-config examples and advanced setups.
 
 ## Editor Suggestions
 
@@ -474,6 +507,16 @@ See [Performance Guide](./docs/PERFORMANCE.md) for optimization tips.
 
 ## How It Compares
 
+### When to use this vs other a11y tools?
+
+- **vs `eslint-plugin-jsx-a11y`**: Similar JSX accessibility coverage, plus Vue SFC support, flat-config presets, and a matching runtime `A11yChecker` API. You can run both plugins side by side and selectively disable overlapping rules in either one.
+- **vs `eslint-plugin-vuejs-accessibility`**: This plugin covers both Vue templates *and* JSX/TSX with a single rule set, which is useful in mixed React/Vue or design-system-heavy codebases.
+- **vs runtime-only tools (e.g. `@axe-core/react`)**: `test-a11y-js` focuses on **static**, editor-time feedback and CI linting, while the runtime A11yChecker API complements it for dynamic DOM testing.
+
+For rule-by-rule mapping from `eslint-plugin-jsx-a11y` to `eslint-plugin-test-a11y-js`, see the [Migration Guide](./docs/MIGRATION_FROM_JSX_A11Y.md).
+
+### Feature comparison
+
 | Feature | test-a11y-js | eslint-plugin-jsx-a11y | @axe-core/react |
 |---------|--------------|------------------------|-----------------|
 | Zero config | ✅ | ❌ | ❌ |
@@ -482,6 +525,23 @@ See [Performance Guide](./docs/PERFORMANCE.md) for optimization tips.
 | Editor integration | ✅ | ✅ | ❌ |
 | Large project ready | ✅ | ⚠️ | ⚠️ |
 | Framework agnostic | ✅ | React only | React only |
+
+## FAQ
+
+- **Does this replace `eslint-plugin-jsx-a11y`?**  
+  Not necessarily. It can replace it in many React-only projects, but it also adds Vue SFC support, flat-config presets, and a runtime A11yChecker API. You can also run both plugins side by side and disable overlapping rules where needed.
+
+- **Can I run `eslint-plugin-test-a11y-js` and `eslint-plugin-jsx-a11y` together?**  
+  Yes. Add both plugins to your config and then selectively turn off overlapping rules in one or the other. The [Migration Guide](./docs/MIGRATION_FROM_JSX_A11Y.md) shows rule mappings and suggestions.
+
+- **Does it support ESLint v9 flat config?**  
+  Yes. All presets have `flat/*` equivalents (for example, `flat/recommended`, `flat/recommended-react`, `flat/vue`, `flat/minimal`, `flat/strict`). See the flat-config quick start above or the [Configuration Guide](./docs/CONFIGURATION.md).
+
+- **Does it work with Vue Single File Components (SFC)?**  
+  Yes. Install `vue-eslint-parser` and use the `vue` presets (classic or `flat/vue`). The flat-config example above shows how to scope Vue rules to `**/*.vue` files.
+
+- **Why does it warn on dynamic `alt`/text instead of erroring?**  
+  Dynamic attributes (like `alt={altText}`) cannot be fully validated statically. The plugin treats them as warnings by default and expects you to cover them via runtime checks using the A11yChecker API or other testing tools.
 
 ## Contributing
 
