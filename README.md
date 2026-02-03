@@ -10,7 +10,7 @@
 
 - ✅ **Zero config** - Works out of the box with React, Vue, and JSX
 - ✅ **Real-time feedback** - Catch issues in your editor, not in production
-- ✅ **16 accessibility rules** - Covers images, forms, buttons, landmarks, ARIA, and more
+- ✅ **36 accessibility rules** - Covers images, forms, buttons, landmarks, ARIA, focus, and more
 - ✅ **Editor suggestions** - Get actionable fixes directly in your editor
 - ✅ **Dual API** - Use as ESLint plugin OR programmatic API
 - ✅ **Large project ready** - Minimal preset for incremental adoption
@@ -289,8 +289,9 @@ In VS Code and other editors with ESLint support, suggestions appear as Quick Fi
 
 ## ESLint Rules
 
-The plugin provides **16 accessibility rules**:
+The plugin provides **36 accessibility rules**:
 
+**Core rules:**
 - `test-a11y-js/image-alt` - Enforce images have alt attributes
 - `test-a11y-js/button-label` - Enforce buttons have labels
 - `test-a11y-js/link-text` - Enforce links have descriptive text
@@ -307,6 +308,34 @@ The plugin provides **16 accessibility rules**:
 - `test-a11y-js/aria-validation` - Validate ARIA roles, properties, and ID references (AST-first)
 - `test-a11y-js/semantic-html` - Enforce proper use of semantic HTML elements (AST-first)
 - `test-a11y-js/form-validation` - Validate form validation patterns (AST-first)
+
+**Attribute & document rules:**
+- `test-a11y-js/no-access-key` - Disallow accessKey on elements
+- `test-a11y-js/no-autofocus` - Disallow autoFocus
+- `test-a11y-js/tabindex-no-positive` - Disallow positive tabIndex
+- `test-a11y-js/no-distracting-elements` - Disallow blink and marquee
+- `test-a11y-js/lang` - Enforce valid lang attribute values
+- `test-a11y-js/html-has-lang` - Enforce html element has lang attribute
+
+**Focusable & ARIA rules:**
+- `test-a11y-js/no-aria-hidden-on-focusable` - Disallow aria-hidden on focusable elements
+- `test-a11y-js/no-role-presentation-on-focusable` - Disallow role="presentation" on focusable elements
+- `test-a11y-js/aria-activedescendant-has-tabindex` - Enforce aria-activedescendant targets are focusable
+
+**Event & keyboard rules:**
+- `test-a11y-js/click-events-have-key-events` - Enforce onClick has keyboard equivalent
+- `test-a11y-js/mouse-events-have-key-events` - Enforce mouse handlers have keyboard equivalent
+- `test-a11y-js/no-static-element-interactions` - Disallow static handlers on non-interactive elements
+- `test-a11y-js/no-noninteractive-element-interactions` - Disallow interactive handlers on non-interactive elements
+- `test-a11y-js/interactive-supports-focus` - Enforce interactive elements are focusable
+- `test-a11y-js/no-noninteractive-tabindex` - Disallow tabindex on non-interactive elements
+
+**Content & media rules:**
+- `test-a11y-js/heading-has-content` - Enforce headings have content
+- `test-a11y-js/img-redundant-alt` - Enforce img alt does not contain redundant words
+- `test-a11y-js/anchor-ambiguous-text` - Enforce link text is not generic
+- `test-a11y-js/accessible-emoji` - Enforce emoji have accessible labels
+- `test-a11y-js/autocomplete-valid` - Enforce autocomplete attribute is valid
 
 ## Programmatic API
 

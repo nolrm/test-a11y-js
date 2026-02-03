@@ -92,14 +92,14 @@ describe('ESLint Config Presets', () => {
 
     it('should have all rules as error', () => {
       // Count rules that are set to 'error' (not in comments)
-      const ruleLines = strictContent.split('\n').filter(line => 
+      const ruleLines = strictContent.split('\n').filter(line =>
         line.includes('test-a11y-js/') && !line.trim().startsWith('//')
       )
       const errorRules = ruleLines.filter(line => line.includes("'error'") || line.includes('"error"'))
       const totalRules = ruleLines.length
-      
+
       expect(errorRules.length).toBe(totalRules)
-      expect(totalRules).toBe(16) // Should have 16 rules (13 original + 3 Phase 1)
+      expect(totalRules).toBe(36) // 16 original rules + 20 new rules
     })
   })
 
