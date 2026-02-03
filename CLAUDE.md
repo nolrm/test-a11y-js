@@ -1,0 +1,97 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+eslint-plugin-test-a11y-js is an ESLint accessibility (a11y) plugin for React, Vue, and JSX with flat-config (ESLint v9+) support. It provides 16 accessibility rules and a dual API: ESLint plugin for static analysis + A11yChecker runtime API for programmatic testing.
+
+## Common Commands
+
+```bash
+npm run build           # Build with tsup (CJS + ESM + TypeScript definitions)
+npm run test            # Run all tests with vitest
+npm run test:watch      # Watch mode for tests
+npm run test:coverage   # Generate coverage report
+npm run lint            # ESLint validation (src/**/*.ts)
+npm run type-check      # TypeScript type checking
+npm run pre-check       # Full validation: build + test:core + test:e2e + lint + type-check
+```
+
+**Running a single test file:**
+```bash
+npx vitest run tests/vitest/unit/linter/rules/image-alt.test.ts
+```
+
+**Running tests matching a pattern:**
+```bash
+npx vitest run -t "image-alt"
+```
+
+## Architecture
+
+### Dual API Design
+- **ESLint Plugin** (`src/linter/eslint-plugin/`): Pure AST validation, no jsdom dependency
+- **A11yChecker API** (`src/core/a11y-checker.ts`): Runtime DOM checking with jsdom for programmatic tests
+
+### Rule Structure
+Each rule in `src/linter/eslint-plugin/rules/` follows ESLint standard:
+- `meta` object with type, docs, messages, schema
+- `create()` function returning visitor object
+- Supports JSX, Vue templates, and HTML nodes
+
+### Key Directories
+- `src/linter/eslint-plugin/rules/` - 16 accessibility rules
+- `src/linter/eslint-plugin/configs/` - Presets (minimal, recommended, strict, react, vue, flat)
+- `src/linter/eslint-plugin/utils/` - Shared utilities (JSX/Vue/HTML AST parsing, component mapping)
+- `src/core/aria-spec.ts` - ARIA role/property/relationship database (784 lines)
+
+### AST Utilities Separation
+- `jsx-ast-utils.ts` - JSX attribute/element handling
+- `vue-ast-utils.ts` - Vue template element handling
+- `html-ast-utils.ts` - HTML string/literal handling
+- `component-mapping.ts` - Design system component resolution (maps custom components to native HTML elements)
+
+### Configuration Presets
+- **Classic (.eslintrc)**: minimal, recommended, strict, react, vue
+- **Flat (eslint.config.js)**: flat/recommended, flat/recommended-react, flat/react, flat/vue, flat/minimal, flat/strict
+
+### Component Mapping
+Design system components can be mapped to native HTML elements via settings:
+```javascript
+settings: {
+  'test-a11y-js': {
+    components: { Link: 'a', Button: 'button', Image: 'img' },
+    polymorphicPropNames: ['as', 'component']
+  }
+}
+```
+
+### Build Output
+tsup generates dual format outputs:
+- CJS: `dist/linter/eslint-plugin/index.js`
+- ESM: `dist/linter/eslint-plugin/index.mjs`
+- Types: `dist/linter/eslint-plugin/index.d.ts`
+
+### Package Exports
+```
+eslint-plugin-test-a11y-js          # Main ESLint plugin
+eslint-plugin-test-a11y-js/core     # A11yChecker runtime API
+eslint-plugin-test-a11y-js/formatter
+eslint-plugin-test-a11y-js/formatter-progress
+```
+
+## Testing
+
+- Test framework: vitest with happy-dom environment
+- Coverage targets: 80% lines/functions, 75% branches
+- Unit tests: `tests/vitest/unit/`
+- Integration tests: `tests/vitest/integration/`
+- E2E tests: `tests/e2e/`
+
+## Key Design Patterns
+
+1. **AST-First Validation**: ESLint plugin uses pure AST analysis without runtime dependencies
+2. **Runtime Comments**: `a11y-checked-at-runtime` comments suppress static checks for dynamic values
+3. **Framework Agnostic**: Core rules work with React, Vue, Preact, Solid, and any JSX-based framework
+4. **Polymorphic Props**: Recognizes `as=` and `component=` props for flexible component resolution
