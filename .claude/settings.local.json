@@ -6,7 +6,11 @@
       "Bash(npm run test:*)",
       "Bash(npm run type-check:*)",
       "Bash(npm run lint:*)",
-      "Bash(npm run pre-check:*)"
+      "Bash(npm run pre-check:*)",
+      "Bash(npm run test:coverage:*)",
+      "Bash(npm pack:*)",
+      "Bash(npm run test:core:*)",
+      "Bash(npm run test:e2e:*)"
     ]
   }
 }
