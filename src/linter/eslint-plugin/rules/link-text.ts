@@ -139,7 +139,7 @@ const rule: Rule.RuleModule = {
                         child.type === 'JSXText' && child.value.trim() === accessibleName.text
                       )
                       if (textChild) {
-                        return fixer.replaceText(textChild, 'TODO: describe link purpose')
+                        return fixer.replaceText(textChild, '[add descriptive link text]')
                       }
                     }
                     // If we can't find the text node, suggest adding aria-label instead
@@ -147,9 +147,9 @@ const rule: Rule.RuleModule = {
                       ? jsxNode.attributes[jsxNode.attributes.length - 1]
                       : null
                     if (lastAttribute) {
-                      return fixer.insertTextAfter(lastAttribute, ' aria-label="TODO: describe link purpose"')
+                      return fixer.insertTextAfter(lastAttribute, ' aria-label="[add descriptive link text]"')
                     } else {
-                      return fixer.insertTextAfter(jsxNode.name, ' aria-label="TODO: describe link purpose"')
+                      return fixer.insertTextAfter(jsxNode.name, ' aria-label="[add descriptive link text]"')
                     }
                   }
                 }]
@@ -233,10 +233,10 @@ const rule: Rule.RuleModule = {
                       ? startTag.attributes[startTag.attributes.length - 1]
                       : null
                     if (lastAttribute) {
-                      return fixer.insertTextAfter(lastAttribute, ' aria-label="TODO: describe link purpose"')
+                      return fixer.insertTextAfter(lastAttribute, ' aria-label="[add descriptive link text]"')
                     } else {
                       const tagNameEnd = startTag.range[0] + vueNode.name.length
-                      return fixer.insertTextAfterRange([startTag.range[0], tagNameEnd], ' aria-label="TODO: describe link purpose"')
+                      return fixer.insertTextAfterRange([startTag.range[0], tagNameEnd], ' aria-label="[add descriptive link text]"')
                     }
                   }
                 }]

@@ -90,7 +90,6 @@
   "homepage": "https://github.com/nolrm/eslint-plugin-test-a11y-js#readme",
   "dependencies": {},
   "peerDependencies": {
-    "vitest": ">=0.30.0",
     "eslint": ">=8.0.0",
     "vue-eslint-parser": ">=9.0.0"
   },

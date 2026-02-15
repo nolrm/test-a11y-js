@@ -1,14 +1,18 @@
 import { describe, it, expect } from 'vitest'
+import { join } from 'path'
+import { createRequire } from 'module'
+
+const require = createRequire(import.meta.url)
 
 /**
  * Core Export Integration Test
  *
- * Tests that the ./core export path works and A11yChecker is functional.
- * Uses ESM import since that's the correct path for the ./core export.
+ * Tests that the ./core export path works and A11yChecker is functional
+ * via both CJS and ESM.
  */
 
 describe('./core export', () => {
-  it('should export A11yChecker class via ESM', async () => {
+  it('should export A11yChecker class via source', async () => {
     const coreModule = await import('../../../src/core/a11y-checker')
     expect(coreModule.A11yChecker).toBeDefined()
     expect(typeof coreModule.A11yChecker).toBe('function')
@@ -17,11 +21,6 @@ describe('./core export', () => {
   it('should export A11yChecker.check as a static method', async () => {
     const { A11yChecker } = await import('../../../src/core/a11y-checker')
     expect(typeof A11yChecker.check).toBe('function')
-  })
-
-  it('should export A11yViolation and A11yResults types (module loads cleanly)', async () => {
-    const coreModule = await import('../../../src/core/a11y-checker')
-    expect(coreModule).toBeDefined()
   })
 
   it('should detect a missing alt attribute on img', async () => {
@@ -45,10 +44,25 @@ describe('./core export', () => {
     expect(imgAltViolations.length).toBe(0)
   })
 
-  it('should have ESM dist export containing A11yChecker', async () => {
-    // Verify the built ESM output exports A11yChecker
+  it('should export A11yChecker via CJS dist (require)', () => {
+    const corePath = join(process.cwd(), 'dist/index.js')
+    const coreModule = require(corePath)
+    expect(coreModule.A11yChecker).toBeDefined()
+    expect(typeof coreModule.A11yChecker).toBe('function')
+    expect(typeof coreModule.A11yChecker.check).toBe('function')
+  })
+
+  it('should export A11yChecker via ESM dist (import)', async () => {
     const coreModule = await import('../../../dist/index.mjs')
     expect(coreModule.A11yChecker).toBeDefined()
     expect(typeof coreModule.A11yChecker).toBe('function')
+  })
+
+  it('should not export eslint plugin from ./core path', () => {
+    const corePath = join(process.cwd(), 'dist/index.js')
+    const coreModule = require(corePath)
+    // ./core should only have A11yChecker, not ESLint plugin internals
+    expect(coreModule.rules).toBeUndefined()
+    expect(coreModule.configs).toBeUndefined()
   })
 })

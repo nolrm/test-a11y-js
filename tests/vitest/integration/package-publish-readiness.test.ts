@@ -160,8 +160,8 @@ describe('Package Publish Readiness', () => {
       expect(pkg.peerDependencies).toHaveProperty('eslint')
     })
 
-    it('should list vitest as a peer dependency', () => {
-      expect(pkg.peerDependencies).toHaveProperty('vitest')
+    it('should not list vitest as a peer dependency', () => {
+      expect(pkg.peerDependencies).not.toHaveProperty('vitest')
     })
   })
 

@@ -40,11 +40,10 @@ const recommended: RuleConfig = {
   'test-a11y-js/no-static-element-interactions': 'warn',
   'test-a11y-js/interactive-supports-focus': 'warn'
 
-  // Temporarily disabled rules (being refactored for v0.11.0+):
-  // - aria-validation
-  // - semantic-html
-  // - form-validation
-  // See BREAKING_CHANGES.md for details and workarounds
+  // Not included in recommended (available in strict):
+  // - aria-validation, semantic-html, form-validation
+  //   These rules are broad and may produce noise in typical projects.
+  //   Enable individually or use the strict preset for full coverage.
 }
 
 export default recommended
