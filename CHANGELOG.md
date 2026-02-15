@@ -10,9 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated `plugin-structure.test.ts` to verify all 36 rules (was stale at 6)
 - Enhanced `build-verification.test.ts` with formatter/formatter-progress file checks and export-to-disk validation
+- Rewrote `rule-structure.test.ts` to dynamically cover all 36 rules (was hardcoded to 6)
+- Rewrote `config-presets.test.ts` to test built plugin with exact rule counts (minimal: 3, recommended: 24, strict: 36)
+- Expanded `test:core` pipeline with config-presets, flat-config, plugin-structure, and all new integration tests
 
 ### Added
 - `package-publish-readiness.test.ts` — comprehensive publish gate covering npm pack contents, CJS require, export content validation, rule loading, version consistency, and package.json field checks
+- `formatter-output.test.ts` — functional tests for formatter and formatter-with-progress output
+- `bin-smoke.test.ts` — smoke test for bin/eslint-with-progress.js (shebang, syntax, structure)
+- `core-export.test.ts` — integration test for ./core export path with A11yChecker runtime validation
 
 ## [0.13.0] - 2025-05-01
 

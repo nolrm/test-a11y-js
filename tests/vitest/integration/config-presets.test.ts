@@ -1,134 +1,122 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'fs'
 import { join } from 'path'
+import { createRequire } from 'module'
 
 /**
  * Configuration Preset Tests
- * 
- * Tests that all config presets are properly exported and configured
+ *
+ * Tests the built plugin's config objects with exact rule counts
  */
 
+const require = createRequire(import.meta.url)
+
 describe('ESLint Config Presets', () => {
-  const pluginPath = join(process.cwd(), 'src/linter/eslint-plugin/index.ts')
-  const pluginContent = readFileSync(pluginPath, 'utf-8')
+  const pluginPath = join(process.cwd(), 'dist/linter/eslint-plugin/index.js')
+  const plugin = require(pluginPath).default
 
   describe('Config Exports', () => {
     it('should export minimal config', () => {
-      expect(pluginContent).toContain('minimal')
-      expect(pluginContent).toMatch(/configs:\s*\{[\s\S]*minimal:/)
+      expect(plugin.configs.minimal).toBeDefined()
     })
 
     it('should export recommended config', () => {
-      expect(pluginContent).toContain('recommended')
-      expect(pluginContent).toMatch(/configs:\s*\{[\s\S]*recommended:/)
+      expect(plugin.configs.recommended).toBeDefined()
     })
 
     it('should export strict config', () => {
-      expect(pluginContent).toContain('strict')
-      expect(pluginContent).toMatch(/configs:\s*\{[\s\S]*strict:/)
+      expect(plugin.configs.strict).toBeDefined()
     })
 
     it('should export react config', () => {
-      expect(pluginContent).toContain('react')
-      expect(pluginContent).toMatch(/configs:\s*\{[\s\S]*react:/)
+      expect(plugin.configs.react).toBeDefined()
     })
 
     it('should export vue config', () => {
-      expect(pluginContent).toContain('vue')
-      expect(pluginContent).toMatch(/configs:\s*\{[\s\S]*vue:/)
+      expect(plugin.configs.vue).toBeDefined()
     })
   })
 
   describe('Minimal Config', () => {
-    const minimalPath = join(process.cwd(), 'src/linter/eslint-plugin/configs/minimal.ts')
-    const minimalContent = readFileSync(minimalPath, 'utf-8')
-
-    it('should have only 3 critical rules', () => {
-      const ruleMatches = minimalContent.match(/test-a11y-js\/[^:]+/g) || []
-      expect(ruleMatches.length).toBe(3)
+    it('should have exactly 3 rules', () => {
+      const rules = plugin.configs.minimal.rules
+      const ruleCount = Object.keys(rules).length
+      expect(ruleCount).toBe(3)
     })
 
-    it('should include button-label', () => {
-      expect(minimalContent).toContain('button-label')
-      expect(minimalContent).toContain('error')
-    })
-
-    it('should include form-label', () => {
-      expect(minimalContent).toContain('form-label')
-      expect(minimalContent).toContain('error')
-    })
-
-    it('should include image-alt', () => {
-      expect(minimalContent).toContain('image-alt')
-      expect(minimalContent).toContain('error')
+    it('should include button-label, form-label, and image-alt as error', () => {
+      const rules = plugin.configs.minimal.rules
+      expect(rules['test-a11y-js/button-label']).toBe('error')
+      expect(rules['test-a11y-js/form-label']).toBe('error')
+      expect(rules['test-a11y-js/image-alt']).toBe('error')
     })
   })
 
   describe('Recommended Config', () => {
-    const recommendedPath = join(process.cwd(), 'src/linter/eslint-plugin/configs/recommended.ts')
-    const recommendedContent = readFileSync(recommendedPath, 'utf-8')
-
-    it('should have all rules configured', () => {
-      const ruleMatches = recommendedContent.match(/test-a11y-js\/[^:]+/g) || []
-      // Should have at least 13 original rules
-      expect(ruleMatches.length).toBeGreaterThanOrEqual(13)
+    it('should have exactly 24 rules', () => {
+      const rules = plugin.configs.recommended.rules
+      const ruleCount = Object.keys(rules).length
+      expect(ruleCount).toBe(24)
     })
 
     it('should have critical rules as error', () => {
-      expect(recommendedContent).toMatch(/button-label.*error/)
-      expect(recommendedContent).toMatch(/form-label.*error/)
-      expect(recommendedContent).toMatch(/image-alt.*error/)
+      const rules = plugin.configs.recommended.rules
+      expect(rules['test-a11y-js/button-label']).toBe('error')
+      expect(rules['test-a11y-js/form-label']).toBe('error')
+      expect(rules['test-a11y-js/image-alt']).toBe('error')
+      expect(rules['test-a11y-js/iframe-title']).toBe('error')
+      expect(rules['test-a11y-js/video-captions']).toBe('error')
+      expect(rules['test-a11y-js/audio-captions']).toBe('error')
     })
 
     it('should have moderate rules as warn', () => {
-      expect(recommendedContent).toMatch(/link-text.*warn/)
-      expect(recommendedContent).toMatch(/heading-order.*warn/)
+      const rules = plugin.configs.recommended.rules
+      expect(rules['test-a11y-js/link-text']).toBe('warn')
+      expect(rules['test-a11y-js/heading-order']).toBe('warn')
+      expect(rules['test-a11y-js/landmark-roles']).toBe('warn')
     })
   })
 
   describe('Strict Config', () => {
-    const strictPath = join(process.cwd(), 'src/linter/eslint-plugin/configs/strict.ts')
-    const strictContent = readFileSync(strictPath, 'utf-8')
+    it('should have exactly 36 rules', () => {
+      const rules = plugin.configs.strict.rules
+      const ruleCount = Object.keys(rules).length
+      expect(ruleCount).toBe(36)
+    })
 
-    it('should have all rules as error', () => {
-      // Count rules that are set to 'error' (not in comments)
-      const ruleLines = strictContent.split('\n').filter(line =>
-        line.includes('test-a11y-js/') && !line.trim().startsWith('//')
-      )
-      const errorRules = ruleLines.filter(line => line.includes("'error'") || line.includes('"error"'))
-      const totalRules = ruleLines.length
-
-      expect(errorRules.length).toBe(totalRules)
-      expect(totalRules).toBe(36) // 16 original rules + 20 new rules
+    it('should have all rules set to error', () => {
+      const rules = plugin.configs.strict.rules
+      const entries = Object.entries(rules)
+      const allErrors = entries.every(([, severity]) => severity === 'error')
+      expect(allErrors).toBe(true)
     })
   })
 
   describe('React Config', () => {
-    const reactPath = join(process.cwd(), 'src/linter/eslint-plugin/configs/react.ts')
-    const reactContent = readFileSync(reactPath, 'utf-8')
-
-    it('should extend recommended', () => {
-      expect(reactContent).toContain('recommended')
+    it('should extend recommended rules', () => {
+      const rules = plugin.configs.react.rules
+      expect(rules).toBeDefined()
+      expect(Object.keys(rules).length).toBeGreaterThanOrEqual(24)
     })
 
-    it('should be configured for JSX', () => {
-      // React config should work with JSX
-      expect(reactContent).toBeTruthy()
+    it('should have JSX parser settings', () => {
+      const config = plugin.configs.react
+      // Classic configs use parserOptions at top level
+      expect(config.parserOptions).toBeDefined()
+      expect(config.parserOptions.ecmaFeatures?.jsx).toBe(true)
     })
   })
 
   describe('Vue Config', () => {
-    const vuePath = join(process.cwd(), 'src/linter/eslint-plugin/configs/vue.ts')
-    const vueContent = readFileSync(vuePath, 'utf-8')
-
-    it('should extend recommended', () => {
-      expect(vueContent).toContain('recommended')
+    it('should extend recommended rules', () => {
+      const rules = plugin.configs.vue.rules
+      expect(rules).toBeDefined()
+      expect(Object.keys(rules).length).toBeGreaterThanOrEqual(24)
     })
 
-    it('should be configured for Vue', () => {
-      // Vue config should work with Vue templates
-      expect(vueContent).toBeTruthy()
+    it('should have Vue parser settings', () => {
+      const config = plugin.configs.vue
+      // Classic configs use parser at top level
+      expect(config.parser).toBeDefined()
     })
   })
 })
-

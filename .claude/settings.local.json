@@ -12,7 +12,14 @@
       "Bash(npm run test:core:*)",
       "Bash(npm run test:e2e:*)",
       "Bash(git -C /Users/marlonm/other/test-a11y-js log --oneline --no-decorate -30)",
-      "Bash(git -C /Users/marlonm/other/test-a11y-js log --oneline --no-decorate --all)"
+      "Bash(git -C /Users/marlonm/other/test-a11y-js log --oneline --no-decorate --all)",
+      "Bash(ls:*)",
+      "Bash(for rule in src/linter/eslint-plugin/rules/*.ts)",
+      "Bash(do basename \"$rule\" .ts)",
+      "Bash(done)",
+      "Bash(for test in *-rule.test.ts)",
+      "Bash(do basename \"$test\" -rule.test.ts)",
+      "Bash(node:*)"
     ]
   }
 }

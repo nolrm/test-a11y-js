@@ -44,7 +44,7 @@
     "test:coverage:report": "vitest run --coverage && open coverage/index.html",
     "lint": "eslint src/**/*.ts",
     "type-check": "tsc --noEmit --project tsconfig.typecheck.json",
-    "test:core": "vitest run tests/vitest/unit/a11y-checker.test.ts tests/vitest/unit/linter/rules/rule-structure.test.ts tests/vitest/integration/build-verification.test.ts tests/vitest/integration/eslint-plugin-import.test.ts tests/vitest/unit/linter/rules/vue-rules.test.ts tests/vitest/unit/ArticleCard.test.ts tests/vitest/integration/typescript-react.test.ts tests/vitest/integration/package-publish-readiness.test.ts",
+    "test:core": "vitest run tests/vitest/unit/a11y-checker.test.ts tests/vitest/unit/linter/rules/rule-structure.test.ts tests/vitest/integration/build-verification.test.ts tests/vitest/integration/eslint-plugin-import.test.ts tests/vitest/unit/linter/rules/vue-rules.test.ts tests/vitest/unit/ArticleCard.test.ts tests/vitest/integration/typescript-react.test.ts tests/vitest/integration/package-publish-readiness.test.ts tests/vitest/unit/linter/plugin-structure.test.ts tests/vitest/integration/config-presets.test.ts tests/vitest/integration/flat-config.test.ts tests/vitest/integration/formatter-output.test.ts tests/vitest/integration/bin-smoke.test.ts tests/vitest/integration/core-export.test.ts",
     "test:e2e": "vitest run tests/vitest/integration/eslint-cli-e2e.test.ts",
     "pre-check": "npm run build && npm run test:core && npm run test:e2e && npm run lint && npm run type-check",
     "verify": "npm run pre-check",
