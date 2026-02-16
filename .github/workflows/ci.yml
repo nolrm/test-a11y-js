@@ -12,28 +12,99 @@ jobs:
   test:
     name: Test and Lint
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [18.x, 20.x]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run pre-check
         run: npm run pre-check
-      
+
       # Coverage is optional - skip for now due to jsdom bundling issues in some tests
       # - name: Run test coverage
       #   run: npm run test:coverage
 
+  smoke-test:
+    name: Smoke Test (${{ matrix.fixture }})
+    runs-on: ubuntu-latest
+    needs: test
+
+    strategy:
+      matrix:
+        include:
+          - fixture: eslint8-legacy
+            node-version: 20.x
+          - fixture: eslint9-flat
+            node-version: 20.x
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install and build plugin
+        run: npm ci && npm run build
+
+      - name: Pack plugin tarball
+        run: npm pack
+
+      - name: Install fixture dependencies + plugin tarball
+        working-directory: tests/e2e/fixtures/${{ matrix.fixture }}
+        run: |
+          TARBALL=$(ls $GITHUB_WORKSPACE/eslint-plugin-test-a11y-js-*.tgz)
+          npm install
+          npm install "$TARBALL"
+
+      - name: Run ESLint and verify violations detected
+        working-directory: tests/e2e/fixtures/${{ matrix.fixture }}
+        run: |
+          # ESLint exits non-zero when it finds violations - we expect violations
+          set +e
+          npx eslint src/ --format json --no-error-on-unmatched-pattern > eslint-output.json 2>&1
+          EXIT_CODE=$?
+          set -e
+
+          echo "ESLint exit code: $EXIT_CODE"
+          cat eslint-output.json
+
+          # Exit code 1 = lint violations found (expected), 2 = config/fatal error (bad)
+          if [ "$EXIT_CODE" -eq 2 ]; then
+            echo "FATAL: ESLint crashed or had a config error"
+            exit 1
+          fi
+
+          # Verify we found the expected violations (image-alt, button-label, form-label)
+          if ! grep -q "image-alt" eslint-output.json; then
+            echo "FAIL: Expected image-alt violation not found"
+            exit 1
+          fi
+
+          if ! grep -q "button-label" eslint-output.json; then
+            echo "FAIL: Expected button-label violation not found"
+            exit 1
+          fi
+
+          if ! grep -q "form-label" eslint-output.json; then
+            echo "FAIL: Expected form-label violation not found"
+            exit 1
+          fi
+
+          echo "All expected violations detected - smoke test passed"

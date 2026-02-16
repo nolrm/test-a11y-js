@@ -19,7 +19,9 @@
       "Bash(done)",
       "Bash(for test in *-rule.test.ts)",
       "Bash(do basename \"$test\" -rule.test.ts)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "Bash(npx eslint:*)"
     ]
   }
 }

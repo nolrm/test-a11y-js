@@ -1,0 +1,11 @@
+{
+  "name": "fixture-eslint9-flat",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smoke test: ESLint 9 + flat config",
+  "type": "module",
+  "dependencies": {
+    "eslint": "^9.0.0",
+    "typescript-eslint": "^8.0.0"
+  }
+}
